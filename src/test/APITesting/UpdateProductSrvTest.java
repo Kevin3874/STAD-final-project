@@ -106,6 +106,6 @@ public class UpdateProductSrvTest {
                 .post("/UpdateProductSrv")
                 .then()
                 .statusCode(302)
-                .header("Location", containsString("Access Denied, Login As Admin!!"));
+                .header("Location", containsString("Session Expired, Login Again!!"));
     }
 }

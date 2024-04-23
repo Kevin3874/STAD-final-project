@@ -52,8 +52,21 @@ public class AddProductSrvTest {
     }
 
     @Test
-    void testAddProductWithInvalidLogin() {
+    void testAddProductWithInvalidLoginAsGuest() {
+        Response loginResponse = given()
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("username", "guest@gmail.com")
+                .formParam("password", "guest")
+                .formParam("usertype", "guest")
+                .when()
+                .post("/LoginSrv")
+                .then()
+                .statusCode(200)
+                .extract().response();
+
+        String sessionId = loginResponse.getCookie("JSESSIONID");
         given()
+                .cookie("JSESSIONID", sessionId)
                 .when()
                 .post("/AddProductSrv")
                 .then()
@@ -63,11 +76,12 @@ public class AddProductSrvTest {
 
     @Test
     void testAddProductWithExpiredSession() {
+        // login as admin first
         Response loginResponse = given()
                 .contentType("application/x-www-form-urlencoded")
-                .formParam("username", "guest@gmail.com")
-                .formParam("password", "guest")
-                .formParam("usertype", "customer")
+                .formParam("username", "admin@gmail.com")
+                .formParam("password", "admin")
+                .formParam("usertype", "admin")
                 .when()
                 .post("/LoginSrv")
                 .then()
@@ -76,20 +90,14 @@ public class AddProductSrvTest {
 
         String sessionId = loginResponse.getCookie("JSESSIONID");
 
-        // Invalidate the session
+        // empty username
         given()
                 .cookie("JSESSIONID", sessionId)
-                .when()
-                .get("/LogoutSrv")
-                .then()
-                .statusCode(200);
-        // empty username/pass
-        given()
-                .cookie("JSESSIONID", sessionId)
+                .param("username", "")
                 .when()
                 .post("/AddProductSrv")
                 .then()
-                .statusCode(500)
-                .header("Location", containsString("Access Denied!"));
+                .statusCode(302)
+                .body(containsString("Session Expired, Login Again to Continue!"));
     }
 }

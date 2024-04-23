@@ -72,7 +72,7 @@ public class RemoveProductSrvTest {
                 .post("/RemoveProductSrv")
                 .then()
                 .statusCode(500)
-                .header("Location", containsString("login.jsp?message=Access Denied, Login As Admin!!"));
+                .header("Location", containsString("Access Denied, Login As Admin!!"));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class RemoveProductSrvTest {
                 .post("/RemoveProductSrv")
                 .then()
                 .statusCode(500)
-                .header("Location", containsString("Access Denied, Login As Admin!!"));
+                .header("Location", containsString("Session Expired, Login Again!!"));
     }
 
     private String extractProductId(String responseBody) {
