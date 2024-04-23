@@ -38,10 +38,45 @@ public class RegisterSrvTest {
                 .param("password", password)
                 .param("confirmPassword", password)
                 .when()
-                .get("/RegisterSrv")
+                .post("/RegisterSrv")
                 .then()
                 .statusCode(200)
                 .body(containsString("User Registered Successfully!"));
+    }
+
+    @Test
+    void testRegisterWithSameEmail() {
+        String username = generateRandomString(10);
+        String mobile = generateRandomNumber(10);
+        String email = generateRandomString(8) + "@gmail.com";
+        String address = generateRandomString(15);
+        String pincode = generateRandomNumber(5);
+        String password = generateRandomString(8);
+
+        given()
+                .param("username", username)
+                .param("mobile", mobile)
+                .param("email", email)
+                .param("address", address)
+                .param("pincode", pincode)
+                .param("password", password)
+                .param("confirmPassword", password)
+                .when()
+                .post("/RegisterSrv");
+        given()
+                .param("username", username)
+                .param("mobile", mobile)
+                .param("email", email)
+                .param("address", address)
+                .param("pincode", pincode)
+                .param("password", password)
+                .param("confirmPassword", password)
+                .when()
+                .post("/RegisterSrv")
+                .then()
+                .statusCode(200)
+                .body(containsString("Email Id Already Registered!"));
+
     }
 
     @Test
@@ -90,8 +125,10 @@ public class RegisterSrvTest {
                 .get("/RegisterSrv")
                 .then()
                 .statusCode(200)
-                .body(containsString("User Registered Successfully!"));
+                .body(containsString("Please fill out this field."));
     }
+
+
 
     private String generateRandomString(int length) {
         StringBuilder builder = new StringBuilder();

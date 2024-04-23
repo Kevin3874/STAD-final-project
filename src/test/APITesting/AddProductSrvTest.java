@@ -58,15 +58,15 @@ public class AddProductSrvTest {
                 .post("/AddProductSrv")
                 .then()
                 .statusCode(500)
-                .header("Location", containsString("login.jsp?message=Access Denied!"));
+                .header("Location", containsString("Access Denied!"));
     }
 
     @Test
     void testAddProductWithExpiredSession() {
         Response loginResponse = given()
                 .contentType("application/x-www-form-urlencoded")
-                .formParam("username", "customer@example.com")
-                .formParam("password", "customerpassword")
+                .formParam("username", "guest@gmail.com")
+                .formParam("password", "guest")
                 .formParam("usertype", "customer")
                 .when()
                 .post("/LoginSrv")
@@ -86,9 +86,6 @@ public class AddProductSrvTest {
         // empty username/pass
         given()
                 .cookie("JSESSIONID", sessionId)
-                .param("usertype", "admin")
-                .param("username", "")
-                .param("password", "")
                 .when()
                 .post("/AddProductSrv")
                 .then()

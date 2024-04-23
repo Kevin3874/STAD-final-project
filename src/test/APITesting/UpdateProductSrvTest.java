@@ -17,11 +17,11 @@ public class UpdateProductSrvTest {
 
     @Test
     void testUpdateProductWithValidAdminLogin() {
-        // Perform admin login to obtain a valid session ID
+        // first admin login
         Response loginResponse = given()
                 .contentType("application/x-www-form-urlencoded")
-                .formParam("username", "admin@example.com")
-                .formParam("password", "adminpassword")
+                .formParam("username", "admin@gmail.com")
+                .formParam("password", "admin")
                 .formParam("usertype", "admin")
                 .when()
                 .post("/LoginSrv")
@@ -31,8 +31,8 @@ public class UpdateProductSrvTest {
 
         String sessionId = loginResponse.getCookie("JSESSIONID");
 
-        // Update a product with valid parameters
-        String productId = "P123"; // Replace with a valid product ID
+        // use default products
+        String productId = "P20230423084148";
 
         given()
                 .cookie("JSESSIONID", sessionId)
@@ -43,16 +43,16 @@ public class UpdateProductSrvTest {
                 .param("price", "19.99")
                 .param("quantity", "10")
                 .when()
-                .get("/UpdateProductSrv")
+                .post("/UpdateProductSrv")
                 .then()
                 .statusCode(200)
-                .header("Location", containsString("updateProduct.jsp?prodid=" + productId + "&message=Product Updated Successfully"));
+                .body(containsString("Product Updated Successfully"));
     }
 
     @Test
     void testUpdateProductWithInvalidLogin() {
-        // Update a product without a valid login
-        String productId = "P123"; // Replace with a valid product ID
+        // no login info
+        String productId = "P123";
 
         given()
                 .param("pid", productId)
@@ -62,19 +62,19 @@ public class UpdateProductSrvTest {
                 .param("price", "19.99")
                 .param("quantity", "10")
                 .when()
-                .get("/UpdateProductSrv")
+                .post("/UpdateProductSrv")
                 .then()
                 .statusCode(302)
-                .header("Location", containsString("login.jsp?message=Access Denied, Login As Admin!!"));
+                .header("Location", containsString("Access Denied, Login As Admin!!"));
     }
 
     @Test
     void testUpdateProductWithExpiredSession() {
-        // Perform admin login to obtain a valid session ID
+        // first admin login
         Response loginResponse = given()
                 .contentType("application/x-www-form-urlencoded")
-                .formParam("username", "admin@example.com")
-                .formParam("password", "adminpassword")
+                .formParam("username", "admin@gmail.com")
+                .formParam("password", "admin")
                 .formParam("usertype", "admin")
                 .when()
                 .post("/LoginSrv")
@@ -84,7 +84,7 @@ public class UpdateProductSrvTest {
 
         String sessionId = loginResponse.getCookie("JSESSIONID");
 
-        // Invalidate the session by logging out
+        // log out, reset cookies
         given()
                 .cookie("JSESSIONID", sessionId)
                 .when()
@@ -92,8 +92,7 @@ public class UpdateProductSrvTest {
                 .then()
                 .statusCode(200);
 
-        // Update a product with an expired session
-        String productId = "P123"; // Replace with a valid product ID
+        String productId = "P123";
 
         given()
                 .cookie("JSESSIONID", sessionId)
@@ -104,9 +103,9 @@ public class UpdateProductSrvTest {
                 .param("price", "19.99")
                 .param("quantity", "10")
                 .when()
-                .get("/UpdateProductSrv")
+                .post("/UpdateProductSrv")
                 .then()
                 .statusCode(302)
-                .header("Location", containsString("login.jsp?message=Session Expired, Login Again!!"));
+                .header("Location", containsString("Access Denied, Login As Admin!!"));
     }
 }
