@@ -1,4 +1,4 @@
-package test;
+package test.ImplTesting;
 
 import com.shashi.beans.ProductBean;
 import com.shashi.beans.UserBean;

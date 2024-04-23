@@ -1,4 +1,4 @@
-package test;
+package test.ImplTesting;
 
 import com.shashi.beans.OrderBean;
 import com.shashi.beans.OrderDetails;

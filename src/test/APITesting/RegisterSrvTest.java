@@ -114,7 +114,7 @@ public class RegisterSrvTest {
         String password = generateRandomString(8);
 
         given()
-                .param("username", username)
+                .param("username", "")
                 .param("mobile", mobile)
                 .param("email", email)
                 .param("address", "")

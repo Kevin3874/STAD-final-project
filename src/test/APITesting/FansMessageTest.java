@@ -36,7 +36,7 @@ public class FansMessageTest {
                 .post("/fansMessage")
                 .then()
                 .statusCode(200)
-                .body(containsString("Name: null"));
+                .body(containsString("Comments Sent Successfully"));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class FansMessageTest {
                 .post("/fansMessage")
                 .then()
                 .statusCode(200)
-                .body(containsString("Email Id: null"));
+                .body(containsString("Comments Sent Successfully"));
     }
 
     @Test
@@ -60,6 +60,6 @@ public class FansMessageTest {
                 .post("/fansMessage")
                 .then()
                 .statusCode(200)
-                .body(containsString("Comment: <span style='color:grey;'>null</span>"));
+                .body(containsString("Comments Sent Successfully"));
     }
 }

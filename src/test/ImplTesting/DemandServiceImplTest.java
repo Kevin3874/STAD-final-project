@@ -1,4 +1,4 @@
-package test;
+package test.ImplTesting;
 
 import com.shashi.beans.DemandBean;
 import com.shashi.service.impl.DemandServiceImpl;
