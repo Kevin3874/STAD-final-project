@@ -1172,34 +1172,38 @@ public class ProductServiceImplTest {
   }
 
   // test getImage with an existing product
-//  @Test
-//  public void testGetImageWithExistingProduct() {
-//    String prodId = "12345";
-//    String prodName = "Blue Jeans";
-//    String prodType = "Pants";
-//    String prodInfo = "Dark wash jeans";
-//    double prodPrice = 9.99;
-//    int prodQuantity = 5;
-//    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream("/test.png");
-//    byte[] data = null;
-//
-//    try {
-//      assertFalse(getProductExists(prodId));
-//      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);
-//      assertTrue(getProductExists(prodId));
-//
-//      BufferedImage bImage = ImageIO.read(new File("sample.jpg"));
-//      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//      ImageIO.write(bImage, "jpg", bos );
-//      data = bos.toByteArray();
-//    } catch (Exception ex) {
-//      fail("failed setup");
-//    }
-//
-//    ProductServiceImpl productService = new ProductServiceImpl();
-//    byte[] res = productService.getImage(prodId);
-//    assertEquals(data, res);
-//  }
+  @Test
+  public void testGetImageWithExistingProduct() {
+    String prodId = "12345";
+    String prodName = "Blue Jeans";
+    String prodType = "Pants";
+    String prodInfo = "Dark wash jeans";
+    double prodPrice = 9.99;
+    int prodQuantity = 5;
+    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream("/test.png");
+    byte[] data = null;
+
+    try {
+      assertFalse(getProductExists(prodId));
+      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);
+      assertTrue(getProductExists(prodId));
+    } catch (Exception ex) {
+      fail("failed setup");
+    }
+
+    ProductServiceImpl productService = new ProductServiceImpl();
+    byte[] res = productService.getImage(prodId);
+    try {
+      BufferedImage bImage = ImageIO.read(new File("sample.jpg"));
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      ImageIO.write(bImage, "jpg", bos );
+      data = bos.toByteArray();
+    }
+    catch(Exception ex) {
+      fail("failed image conversion");
+    }
+    assertEquals(data, res);
+  }
 
   // test getImage with nonexistent product
   @Test
