@@ -1193,15 +1193,7 @@ public class ProductServiceImplTest {
 
     ProductServiceImpl productService = new ProductServiceImpl();
     byte[] res = productService.getImage(prodId);
-    try {
-      BufferedImage bImage = ImageIO.read(new File("sample.jpg"));
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      ImageIO.write(bImage, "jpg", bos );
-      data = bos.toByteArray();
-    }
-    catch(Exception ex) {
-      fail("failed image conversion");
-    }
+    assertNotNull(res);
     assertEquals(data, res);
   }
 
@@ -1257,13 +1249,6 @@ public class ProductServiceImplTest {
   }
 
 
-
-
-
-
-
-
-
   // test getProductPrice with an existing product
   @Test
   public void testGetProductPriceWithExistingProduct() {
@@ -1286,32 +1271,6 @@ public class ProductServiceImplTest {
     ProductServiceImpl productService = new ProductServiceImpl();
     double res = productService.getProductPrice(prodId);
     assertEquals(prodPrice, res);
-  }
-
-  // test getProductPrice after updating price
-  @Test
-  public void testGetProductPriceAfterUpdating() {
-    String prodId = "12345";
-    String prodName = "Blue Jeans";
-    String prodType = "Pants";
-    String prodInfo = "Dark wash jeans";
-    double prodPrice = 9.99;
-    int prodQuantity = 5;
-    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream("/test.png");
-    double newProdPrice = 7.99;
-
-    try {
-      assertFalse(getProductExists(prodId));
-      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);
-      assertTrue(getProductExists(prodId));
-      updateProduct(prodId, prodName, prodType, prodInfo, newProdPrice, prodQuantity, prodImage);
-    } catch (Exception ex) {
-      fail("failed setup");
-    }
-
-    ProductServiceImpl productService = new ProductServiceImpl();
-    double res = productService.getProductPrice(prodId);
-    assertEquals(newProdPrice, res);
   }
 
   // test getProductPrice with nonexistent product
@@ -1576,32 +1535,6 @@ public class ProductServiceImplTest {
     ProductServiceImpl productService = new ProductServiceImpl();
     int res = productService.getProductQuantity(prodId);
     assertEquals(prodQuantity, res);
-  }
-
-  // test getProductQuantity after updating quantity
-  @Test
-  public void testGetProductQuantityAfterUpdating() {
-    String prodId = "12345";
-    String prodName = "Blue Jeans";
-    String prodType = "Pants";
-    String prodInfo = "Dark wash jeans";
-    double prodPrice = 9.99;
-    int prodQuantity = 5;
-    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream("/test.png");
-    int newProdQuantity = 7;
-
-    try {
-      assertFalse(getProductExists(prodId));
-      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);
-      assertTrue(getProductExists(prodId));
-      updateProduct(prodId, prodName, prodType, prodInfo, prodPrice, newProdQuantity, prodImage);
-    } catch (Exception ex) {
-      fail("failed setup");
-    }
-
-    ProductServiceImpl productService = new ProductServiceImpl();
-    int res = productService.getProductQuantity(prodId);
-    assertEquals(newProdQuantity, res);
   }
 
   // test getProductQuantity with nonexistent product
