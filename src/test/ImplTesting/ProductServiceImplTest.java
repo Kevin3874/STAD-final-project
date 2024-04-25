@@ -1,15 +1,14 @@
-package test;
+package test.ImplTesting;
 
 import com.shashi.beans.ProductBean;
 import com.shashi.constants.IUserConstants;
 import com.shashi.service.impl.ProductServiceImpl;
 import com.shashi.utility.DBUtil;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 
 public class ProductServiceImplTest {
@@ -198,6 +198,38 @@ public class ProductServiceImplTest {
       DBUtil.closeConnection(ps4);
       DBUtil.closeConnection(ps5);
       DBUtil.closeConnection(ps6);
+    } catch (Exception ex) {
+      System.out.println(ex.getMessage());
+      System.out.println("FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE");
+    }
+  }
+  static ResourceBundle rb = ResourceBundle.getBundle("application");
+  static String DATABASE_URL = rb.getString("db.connectionString");
+  static String USER = rb.getString("db.username");
+  static String PASSWORD = rb.getString("db.password");
+  @AfterAll
+  public static void resetDatabase() {
+    try {
+      String sql = new String(Files.readAllBytes(Paths.get("databases/mysql_query.sql")));
+      try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD)) {
+
+        // Create a statement to execute SQL
+        Statement stmt = conn.createStatement();
+
+        // Splitting the SQL statements by semicolon
+        String[] sqlStatements = sql.split(";");
+
+        // Execute each SQL statement
+        for (String statement : sqlStatements) {
+          // Trim whitespace and execute non-empty statements
+          if (!statement.trim().isEmpty()) {
+            stmt.execute(statement.trim());
+          }
+        }
+
+        stmt.close();
+        conn.close();
+      }
     } catch (Exception ex) {
       System.out.println(ex.getMessage());
       System.out.println("FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE");
