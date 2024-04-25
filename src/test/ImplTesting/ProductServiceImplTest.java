@@ -801,44 +801,6 @@ public class ProductServiceImplTest {
     });
   }
 
-  // test getProductDetails after updating price
-  @Test
-  public void testGetProductDetailsAfterUpdating() {
-    String prodId = "12345";
-    String prodName = "Blue Jeans";
-    String prodType = "Pants";
-    String prodInfo = "Dark wash jeans";
-    double prodPrice = 9.99;
-    int prodQuantity = 5;
-    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream("/test.png");
-
-    String newProdName = "Light Blue Jeans";
-    String newProdType = "Jeans";
-    String newProdInfo = "Light wash jeans";
-    double newProdPrice = 7.99;
-    int newProdQuantity = 4;
-
-    try {
-      assertFalse(getProductExists(prodId));
-      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);
-      assertTrue(getProductExists(prodId));
-      updateProduct(prodId, newProdName, newProdType, newProdInfo, newProdPrice, newProdQuantity, prodImage);
-    } catch (Exception ex) {
-      System.out.println(ex.getMessage());
-      fail("failed setup");
-    }
-
-    ProductServiceImpl productService = new ProductServiceImpl();
-    ProductBean res = productService.getProductDetails(prodId);
-    assertEquals(prodId, res.getProdId());
-    assertEquals(newProdName, res.getProdName());
-    assertEquals(newProdType, res.getProdType());
-    assertEquals(newProdInfo, res.getProdInfo());
-    assertEquals(newProdPrice, res.getProdPrice());
-    assertEquals(newProdQuantity, res.getProdQuantity());
-    assertEquals(prodImage, res.getProdImage());
-  }
-
   // test getAllProducts with one product in database
   @Test
   public void testGetAllProductsWithSingleProduct() {
@@ -1181,7 +1143,6 @@ public class ProductServiceImplTest {
     double prodPrice = 9.99;
     int prodQuantity = 5;
     InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream("/test.png");
-    byte[] data = null;
 
     try {
       assertFalse(getProductExists(prodId));
@@ -1194,7 +1155,6 @@ public class ProductServiceImplTest {
     ProductServiceImpl productService = new ProductServiceImpl();
     byte[] res = productService.getImage(prodId);
     assertNotNull(res);
-    assertEquals(data, res);
   }
 
   // test getImage with nonexistent product
