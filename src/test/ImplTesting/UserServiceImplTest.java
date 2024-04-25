@@ -1,21 +1,17 @@
-package test.ImplTesting;
+package test;
 
 import com.shashi.beans.UserBean;
 import com.shashi.constants.IUserConstants;
 import com.shashi.service.impl.UserServiceImpl;
 import com.shashi.utility.DBUtil;
-import com.shashi.utility.MailMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.shashi.constants.IUserConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
