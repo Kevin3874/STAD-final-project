@@ -83,4 +83,72 @@ public class AddToCartTest {
                 .statusCode(200)
                 .body(containsString("Product is Out of Stock!"));
     }
+
+    @Test
+    void testRemoveProductFromCart() {
+        // login first
+        Response loginResponse = given()
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("username", "guest@gmail.com")
+                .formParam("password", "guest")
+                .formParam("usertype", "customer")
+                .when()
+                .post("/LoginSrv")
+                .then()
+                .statusCode(200)
+                .extract().response();
+
+        String sessionId = loginResponse.getCookie("JSESSIONID");
+
+        // add to cart
+        given()
+                .cookie("JSESSIONID", sessionId)
+                .param("pid", "P20230423084143")
+                .param("pqty", "1")
+                .when()
+                .get("/AddtoCart")
+                .then()
+                .statusCode(200)
+                .body(containsString("Product Successfully Updated to Cart!"));
+
+        // testing remove
+        given()
+                .cookie("JSESSIONID", sessionId)
+                .param("pid", "P20230423084143")
+                .param("pqty", "0")
+                .when()
+                .get("/AddtoCart")
+                .then()
+                .statusCode(200)
+                .body(containsString("Product Successfully removed from the Cart!"));
+    }
+
+
+    @Test
+    void testAddToCartWithLimitedAvailability() {
+        // Perform customer login to obtain a valid session ID
+        Response loginResponse = given()
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("username", "guest@gmail.com")
+                .formParam("password", "guest")
+                .formParam("usertype", "customer")
+                .when()
+                .post("/LoginSrv")
+                .then()
+                .statusCode(200)
+                .extract().response();
+
+        String sessionId = loginResponse.getCookie("JSESSIONID");
+
+        // Add a product to the cart with limited availability
+        given()
+                .cookie("JSESSIONID", sessionId)
+                .param("pid", "P20230423084143`")
+                .param("pqty", "5")
+                .when()
+                .get("/AddtoCart")
+                .then()
+                .statusCode(200)
+                .body(containsString("are available in the shop! So we are adding only"));
+    }
 }
