@@ -1,0 +1,1870 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.ImplTesting</a> &gt; <span class="el_source">ProductServiceImplTest.java</span></div><h1>ProductServiceImplTest.java</h1><pre class="source lang-java linenums">package test.ImplTesting;
+
+import com.shashi.beans.ProductBean;
+import com.shashi.constants.IUserConstants;
+import com.shashi.service.impl.ProductServiceImpl;
+import com.shashi.utility.DBUtil;
+import org.junit.jupiter.api.*;
+
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.List;
+import java.util.ResourceBundle;
+import javax.imageio.ImageIO;
+
+<span class="fc" id="L24">public class ProductServiceImplTest {</span>
+
+  public boolean addProduct(String prodId, String prodName, String prodType, String prodInfo, double prodPrice, int prodQuantity, InputStream prodImage) throws Exception {
+<span class="fc" id="L27">    boolean prod = false;</span>
+
+<span class="fc" id="L29">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L31">    PreparedStatement ps = con.prepareStatement(&quot;insert into product values(?,?,?,?,?,?,?)&quot;);</span>
+<span class="fc" id="L32">    ps.setString(1, prodId);</span>
+<span class="fc" id="L33">    ps.setString(2, prodName);</span>
+<span class="fc" id="L34">    ps.setString(3, prodType);</span>
+<span class="fc" id="L35">    ps.setString(4, prodInfo);</span>
+<span class="fc" id="L36">    ps.setDouble(5, prodPrice);</span>
+<span class="fc" id="L37">    ps.setInt(6, prodQuantity);</span>
+<span class="fc" id="L38">    ps.setBlob(7, prodImage);</span>
+
+<span class="fc" id="L40">    int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">    if (k &lt;= 0) {</span>
+<span class="nc" id="L43">      throw new Exception(&quot;did not insert successfully&quot;);</span>
+    }
+
+<span class="fc" id="L46">    DBUtil.closeConnection(con);</span>
+<span class="fc" id="L47">    DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L49">    return prod;</span>
+  }
+
+  public boolean getProductExists(String prodId) throws Exception {
+<span class="fc" id="L53">    boolean prod = false;</span>
+
+<span class="fc" id="L55">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L57">    PreparedStatement ps = null;</span>
+<span class="fc" id="L58">    ResultSet rs = null;</span>
+
+<span class="fc" id="L60">    ps = con.prepareStatement(&quot;select * from product where pid=?&quot;);</span>
+
+<span class="fc" id="L62">    ps.setString(1, prodId);</span>
+<span class="fc" id="L63">    rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    if (rs.next())</span>
+<span class="fc" id="L66">      prod = true;</span>
+
+<span class="fc" id="L68">    DBUtil.closeConnection(con);</span>
+<span class="fc" id="L69">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L70">    DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L72">    return prod;</span>
+  }
+
+  public boolean updateProduct(String prodId, String prodName, String prodType, String prodInfo, double prodPrice, int prodQuantity, InputStream prodImage) throws Exception {
+<span class="nc" id="L76">    boolean prod = false;</span>
+
+<span class="nc" id="L78">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="nc" id="L80">    PreparedStatement ps = null;</span>
+<span class="nc" id="L81">    ResultSet rs = null;</span>
+
+<span class="nc" id="L83">    ps = con.prepareStatement(</span>
+        &quot;update product set pname=?,ptype=?,pinfo=?,pprice=?,pquantity=?,image=? where pid=?&quot;);
+
+<span class="nc" id="L86">    ps.setString(1, prodName);</span>
+<span class="nc" id="L87">    ps.setString(2, prodType);</span>
+<span class="nc" id="L88">    ps.setString(3, prodInfo);</span>
+<span class="nc" id="L89">    ps.setDouble(4, prodPrice);</span>
+<span class="nc" id="L90">    ps.setInt(5, prodQuantity);</span>
+<span class="nc" id="L91">    ps.setBlob(6, prodImage);</span>
+<span class="nc" id="L92">    ps.setString(7,prodId);</span>
+
+<span class="nc" id="L94">    rs = ps.executeQuery();</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">    if (rs.next())</span>
+<span class="nc" id="L97">      prod = true;</span>
+
+<span class="nc" id="L99">    DBUtil.closeConnection(con);</span>
+<span class="nc" id="L100">    DBUtil.closeConnection(ps);</span>
+<span class="nc" id="L101">    DBUtil.closeConnection(rs);</span>
+
+<span class="nc" id="L103">    return prod;</span>
+  }
+
+  public void registerUser(String userName, Long mobileNo, String emailId, String address, int pinCode,
+                           String password) throws Exception {
+
+<span class="fc" id="L109">    Connection conn = DBUtil.provideConnection();</span>
+<span class="fc" id="L110">    PreparedStatement ps = conn.prepareStatement(&quot;insert into &quot; + IUserConstants.TABLE_USER + &quot; values(?,?,?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L112">    ps.setString(1, emailId);</span>
+<span class="fc" id="L113">    ps.setString(2, userName);</span>
+<span class="fc" id="L114">    ps.setLong(3, mobileNo);</span>
+<span class="fc" id="L115">    ps.setString(4, address);</span>
+<span class="fc" id="L116">    ps.setInt(5, pinCode);</span>
+<span class="fc" id="L117">    ps.setString(6, password);</span>
+
+<span class="fc" id="L119">    int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">    if (k == 0) {</span>
+<span class="nc" id="L122">      throw new Exception(&quot;did not insert successfully&quot;);</span>
+    }
+
+<span class="fc" id="L125">    DBUtil.closeConnection(conn);</span>
+<span class="fc" id="L126">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L127">  }</span>
+
+  public boolean addDemandForProduct(String userId, String prodId, int demandQty) throws Exception {
+<span class="fc" id="L130">    boolean flag = false;</span>
+
+<span class="fc" id="L132">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L134">    PreparedStatement ps = null;</span>
+<span class="fc" id="L135">    PreparedStatement ps2 = null;</span>
+<span class="fc" id="L136">    ResultSet rs = null;</span>
+
+<span class="fc" id="L138">    PreparedStatement ps1 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=0&quot;);</span>
+<span class="fc" id="L139">    ps1.execute();</span>
+
+<span class="fc" id="L141">    ps = con.prepareStatement(&quot;select * from user_demand where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L143">    ps.setString(1, userId);</span>
+<span class="fc" id="L144">    ps.setString(2, prodId);</span>
+
+<span class="fc" id="L146">    rs = ps.executeQuery();</span>
+
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">    if (rs.next()) {</span>
+<span class="nc" id="L149">      flag = true;</span>
+    } else {
+<span class="fc" id="L151">      ps2 = con.prepareStatement(&quot;insert into  user_demand values(?,?,?)&quot;);</span>
+<span class="fc" id="L152">      ps2.setString(1, userId);</span>
+<span class="fc" id="L153">      ps2.setString(2, prodId);</span>
+<span class="fc" id="L154">      ps2.setInt(3, demandQty);</span>
+<span class="fc" id="L155">      int k = ps2.executeUpdate();</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">      if (k &gt; 0)</span>
+<span class="fc" id="L157">        flag = true;</span>
+    }
+
+<span class="fc" id="L160">    PreparedStatement ps3 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=1&quot;);</span>
+<span class="fc" id="L161">    ps3.execute();</span>
+
+<span class="fc" id="L163">    DBUtil.closeConnection(con);</span>
+<span class="fc" id="L164">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L165">    DBUtil.closeConnection(ps1);</span>
+<span class="fc" id="L166">    DBUtil.closeConnection(ps2);</span>
+<span class="fc" id="L167">    DBUtil.closeConnection(ps3);</span>
+<span class="fc" id="L168">    return flag;</span>
+  }
+
+  @AfterEach
+  public void clearProducts() {
+    try {
+<span class="fc" id="L174">      Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L176">      PreparedStatement ps1 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=0&quot;);</span>
+<span class="fc" id="L177">      ps1.execute();</span>
+
+<span class="fc" id="L179">      PreparedStatement ps2 = con.prepareStatement(&quot;delete from product&quot;);</span>
+<span class="fc" id="L180">      ps2.execute();</span>
+
+<span class="fc" id="L182">      PreparedStatement ps3 = con.prepareStatement(&quot;delete from user&quot;);</span>
+<span class="fc" id="L183">      ps3.execute();</span>
+
+<span class="fc" id="L185">      PreparedStatement ps4 = con.prepareStatement(&quot;delete from usercart&quot;);</span>
+<span class="fc" id="L186">      ps4.execute();</span>
+
+<span class="fc" id="L188">      PreparedStatement ps5 = con.prepareStatement(&quot;delete from user_demand&quot;);</span>
+<span class="fc" id="L189">      ps5.execute();</span>
+
+<span class="fc" id="L191">      PreparedStatement ps6 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=1&quot;);</span>
+<span class="fc" id="L192">      ps6.execute();</span>
+
+<span class="fc" id="L194">      DBUtil.closeConnection(con);</span>
+<span class="fc" id="L195">      DBUtil.closeConnection(ps1);</span>
+<span class="fc" id="L196">      DBUtil.closeConnection(ps2);</span>
+<span class="fc" id="L197">      DBUtil.closeConnection(ps3);</span>
+<span class="fc" id="L198">      DBUtil.closeConnection(ps4);</span>
+<span class="fc" id="L199">      DBUtil.closeConnection(ps5);</span>
+<span class="fc" id="L200">      DBUtil.closeConnection(ps6);</span>
+<span class="nc" id="L201">    } catch (Exception ex) {</span>
+<span class="nc" id="L202">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L203">      System.out.println(&quot;FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="fc" id="L204">    }</span>
+<span class="fc" id="L205">  }</span>
+<span class="fc" id="L206">  static ResourceBundle rb = ResourceBundle.getBundle(&quot;application&quot;);</span>
+<span class="fc" id="L207">  static String DATABASE_URL = rb.getString(&quot;db.connectionString&quot;);</span>
+<span class="fc" id="L208">  static String USER = rb.getString(&quot;db.username&quot;);</span>
+<span class="fc" id="L209">  static String PASSWORD = rb.getString(&quot;db.password&quot;);</span>
+  @AfterAll
+  public static void resetDatabase() {
+    try {
+<span class="fc" id="L213">      String sql = new String(Files.readAllBytes(Paths.get(&quot;databases/mysql_query.sql&quot;)));</span>
+<span class="fc" id="L214">      try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD)) {</span>
+
+        // Create a statement to execute SQL
+<span class="fc" id="L217">        Statement stmt = conn.createStatement();</span>
+
+        // Splitting the SQL statements by semicolon
+<span class="fc" id="L220">        String[] sqlStatements = sql.split(&quot;;&quot;);</span>
+
+        // Execute each SQL statement
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        for (String statement : sqlStatements) {</span>
+          // Trim whitespace and execute non-empty statements
+<span class="fc bfc" id="L225" title="All 2 branches covered.">          if (!statement.trim().isEmpty()) {</span>
+<span class="fc" id="L226">            stmt.execute(statement.trim());</span>
+          }
+        }
+
+<span class="fc" id="L230">        stmt.close();</span>
+<span class="fc" id="L231">        conn.close();</span>
+      }
+<span class="nc" id="L233">    } catch (Exception ex) {</span>
+<span class="nc" id="L234">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L235">      System.out.println(&quot;FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="fc" id="L236">    }</span>
+<span class="fc" id="L237">  }</span>
+
+  @BeforeEach
+  public void clearBefore() {
+<span class="fc" id="L241">    clearProducts();</span>
+<span class="fc" id="L242">  }</span>
+
+  // test addProduct with a new product
+  @Test
+  public void testAddProductWithNewProduct() {
+<span class="fc" id="L247">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L248">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L249">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L250">    double prodPrice = 9.99;</span>
+<span class="fc" id="L251">    int prodQuantity = 5;</span>
+<span class="fc" id="L252">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L254">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L255">    String status = productService.addProduct(prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L256">    assertNotNull(status);</span>
+<span class="fc" id="L257">    assertNotEquals(&quot;Product Updation Failed!&quot;, status);</span>
+<span class="fc" id="L258">  }</span>
+
+  // test addProduct with an existing product with same details
+  @Test
+  public void testAddProductWithExistingProduct() {
+<span class="fc" id="L263">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L264">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L265">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L266">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L267">    double prodPrice = 9.99;</span>
+<span class="fc" id="L268">    int prodQuantity = 5;</span>
+<span class="fc" id="L269">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L272">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L273">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L274">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L275">    } catch (Exception ex) {</span>
+<span class="nc" id="L276">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L277">    }</span>
+
+<span class="fc" id="L279">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L280">    String status = productService.addProduct(prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L281">    assertNotNull(status);</span>
+<span class="fc" id="L282">    assertNotEquals(&quot;Product Updation Failed!&quot;, status);</span>
+<span class="fc" id="L283">  }</span>
+
+  // test addProduct with null inputs
+  @Test
+  public void testAddProductWithNullInputs() {
+<span class="fc" id="L288">    String prodName = null;</span>
+<span class="fc" id="L289">    String prodType = null;</span>
+<span class="fc" id="L290">    String prodInfo = null;</span>
+<span class="fc" id="L291">    double prodPrice = 9.99;</span>
+<span class="fc" id="L292">    int prodQuantity = 5;</span>
+<span class="fc" id="L293">    InputStream prodImage = null;</span>
+
+<span class="fc" id="L295">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L296">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L297">      String status = productService.addProduct(prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L298">    });</span>
+<span class="nc" id="L299">  }</span>
+
+  // test addProduct with empty and zeroes as inputs
+  @Test
+  public void testAddProductWithEmptyAndZeroInputs() {
+<span class="fc" id="L304">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L305">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L306">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L307">    double prodPrice = 0;</span>
+<span class="fc" id="L308">    int prodQuantity = 0;</span>
+<span class="fc" id="L309">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;&quot;);</span>
+
+<span class="fc" id="L311">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L312">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L313">      String status = productService.addProduct(prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L314">    });</span>
+<span class="nc" id="L315">  }</span>
+
+  // test addProduct with negative inputs
+  @Test
+  public void testAddProductWithNegativeInputs() {
+<span class="fc" id="L320">    String prodName = &quot;&quot;;</span>
+<span class="fc" id="L321">    String prodType = &quot;&quot;;</span>
+<span class="fc" id="L322">    String prodInfo = &quot;&quot;;</span>
+<span class="fc" id="L323">    double prodPrice = -5;</span>
+<span class="fc" id="L324">    int prodQuantity = -5;</span>
+<span class="fc" id="L325">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L327">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L328">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L329">      String status = productService.addProduct(prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L330">    });</span>
+<span class="nc" id="L331">  }</span>
+
+  // test removeProduct with an existing product
+  @Test
+  public void testRemoveProductWithExistingProduct() {
+<span class="fc" id="L336">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L337">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L338">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L339">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L340">    double prodPrice = 9.99;</span>
+<span class="fc" id="L341">    int prodQuantity = 5;</span>
+<span class="fc" id="L342">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L345">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L346">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L347">      assertTrue(getProductExists(prodId));</span>
+
+<span class="nc" id="L349">    } catch (Exception ex) {</span>
+<span class="nc" id="L350">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L351">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L352">    }</span>
+
+<span class="fc" id="L354">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L355">    String status = productService.removeProduct(prodId);</span>
+<span class="fc" id="L356">    assertEquals(&quot;Product Removed Successfully!&quot;, status);</span>
+<span class="fc" id="L357">  }</span>
+
+  // test removeProduct with an existing product
+  @Test
+  public void testRemoveProductWithNonexistentProduct() {
+<span class="fc" id="L362">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L365">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L366">    } catch (Exception ex) {</span>
+<span class="nc" id="L367">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L368">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L369">    }</span>
+
+<span class="fc" id="L371">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L372">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L373">      String status = productService.removeProduct(prodId);</span>
+<span class="fc" id="L374">    });</span>
+<span class="nc" id="L375">  }</span>
+
+  // test removeProduct with null input
+  @Test
+  public void testRemoveProductWithNullInput() {
+<span class="fc" id="L380">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L383">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L384">    } catch (Exception ex) {</span>
+<span class="nc" id="L385">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L386">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L387">    }</span>
+
+<span class="fc" id="L389">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L390">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L391">      String status = productService.removeProduct(prodId);</span>
+<span class="fc" id="L392">    });</span>
+<span class="nc" id="L393">  }</span>
+
+  // test removeProduct with empty input
+  @Test
+  public void testRemoveProductWithEmptyInput() {
+<span class="fc" id="L398">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L401">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L402">    } catch (Exception ex) {</span>
+<span class="nc" id="L403">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L404">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L405">    }</span>
+
+<span class="fc" id="L407">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L408">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L409">      String status = productService.removeProduct(prodId);</span>
+<span class="fc" id="L410">    });</span>
+<span class="nc" id="L411">  }</span>
+
+  // test updateProduct with an existing product
+  @Test
+  public void testUpdateProductWithExistingProduct() {
+<span class="fc" id="L416">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L417">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L418">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L419">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L420">    double prodPrice = 9.99;</span>
+<span class="fc" id="L421">    int prodQuantity = 5;</span>
+<span class="fc" id="L422">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L425">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L426">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L427">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L428">    } catch (Exception ex) {</span>
+<span class="nc" id="L429">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L430">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L431">    }</span>
+
+<span class="fc" id="L433">    ProductBean prodOriginal = new ProductBean();</span>
+<span class="fc" id="L434">    prodOriginal.setProdId(prodId);</span>
+<span class="fc" id="L435">    prodOriginal.setProdName(prodName);</span>
+<span class="fc" id="L436">    prodOriginal.setProdType(prodType);</span>
+<span class="fc" id="L437">    prodOriginal.setProdInfo(prodInfo);</span>
+<span class="fc" id="L438">    prodOriginal.setProdPrice(prodPrice);</span>
+<span class="fc" id="L439">    prodOriginal.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L440">    prodOriginal.setProdImage(prodImage);</span>
+
+<span class="fc" id="L442">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L443">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L444">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L445">    prodUpdated.setProdType(prodType);</span>
+<span class="fc" id="L446">    prodUpdated.setProdInfo(prodInfo);</span>
+<span class="fc" id="L447">    prodUpdated.setProdPrice(prodPrice);</span>
+<span class="fc" id="L448">    prodUpdated.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L449">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L451">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L452">    String status = productService.updateProduct(prodOriginal, prodUpdated);</span>
+<span class="fc" id="L453">    assertEquals(&quot;Product Updated Successfully!&quot;, status);</span>
+<span class="fc" id="L454">  }</span>
+
+
+  // test updateProduct with different IDs
+  @Test
+  public void testUpdateProductWithMismatchedIDs() {
+<span class="fc" id="L460">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L461">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L462">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L463">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L464">    double prodPrice = 9.99;</span>
+<span class="fc" id="L465">    int prodQuantity = 5;</span>
+<span class="fc" id="L466">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L469">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L470">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L471">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L472">    } catch (Exception ex) {</span>
+<span class="nc" id="L473">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L474">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L475">    }</span>
+
+<span class="fc" id="L477">    ProductBean prodOriginal = new ProductBean();</span>
+<span class="fc" id="L478">    prodOriginal.setProdId(prodId);</span>
+<span class="fc" id="L479">    prodOriginal.setProdName(prodName);</span>
+<span class="fc" id="L480">    prodOriginal.setProdType(prodType);</span>
+<span class="fc" id="L481">    prodOriginal.setProdInfo(prodInfo);</span>
+<span class="fc" id="L482">    prodOriginal.setProdPrice(prodPrice);</span>
+<span class="fc" id="L483">    prodOriginal.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L484">    prodOriginal.setProdImage(prodImage);</span>
+
+<span class="fc" id="L486">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L487">    prodUpdated.setProdId(&quot;newID&quot;);</span>
+<span class="fc" id="L488">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L489">    prodUpdated.setProdType(prodType);</span>
+<span class="fc" id="L490">    prodUpdated.setProdInfo(prodInfo);</span>
+<span class="fc" id="L491">    prodUpdated.setProdPrice(prodPrice);</span>
+<span class="fc" id="L492">    prodUpdated.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L493">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L495">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L496">    String status = productService.updateProduct(prodOriginal, prodUpdated);</span>
+<span class="fc" id="L497">    assertEquals(&quot;Both Products are Different, Updation Failed!&quot;, status);</span>
+<span class="fc" id="L498">  }</span>
+
+  // test updateProduct with no changes
+  @Test
+  public void testUpdateProductWithNoChanges() {
+<span class="fc" id="L503">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L504">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L505">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L506">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L507">    double prodPrice = 9.99;</span>
+<span class="fc" id="L508">    int prodQuantity = 5;</span>
+<span class="fc" id="L509">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L512">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L513">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L514">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L515">    } catch (Exception ex) {</span>
+<span class="nc" id="L516">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L517">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L518">    }</span>
+
+<span class="fc" id="L520">    ProductBean prodOriginal = new ProductBean();</span>
+<span class="fc" id="L521">    prodOriginal.setProdId(prodId);</span>
+<span class="fc" id="L522">    prodOriginal.setProdName(prodName);</span>
+<span class="fc" id="L523">    prodOriginal.setProdType(prodType);</span>
+<span class="fc" id="L524">    prodOriginal.setProdInfo(prodInfo);</span>
+<span class="fc" id="L525">    prodOriginal.setProdPrice(prodPrice);</span>
+<span class="fc" id="L526">    prodOriginal.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L527">    prodOriginal.setProdImage(prodImage);</span>
+
+<span class="fc" id="L529">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L530">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L531">    prodUpdated.setProdName(prodName);</span>
+<span class="fc" id="L532">    prodUpdated.setProdType(prodType);</span>
+<span class="fc" id="L533">    prodUpdated.setProdInfo(prodInfo);</span>
+<span class="fc" id="L534">    prodUpdated.setProdPrice(prodPrice);</span>
+<span class="fc" id="L535">    prodUpdated.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L536">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L538">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L539">    String status = productService.updateProduct(prodOriginal, prodUpdated);</span>
+<span class="fc" id="L540">    assertEquals(&quot;Product Updated Successfully!&quot;, status);</span>
+<span class="fc" id="L541">  }</span>
+
+  // test updateProduct with null inputs
+  @Test
+  public void testUpdateProductWithNullInputs() {
+<span class="fc" id="L546">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L547">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L548">      String status = productService.updateProduct(null, null);</span>
+<span class="nc" id="L549">    });</span>
+<span class="nc" id="L550">  }</span>
+
+  // test updateProduct with null changes
+  @Test
+  public void testUpdateProductWithNullUpdates() {
+<span class="fc" id="L555">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L556">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L557">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L558">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L559">    double prodPrice = 9.99;</span>
+<span class="fc" id="L560">    int prodQuantity = 5;</span>
+<span class="fc" id="L561">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L564">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L565">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L566">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L567">    } catch (Exception ex) {</span>
+<span class="nc" id="L568">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L569">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L570">    }</span>
+
+<span class="fc" id="L572">    ProductBean prodOriginal = new ProductBean();</span>
+<span class="fc" id="L573">    prodOriginal.setProdId(prodId);</span>
+<span class="fc" id="L574">    prodOriginal.setProdName(prodName);</span>
+<span class="fc" id="L575">    prodOriginal.setProdType(prodType);</span>
+<span class="fc" id="L576">    prodOriginal.setProdInfo(prodInfo);</span>
+<span class="fc" id="L577">    prodOriginal.setProdPrice(prodPrice);</span>
+<span class="fc" id="L578">    prodOriginal.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L579">    prodOriginal.setProdImage(prodImage);</span>
+
+<span class="fc" id="L581">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L582">    prodUpdated.setProdId(null);</span>
+<span class="fc" id="L583">    prodUpdated.setProdName(null);</span>
+<span class="fc" id="L584">    prodUpdated.setProdType(null);</span>
+<span class="fc" id="L585">    prodUpdated.setProdInfo(null);</span>
+<span class="fc" id="L586">    prodUpdated.setProdPrice(0);</span>
+<span class="fc" id="L587">    prodUpdated.setProdQuantity(0);</span>
+<span class="fc" id="L588">    prodUpdated.setProdImage(null);</span>
+
+<span class="fc" id="L590">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L591">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L592">      String status = productService.updateProduct(prodOriginal, prodUpdated);</span>
+<span class="fc" id="L593">    });</span>
+<span class="nc" id="L594">  }</span>
+
+  // test updateProduct with empty changes
+  @Test
+  public void testUpdateProductWithEmptyUpdates() {
+<span class="fc" id="L599">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L600">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L601">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L602">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L603">    double prodPrice = 9.99;</span>
+<span class="fc" id="L604">    int prodQuantity = 5;</span>
+<span class="fc" id="L605">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L608">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L609">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L610">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L611">    } catch (Exception ex) {</span>
+<span class="nc" id="L612">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L613">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L614">    }</span>
+
+<span class="fc" id="L616">    ProductBean prodOriginal = new ProductBean();</span>
+<span class="fc" id="L617">    prodOriginal.setProdId(prodId);</span>
+<span class="fc" id="L618">    prodOriginal.setProdName(prodName);</span>
+<span class="fc" id="L619">    prodOriginal.setProdType(prodType);</span>
+<span class="fc" id="L620">    prodOriginal.setProdInfo(prodInfo);</span>
+<span class="fc" id="L621">    prodOriginal.setProdPrice(prodPrice);</span>
+<span class="fc" id="L622">    prodOriginal.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L623">    prodOriginal.setProdImage(prodImage);</span>
+
+<span class="fc" id="L625">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L626">    prodUpdated.setProdId(&quot;&quot;);</span>
+<span class="fc" id="L627">    prodUpdated.setProdName(&quot;&quot;);</span>
+<span class="fc" id="L628">    prodUpdated.setProdType(&quot;&quot;);</span>
+<span class="fc" id="L629">    prodUpdated.setProdInfo(&quot;&quot;);</span>
+<span class="fc" id="L630">    prodUpdated.setProdPrice(0);</span>
+<span class="fc" id="L631">    prodUpdated.setProdQuantity(0);</span>
+<span class="fc" id="L632">    prodUpdated.setProdImage(ProductServiceImplTest.class.getResourceAsStream(&quot;&quot;));</span>
+
+<span class="fc" id="L634">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L635">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L636">      String status = productService.updateProduct(prodOriginal, prodUpdated);</span>
+<span class="fc" id="L637">    });</span>
+<span class="nc" id="L638">  }</span>
+
+  // test updateProductPrice with an existing product
+  @Test
+  public void testUpdateProductPriceWithExistingProduct() {
+<span class="fc" id="L643">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L644">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L645">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L646">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L647">    double prodPrice = 9.99;</span>
+<span class="fc" id="L648">    int prodQuantity = 5;</span>
+<span class="fc" id="L649">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L652">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L653">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L654">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L655">    } catch (Exception ex) {</span>
+<span class="nc" id="L656">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L657">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L658">    }</span>
+
+<span class="fc" id="L660">    double updatedPrice = 5.75;</span>
+
+<span class="fc" id="L662">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L663">    String status = productService.updateProductPrice(prodId, updatedPrice);</span>
+<span class="fc" id="L664">    assertEquals(&quot;Price Updated Successfully!&quot;, status);</span>
+<span class="fc" id="L665">  }</span>
+
+  // test updateProductPrice with nonexistent product
+  @Test
+  public void testUpdateProductPriceWithNonexistentProduct() {
+<span class="fc" id="L670">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L673">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L674">    } catch (Exception ex) {</span>
+<span class="nc" id="L675">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L676">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L677">    }</span>
+
+<span class="fc" id="L679">    double updatedPrice = 9.99;</span>
+
+<span class="fc" id="L681">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L682">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L683">      String status = productService.updateProductPrice(prodId, updatedPrice);</span>
+<span class="fc" id="L684">    });</span>
+<span class="nc" id="L685">  }</span>
+
+  // test updateProductPrice with null prodId
+  @Test
+  public void testUpdateProductPriceWithNullProdID() {
+<span class="fc" id="L690">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L693">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L694">    } catch (Exception ex) {</span>
+<span class="nc" id="L695">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L696">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L697">    }</span>
+
+<span class="fc" id="L699">    double updatedPrice = 10.99;</span>
+
+<span class="fc" id="L701">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L702">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L703">      String status = productService.updateProductPrice(prodId, updatedPrice);</span>
+<span class="fc" id="L704">    });</span>
+<span class="nc" id="L705">  }</span>
+
+  // test updateProductPrice with null prodId
+  @Test
+  public void testUpdateProductPriceWithEmptyProdId() {
+<span class="fc" id="L710">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L713">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L714">    } catch (Exception ex) {</span>
+<span class="nc" id="L715">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L716">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L717">    }</span>
+
+<span class="fc" id="L719">    double updatedPrice = 0;</span>
+
+<span class="fc" id="L721">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L722">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L723">      String status = productService.updateProductPrice(prodId, updatedPrice);</span>
+<span class="fc" id="L724">    });</span>
+<span class="nc" id="L725">  }</span>
+
+  // test updateProductPrice with negative price
+  @Test
+  public void testUpdateProductPriceWithNegativePrice() {
+<span class="fc" id="L730">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L731">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L732">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L733">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L734">    double prodPrice = 9.99;</span>
+<span class="fc" id="L735">    int prodQuantity = 5;</span>
+<span class="fc" id="L736">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L739">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L740">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L741">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L742">    } catch (Exception ex) {</span>
+<span class="nc" id="L743">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L744">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L745">    }</span>
+
+<span class="fc" id="L747">    double updatedPrice = -10;</span>
+
+<span class="fc" id="L749">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L750">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L751">      String status = productService.updateProductPrice(prodId, updatedPrice);</span>
+<span class="fc" id="L752">    });</span>
+<span class="nc" id="L753">  }</span>
+
+  // test getProductDetails with an existing product
+  @Test
+  public void testGetProductDetailsWithExistingProduct() {
+<span class="fc" id="L758">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L759">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L760">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L761">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L762">    double prodPrice = 9.99;</span>
+<span class="fc" id="L763">    int prodQuantity = 5;</span>
+<span class="fc" id="L764">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L767">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L768">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L769">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L770">    } catch (Exception ex) {</span>
+<span class="nc" id="L771">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L772">    }</span>
+
+<span class="fc" id="L774">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L775">    ProductBean res = productService.getProductDetails(prodId);</span>
+<span class="fc" id="L776">    assertEquals(prodId, res.getProdId());</span>
+<span class="fc" id="L777">    assertEquals(prodName, res.getProdName());</span>
+<span class="fc" id="L778">    assertEquals(prodType, res.getProdType());</span>
+<span class="fc" id="L779">    assertEquals(prodInfo, res.getProdInfo());</span>
+<span class="fc" id="L780">    assertEquals(prodPrice, res.getProdPrice());</span>
+<span class="fc" id="L781">    assertEquals(prodQuantity, res.getProdQuantity());</span>
+<span class="fc" id="L782">    assertEquals(prodImage, res.getProdImage());</span>
+<span class="fc" id="L783">  }</span>
+
+  // test getProductDetails with nonexistent product
+  @Test
+  public void testGetProductDetailsWithNonExistentProduct() {
+<span class="fc" id="L788">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L791">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L792">    } catch (Exception ex) {</span>
+<span class="nc" id="L793">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L794">    }</span>
+
+<span class="fc" id="L796">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L797">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L798">      ProductBean res = productService.getProductDetails(prodId);</span>
+<span class="fc" id="L799">    });</span>
+<span class="nc" id="L800">  }</span>
+
+  // test getProductDetails with null input
+  @Test
+  public void testGetProductDetailsWithNullInput() {
+<span class="fc" id="L805">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L808">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L809">    } catch (Exception ex) {</span>
+<span class="nc" id="L810">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L811">    }</span>
+
+<span class="fc" id="L813">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L814">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L815">      ProductBean res = productService.getProductDetails(prodId);</span>
+<span class="fc" id="L816">    });</span>
+<span class="nc" id="L817">  }</span>
+
+  // test getProductDetails with empty input
+  @Test
+  public void testGetProductDetailsWithEmptyInput() {
+<span class="fc" id="L822">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L825">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L826">    } catch (Exception ex) {</span>
+<span class="nc" id="L827">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L828">    }</span>
+
+<span class="fc" id="L830">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L831">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L832">      ProductBean res = productService.getProductDetails(prodId);</span>
+<span class="fc" id="L833">    });</span>
+<span class="nc" id="L834">  }</span>
+
+  // test getAllProducts with one product in database
+  @Test
+  public void testGetAllProductsWithSingleProduct() {
+<span class="fc" id="L839">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L840">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L841">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L842">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L843">    double prodPrice = 9.99;</span>
+<span class="fc" id="L844">    int prodQuantity = 5;</span>
+<span class="fc" id="L845">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L848">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L849">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L850">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L851">    } catch (Exception ex) {</span>
+<span class="nc" id="L852">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L853">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L854">    }</span>
+
+<span class="fc" id="L856">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L857">    List&lt;ProductBean&gt; res = productService.getAllProducts();</span>
+<span class="fc" id="L858">    assertEquals(1, res.size());</span>
+<span class="fc" id="L859">    assertEquals(prodId, res.get(0).getProdId());</span>
+<span class="fc" id="L860">    assertEquals(prodName, res.get(0).getProdName());</span>
+<span class="fc" id="L861">    assertEquals(prodType, res.get(0).getProdType());</span>
+<span class="fc" id="L862">    assertEquals(prodInfo, res.get(0).getProdInfo());</span>
+<span class="fc" id="L863">    assertEquals(prodPrice, res.get(0).getProdPrice());</span>
+<span class="fc" id="L864">    assertEquals(prodQuantity, res.get(0).getProdQuantity());</span>
+<span class="fc" id="L865">    assertEquals(prodImage, res.get(0).getProdImage());</span>
+<span class="fc" id="L866">  }</span>
+
+  // test getAllProducts with no products in database
+  @Test
+  public void testGetAllProductsWithNoProducts() {
+<span class="fc" id="L871">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L872">    List&lt;ProductBean&gt; res = productService.getAllProducts();</span>
+<span class="fc" id="L873">    assertEquals(0, res.size());</span>
+<span class="fc" id="L874">  }</span>
+
+  // test getAllProducts with multiple products in database
+  @Test
+  public void testGetAllProductsWithMultipleProduct() {
+<span class="fc" id="L879">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L880">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L881">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L882">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L883">    double prodPrice = 9.99;</span>
+<span class="fc" id="L884">    int prodQuantity = 5;</span>
+<span class="fc" id="L885">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L887">    String prodId2 = &quot;123456&quot;;</span>
+<span class="fc" id="L888">    String prodName2 = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L889">    String prodType2 = &quot;Pants&quot;;</span>
+<span class="fc" id="L890">    String prodInfo2 = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L891">    double prodPrice2 = 9.99;</span>
+<span class="fc" id="L892">    int prodQuantity2 = 5;</span>
+<span class="fc" id="L893">    InputStream prodImage2 = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L896">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L897">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L898">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L899">      assertFalse(getProductExists(prodId2));</span>
+<span class="fc" id="L900">      addProduct(prodId2, prodName2, prodType2, prodInfo2, prodPrice2, prodQuantity2, prodImage2);</span>
+<span class="fc" id="L901">      assertTrue(getProductExists(prodId2));</span>
+<span class="nc" id="L902">    } catch (Exception ex) {</span>
+<span class="nc" id="L903">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L904">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L905">    }</span>
+
+<span class="fc" id="L907">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L908">    List&lt;ProductBean&gt; res = productService.getAllProducts();</span>
+<span class="fc" id="L909">    assertEquals(2, res.size());</span>
+<span class="fc" id="L910">    assertEquals(prodId, res.get(0).getProdId());</span>
+<span class="fc" id="L911">    assertEquals(prodName, res.get(0).getProdName());</span>
+<span class="fc" id="L912">    assertEquals(prodType, res.get(0).getProdType());</span>
+<span class="fc" id="L913">    assertEquals(prodInfo, res.get(0).getProdInfo());</span>
+<span class="fc" id="L914">    assertEquals(prodPrice, res.get(0).getProdPrice());</span>
+<span class="fc" id="L915">    assertEquals(prodQuantity, res.get(0).getProdQuantity());</span>
+<span class="fc" id="L916">    assertEquals(prodImage, res.get(0).getProdImage());</span>
+<span class="fc" id="L917">    assertEquals(prodId2, res.get(1).getProdId());</span>
+<span class="fc" id="L918">    assertEquals(prodName2, res.get(1).getProdName());</span>
+<span class="fc" id="L919">    assertEquals(prodType2, res.get(1).getProdType());</span>
+<span class="fc" id="L920">    assertEquals(prodInfo2, res.get(1).getProdInfo());</span>
+<span class="fc" id="L921">    assertEquals(prodPrice2, res.get(1).getProdPrice());</span>
+<span class="fc" id="L922">    assertEquals(prodQuantity2, res.get(1).getProdQuantity());</span>
+<span class="fc" id="L923">    assertEquals(prodImage2, res.get(1).getProdImage());</span>
+<span class="fc" id="L924">  }</span>
+
+  // test getAllProducts with one product of that type in database
+  @Test
+  public void testGetAllProductsByTypeWithSingleProductOfType() {
+<span class="fc" id="L929">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L930">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L931">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L932">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L933">    double prodPrice = 9.99;</span>
+<span class="fc" id="L934">    int prodQuantity = 5;</span>
+<span class="fc" id="L935">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L937">    String prodId2 = &quot;123456&quot;;</span>
+<span class="fc" id="L938">    String prodName2 = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L939">    String prodType2 = &quot;Jeans&quot;;</span>
+<span class="fc" id="L940">    String prodInfo2 = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L941">    double prodPrice2 = 9.99;</span>
+<span class="fc" id="L942">    int prodQuantity2 = 5;</span>
+<span class="fc" id="L943">    InputStream prodImage2 = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L946">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L947">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L948">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L949">      assertFalse(getProductExists(prodId2));</span>
+<span class="fc" id="L950">      addProduct(prodId2, prodName2, prodType2, prodInfo2, prodPrice2, prodQuantity2, prodImage2);</span>
+<span class="fc" id="L951">      assertTrue(getProductExists(prodId2));</span>
+<span class="nc" id="L952">    } catch (Exception ex) {</span>
+<span class="nc" id="L953">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L954">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L955">    }</span>
+
+<span class="fc" id="L957">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L958">    List&lt;ProductBean&gt; res = productService.getAllProductsByType(prodType);</span>
+<span class="fc" id="L959">    assertEquals(1, res.size());</span>
+<span class="fc" id="L960">  }</span>
+
+  // test getAllProducts with no products of specified type in database
+  @Test
+  public void testGetAllProductsByTypeWithNoProducts() {
+<span class="fc" id="L965">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L966">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L967">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L968">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L969">    double prodPrice = 9.99;</span>
+<span class="fc" id="L970">    int prodQuantity = 5;</span>
+<span class="fc" id="L971">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L974">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L975">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L976">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L977">    } catch (Exception ex) {</span>
+<span class="nc" id="L978">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L979">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L980">    }</span>
+
+<span class="fc" id="L982">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L983">    List&lt;ProductBean&gt; res = productService.getAllProductsByType(&quot;shirts&quot;);</span>
+<span class="fc" id="L984">    assertEquals(0, res.size());</span>
+<span class="fc" id="L985">  }</span>
+
+  // test getAllProducts with multiple products of specified type in database
+  @Test
+  public void testGetAllProductsByTypeWithMultipleProduct() {
+<span class="fc" id="L990">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L991">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L992">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L993">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L994">    double prodPrice = 9.99;</span>
+<span class="fc" id="L995">    int prodQuantity = 5;</span>
+<span class="fc" id="L996">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L998">    String prodId2 = &quot;123456&quot;;</span>
+<span class="fc" id="L999">    String prodName2 = &quot;Blue Pants&quot;;</span>
+<span class="fc" id="L1000">    String prodType2 = &quot;Pants&quot;;</span>
+<span class="fc" id="L1001">    String prodInfo2 = &quot;Dark wash pants&quot;;</span>
+<span class="fc" id="L1002">    double prodPrice2 = 9.99;</span>
+<span class="fc" id="L1003">    int prodQuantity2 = 5;</span>
+<span class="fc" id="L1004">    InputStream prodImage2 = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1007">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1008">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1009">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L1010">      assertFalse(getProductExists(prodId2));</span>
+<span class="fc" id="L1011">      addProduct(prodId2, prodName2, prodType2, prodInfo2, prodPrice2, prodQuantity2, prodImage2);</span>
+<span class="fc" id="L1012">      assertTrue(getProductExists(prodId2));</span>
+<span class="nc" id="L1013">    } catch (Exception ex) {</span>
+<span class="nc" id="L1014">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1015">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1016">    }</span>
+
+<span class="fc" id="L1018">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1019">    List&lt;ProductBean&gt; res = productService.getAllProductsByType(prodType);</span>
+<span class="fc" id="L1020">    assertEquals(2, res.size());</span>
+<span class="fc" id="L1021">  }</span>
+
+  // test getAllProducts with empty input
+  @Test
+  public void testGetAllProductsByTypeWithEmptyInput() {
+<span class="fc" id="L1026">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1027">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1028">      List&lt;ProductBean&gt; res = productService.getAllProductsByType(&quot;&quot;);</span>
+<span class="fc" id="L1029">    });</span>
+<span class="nc" id="L1030">  }</span>
+
+  // test getAllProducts with null input
+  @Test
+  public void testGetAllProductsByTypeWithNullInput() {
+<span class="fc" id="L1035">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1036">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1037">      List&lt;ProductBean&gt; res = productService.getAllProductsByType(null);</span>
+<span class="fc" id="L1038">    });</span>
+<span class="nc" id="L1039">  }</span>
+
+  // test searchAllProducts with multiple matching products
+  @Test
+  public void testSearchAllProductsWithMultipleProduct() {
+<span class="fc" id="L1044">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1045">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1046">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1047">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1048">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1049">    int prodQuantity = 5;</span>
+<span class="fc" id="L1050">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L1052">    String prodId2 = &quot;123456&quot;;</span>
+<span class="fc" id="L1053">    String prodName2 = &quot;Blue Pants&quot;;</span>
+<span class="fc" id="L1054">    String prodType2 = &quot;Pants&quot;;</span>
+<span class="fc" id="L1055">    String prodInfo2 = &quot;Dark wash pants&quot;;</span>
+<span class="fc" id="L1056">    double prodPrice2 = 9.99;</span>
+<span class="fc" id="L1057">    int prodQuantity2 = 5;</span>
+<span class="fc" id="L1058">    InputStream prodImage2 = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1061">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1062">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1063">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L1064">      assertFalse(getProductExists(prodId2));</span>
+<span class="fc" id="L1065">      addProduct(prodId2, prodName2, prodType2, prodInfo2, prodPrice2, prodQuantity2, prodImage2);</span>
+<span class="fc" id="L1066">      assertTrue(getProductExists(prodId2));</span>
+<span class="nc" id="L1067">    } catch (Exception ex) {</span>
+<span class="nc" id="L1068">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1069">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1070">    }</span>
+
+<span class="fc" id="L1072">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1073">    List&lt;ProductBean&gt; res = productService.searchAllProducts(&quot;dark&quot;);</span>
+<span class="fc" id="L1074">    assertEquals(2, res.size());</span>
+<span class="fc" id="L1075">  }</span>
+
+
+  // test searchAllProducts with one matching product
+  @Test
+  public void testSearchAllProductsWithSingleProduct() {
+<span class="fc" id="L1081">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1082">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1083">    String prodType = &quot;Jeans&quot;;</span>
+<span class="fc" id="L1084">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1085">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1086">    int prodQuantity = 5;</span>
+<span class="fc" id="L1087">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L1089">    String prodId2 = &quot;123456&quot;;</span>
+<span class="fc" id="L1090">    String prodName2 = &quot;Blue Pants&quot;;</span>
+<span class="fc" id="L1091">    String prodType2 = &quot;Pants&quot;;</span>
+<span class="fc" id="L1092">    String prodInfo2 = &quot;Dark wash pants&quot;;</span>
+<span class="fc" id="L1093">    double prodPrice2 = 9.99;</span>
+<span class="fc" id="L1094">    int prodQuantity2 = 5;</span>
+<span class="fc" id="L1095">    InputStream prodImage2 = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1098">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1099">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1100">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L1101">      assertFalse(getProductExists(prodId2));</span>
+<span class="fc" id="L1102">      addProduct(prodId2, prodName2, prodType2, prodInfo2, prodPrice2, prodQuantity2, prodImage2);</span>
+<span class="fc" id="L1103">      assertTrue(getProductExists(prodId2));</span>
+<span class="nc" id="L1104">    } catch (Exception ex) {</span>
+<span class="nc" id="L1105">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1106">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1107">    }</span>
+
+<span class="fc" id="L1109">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1110">    List&lt;ProductBean&gt; res = productService.searchAllProducts(&quot;jeans&quot;);</span>
+<span class="fc" id="L1111">    assertEquals(1, res.size());</span>
+<span class="fc" id="L1112">  }</span>
+
+  // test searchAllProducts with no matching products
+  @Test
+  public void testSearchAllProductsWithNoMatchingProducts() {
+<span class="fc" id="L1117">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1118">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1119">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1120">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1121">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1122">    int prodQuantity = 5;</span>
+<span class="fc" id="L1123">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L1125">    String prodId2 = &quot;123456&quot;;</span>
+<span class="fc" id="L1126">    String prodName2 = &quot;Blue Pants&quot;;</span>
+<span class="fc" id="L1127">    String prodType2 = &quot;Pants&quot;;</span>
+<span class="fc" id="L1128">    String prodInfo2 = &quot;Dark wash pants&quot;;</span>
+<span class="fc" id="L1129">    double prodPrice2 = 9.99;</span>
+<span class="fc" id="L1130">    int prodQuantity2 = 5;</span>
+<span class="fc" id="L1131">    InputStream prodImage2 = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1134">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1135">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1136">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L1137">      assertFalse(getProductExists(prodId2));</span>
+<span class="fc" id="L1138">      addProduct(prodId2, prodName2, prodType2, prodInfo2, prodPrice2, prodQuantity2, prodImage2);</span>
+<span class="fc" id="L1139">      assertTrue(getProductExists(prodId2));</span>
+<span class="nc" id="L1140">    } catch (Exception ex) {</span>
+<span class="nc" id="L1141">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1142">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1143">    }</span>
+
+<span class="fc" id="L1145">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1146">    List&lt;ProductBean&gt; res = productService.searchAllProducts(&quot;shirt&quot;);</span>
+<span class="fc" id="L1147">    assertEquals(0, res.size());</span>
+<span class="fc" id="L1148">  }</span>
+
+  // test searchAllProducts with empty input
+  @Test
+  public void testSearchAllProductsWithEmptyInput() {
+<span class="fc" id="L1153">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1154">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1155">      List&lt;ProductBean&gt; res = productService.searchAllProducts(&quot;&quot;);</span>
+<span class="fc" id="L1156">    });</span>
+<span class="nc" id="L1157">  }</span>
+
+  // test searchAllProducts with null input
+  @Test
+  public void testSearchAllProductsWithNullInput() {
+<span class="fc" id="L1162">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1163">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1164">      List&lt;ProductBean&gt; res = productService.searchAllProducts(null);</span>
+<span class="fc" id="L1165">    });</span>
+<span class="nc" id="L1166">  }</span>
+
+  // test getImage with an existing product
+  @Test
+  public void testGetImageWithExistingProduct() {
+<span class="fc" id="L1171">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1172">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1173">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1174">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1175">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1176">    int prodQuantity = 5;</span>
+<span class="fc" id="L1177">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1180">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1181">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1182">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1183">    } catch (Exception ex) {</span>
+<span class="nc" id="L1184">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1185">    }</span>
+
+<span class="fc" id="L1187">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1188">    byte[] res = productService.getImage(prodId);</span>
+<span class="nc" id="L1189">    assertNotNull(res);</span>
+<span class="nc" id="L1190">  }</span>
+
+  // test getImage with nonexistent product
+  @Test
+  public void testGetImageWithNonExistentProduct() {
+<span class="fc" id="L1195">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L1198">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1199">    } catch (Exception ex) {</span>
+<span class="nc" id="L1200">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1201">    }</span>
+
+<span class="fc" id="L1203">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1204">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1205">      byte[] res = productService.getImage(prodId);</span>
+<span class="fc" id="L1206">    });</span>
+<span class="nc" id="L1207">  }</span>
+
+  // test getImage with null input
+  @Test
+  public void testGetImageWithNullInput() {
+<span class="fc" id="L1212">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L1215">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1216">    } catch (Exception ex) {</span>
+<span class="nc" id="L1217">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1218">    }</span>
+
+<span class="fc" id="L1220">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1221">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1222">      byte[] res = productService.getImage(prodId);</span>
+<span class="fc" id="L1223">    });</span>
+<span class="nc" id="L1224">  }</span>
+
+  // test getImage with empty input
+  @Test
+  public void testGetImageWithEmptyInput() {
+<span class="fc" id="L1229">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L1232">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1233">    } catch (Exception ex) {</span>
+<span class="nc" id="L1234">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1235">    }</span>
+
+<span class="fc" id="L1237">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1238">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1239">      byte[] res = productService.getImage(prodId);</span>
+<span class="fc" id="L1240">    });</span>
+<span class="nc" id="L1241">  }</span>
+
+
+  // test getProductPrice with an existing product
+  @Test
+  public void testGetProductPriceWithExistingProduct() {
+<span class="fc" id="L1247">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1248">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1249">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1250">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1251">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1252">    int prodQuantity = 5;</span>
+<span class="fc" id="L1253">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1256">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1257">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1258">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1259">    } catch (Exception ex) {</span>
+<span class="nc" id="L1260">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1261">    }</span>
+
+<span class="fc" id="L1263">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1264">    double res = productService.getProductPrice(prodId);</span>
+<span class="fc" id="L1265">    assertEquals(prodPrice, res);</span>
+<span class="fc" id="L1266">  }</span>
+
+  // test getProductPrice with nonexistent product
+  @Test
+  public void testGetProductPriceWithNonExistentProduct() {
+<span class="fc" id="L1271">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L1274">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1275">    } catch (Exception ex) {</span>
+<span class="nc" id="L1276">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1277">    }</span>
+
+<span class="fc" id="L1279">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1280">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1281">      double res = productService.getProductPrice(prodId);</span>
+<span class="fc" id="L1282">    });</span>
+<span class="nc" id="L1283">  }</span>
+
+  // test getProductPrice with null input
+  @Test
+  public void testGetProductPriceWithNullInput() {
+<span class="fc" id="L1288">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L1291">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1292">    } catch (Exception ex) {</span>
+<span class="nc" id="L1293">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1294">    }</span>
+
+<span class="fc" id="L1296">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1297">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1298">      double res = productService.getProductPrice(prodId);</span>
+<span class="fc" id="L1299">    });</span>
+<span class="nc" id="L1300">  }</span>
+
+  // test getProductPrice with empty input
+  @Test
+  public void testGetProductPriceWithEmptyInput() {
+<span class="fc" id="L1305">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L1308">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1309">    } catch (Exception ex) {</span>
+<span class="nc" id="L1310">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1311">    }</span>
+
+<span class="fc" id="L1313">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1314">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1315">      double res = productService.getProductPrice(prodId);</span>
+<span class="fc" id="L1316">    });</span>
+<span class="nc" id="L1317">  }</span>
+
+  // test sellNProduct with an existing product
+  @Test
+  public void testSellNProductWithExistingProduct() {
+<span class="fc" id="L1322">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1323">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1324">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1325">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1326">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1327">    int prodQuantity = 5;</span>
+<span class="fc" id="L1328">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1331">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1332">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1333">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1334">    } catch (Exception ex) {</span>
+<span class="nc" id="L1335">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1336">    }</span>
+
+<span class="fc" id="L1338">    int sellQuantity = 1;</span>
+
+<span class="fc" id="L1340">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1341">    boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1342">    assertTrue(res);</span>
+<span class="fc" id="L1343">  }</span>
+
+  // test sellNProduct with nonexistent product
+  @Test
+  public void testSellNProductWithNonexistent() {
+<span class="fc" id="L1348">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L1351">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1352">    } catch (Exception ex) {</span>
+<span class="nc" id="L1353">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1354">    }</span>
+
+<span class="fc" id="L1356">    int sellQuantity = 1;</span>
+
+<span class="fc" id="L1358">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1359">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1360">      boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1361">    });</span>
+<span class="nc" id="L1362">  }</span>
+
+  // test sellNProduct with null input
+  @Test
+  public void testSellNProductWithNullInput() {
+<span class="fc" id="L1367">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L1370">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1371">    } catch (Exception ex) {</span>
+<span class="nc" id="L1372">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1373">    }</span>
+
+<span class="fc" id="L1375">    int sellQuantity = 1;</span>
+
+<span class="fc" id="L1377">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1378">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1379">      boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1380">    });</span>
+<span class="nc" id="L1381">  }</span>
+
+  // test sellNProduct with empty input
+  @Test
+  public void testSellNProductWithEmptyInput() {
+<span class="fc" id="L1386">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L1389">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1390">    } catch (Exception ex) {</span>
+<span class="nc" id="L1391">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1392">    }</span>
+
+<span class="fc" id="L1394">    int sellQuantity = 0;</span>
+
+<span class="fc" id="L1396">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1397">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1398">      boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1399">    });</span>
+<span class="nc" id="L1400">  }</span>
+
+  // test sellNProduct with selling 0 products
+  @Test
+  public void testSellNProductZero() {
+<span class="fc" id="L1405">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1406">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1407">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1408">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1409">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1410">    int prodQuantity = 5;</span>
+<span class="fc" id="L1411">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1414">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1415">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1416">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1417">    } catch (Exception ex) {</span>
+<span class="nc" id="L1418">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1419">    }</span>
+
+<span class="fc" id="L1421">    int sellQuantity = 0;</span>
+
+<span class="fc" id="L1423">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1424">    boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1425">    assertTrue(res);</span>
+<span class="fc" id="L1426">  }</span>
+
+  // test sellNProduct with selling more products than exists
+  @Test
+  public void testSellNProductSellTooMany() {
+<span class="fc" id="L1431">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1432">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1433">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1434">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1435">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1436">    int prodQuantity = 5;</span>
+<span class="fc" id="L1437">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1440">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1441">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1442">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1443">    } catch (Exception ex) {</span>
+<span class="nc" id="L1444">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1445">    }</span>
+
+<span class="fc" id="L1447">    int sellQuantity = 7;</span>
+
+<span class="fc" id="L1449">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1450">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1451">      boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1452">    });</span>
+<span class="nc" id="L1453">  }</span>
+
+  // test sellNProduct with selling negative products
+  @Test
+  public void testSellNProductSellNegativeQuantity() {
+<span class="fc" id="L1458">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1459">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1460">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1461">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1462">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1463">    int prodQuantity = 5;</span>
+<span class="fc" id="L1464">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1467">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1468">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1469">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1470">    } catch (Exception ex) {</span>
+<span class="nc" id="L1471">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1472">    }</span>
+
+<span class="fc" id="L1474">    int sellQuantity = -7;</span>
+
+<span class="fc" id="L1476">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1477">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1478">      boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1479">    });</span>
+<span class="nc" id="L1480">  }</span>
+
+  // test sellNProduct with selling the remaining quantity
+  @Test
+  public void testSellNProductSellEntireStock() {
+<span class="fc" id="L1485">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1486">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1487">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1488">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1489">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1490">    int prodQuantity = 5;</span>
+<span class="fc" id="L1491">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1494">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1495">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1496">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1497">    } catch (Exception ex) {</span>
+<span class="nc" id="L1498">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1499">    }</span>
+
+<span class="fc" id="L1501">    int sellQuantity = 5;</span>
+
+<span class="fc" id="L1503">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1504">    boolean res = productService.sellNProduct(prodId, sellQuantity);</span>
+<span class="fc" id="L1505">    assertTrue(res);</span>
+<span class="fc" id="L1506">  }</span>
+
+  // test getProductQuantity with an existing product
+  @Test
+  public void testGetProductQuantityWithExistingProduct() {
+<span class="fc" id="L1511">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1512">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1513">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1514">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1515">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1516">    int prodQuantity = 5;</span>
+<span class="fc" id="L1517">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1520">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1521">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1522">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1523">    } catch (Exception ex) {</span>
+<span class="nc" id="L1524">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1525">    }</span>
+
+<span class="fc" id="L1527">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1528">    int res = productService.getProductQuantity(prodId);</span>
+<span class="fc" id="L1529">    assertEquals(prodQuantity, res);</span>
+<span class="fc" id="L1530">  }</span>
+
+  // test getProductQuantity with nonexistent product
+  @Test
+  public void testGetProductQuantityWithNonExistentProduct() {
+<span class="fc" id="L1535">    String prodId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L1538">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1539">    } catch (Exception ex) {</span>
+<span class="nc" id="L1540">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1541">    }</span>
+
+<span class="fc" id="L1543">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1544">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1545">      int res = productService.getProductQuantity(prodId);</span>
+<span class="fc" id="L1546">    });</span>
+<span class="nc" id="L1547">  }</span>
+
+  // test getProductQuantity with null input
+  @Test
+  public void testGetProductQuantityWithNullInput() {
+<span class="fc" id="L1552">    String prodId = null;</span>
+
+    try {
+<span class="fc" id="L1555">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1556">    } catch (Exception ex) {</span>
+<span class="nc" id="L1557">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1558">    }</span>
+
+<span class="fc" id="L1560">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1561">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1562">      int res = productService.getProductQuantity(prodId);</span>
+<span class="fc" id="L1563">    });</span>
+<span class="nc" id="L1564">  }</span>
+
+  // test getProductQuantity with empty input
+  @Test
+  public void testGetProductQuantityWithEmptyInput() {
+<span class="fc" id="L1569">    String prodId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L1572">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1573">    } catch (Exception ex) {</span>
+<span class="nc" id="L1574">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1575">    }</span>
+
+<span class="fc" id="L1577">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1578">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1579">      int res = productService.getProductQuantity(prodId);</span>
+<span class="fc" id="L1580">    });</span>
+<span class="nc" id="L1581">  }</span>
+
+
+  // test updateProductWithoutImage with an existing product
+  @Test
+  public void testUpdateProductWithoutImageWithExistingProduct() {
+<span class="fc" id="L1587">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1588">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1589">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1590">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1591">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1592">    int prodQuantity = 5;</span>
+<span class="fc" id="L1593">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1596">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1597">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1598">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1599">    } catch (Exception ex) {</span>
+<span class="nc" id="L1600">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1601">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1602">    }</span>
+
+<span class="fc" id="L1604">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1605">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L1606">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L1607">    prodUpdated.setProdType(&quot;type&quot;);</span>
+<span class="fc" id="L1608">    prodUpdated.setProdInfo(&quot;info&quot;);</span>
+<span class="fc" id="L1609">    prodUpdated.setProdPrice(10);</span>
+<span class="fc" id="L1610">    prodUpdated.setProdQuantity(7);</span>
+<span class="fc" id="L1611">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L1613">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1614">    String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1615">    assertEquals(&quot;Product Updated Successfully!&quot;, status);</span>
+<span class="fc" id="L1616">  }</span>
+
+  // test updateProductWithoutImage with nonexistent product
+  @Test
+  public void testUpdateProductWithoutImageWithNonexistentProduct() {
+<span class="fc" id="L1621">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1622">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1625">      assertFalse(getProductExists(prodId));</span>
+<span class="nc" id="L1626">    } catch (Exception ex) {</span>
+<span class="nc" id="L1627">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1628">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1629">    }</span>
+
+<span class="fc" id="L1631">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1632">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L1633">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L1634">    prodUpdated.setProdType(&quot;type&quot;);</span>
+<span class="fc" id="L1635">    prodUpdated.setProdInfo(&quot;info&quot;);</span>
+<span class="fc" id="L1636">    prodUpdated.setProdPrice(10);</span>
+<span class="fc" id="L1637">    prodUpdated.setProdQuantity(7);</span>
+<span class="fc" id="L1638">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L1640">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1641">    String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1642">    assertEquals(&quot;Product Not available in the store!&quot;, status);</span>
+<span class="fc" id="L1643">  }</span>
+
+  // test updateProductWithoutImage with less quantity
+  @Test
+  public void testUpdateProductWithoutImageWithLessQuantity() {
+<span class="fc" id="L1648">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1649">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1650">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1651">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1652">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1653">    int prodQuantity = 5;</span>
+<span class="fc" id="L1654">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1657">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1658">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1659">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1660">    } catch (Exception ex) {</span>
+<span class="nc" id="L1661">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1662">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1663">    }</span>
+
+<span class="fc" id="L1665">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1666">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L1667">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L1668">    prodUpdated.setProdType(&quot;type&quot;);</span>
+<span class="fc" id="L1669">    prodUpdated.setProdInfo(&quot;info&quot;);</span>
+<span class="fc" id="L1670">    prodUpdated.setProdPrice(0);</span>
+<span class="fc" id="L1671">    prodUpdated.setProdQuantity(7);</span>
+<span class="fc" id="L1672">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L1674">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1675">    String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1676">    assertEquals(&quot;Product Updated Successfully!&quot;, status);</span>
+<span class="fc" id="L1677">  }</span>
+
+
+  // test updateProductWithoutImage with different IDs
+  @Test
+  public void testUpdateProductWithoutImageWithMismatchedIDs() {
+<span class="fc" id="L1683">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1684">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1685">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1686">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1687">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1688">    int prodQuantity = 5;</span>
+<span class="fc" id="L1689">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1692">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1693">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1694">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1695">    } catch (Exception ex) {</span>
+<span class="nc" id="L1696">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L1697">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1698">    }</span>
+
+<span class="fc" id="L1700">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1701">    prodUpdated.setProdId(&quot;newID&quot;);</span>
+<span class="fc" id="L1702">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L1703">    prodUpdated.setProdType(prodType);</span>
+<span class="fc" id="L1704">    prodUpdated.setProdInfo(prodInfo);</span>
+<span class="fc" id="L1705">    prodUpdated.setProdPrice(prodPrice);</span>
+<span class="fc" id="L1706">    prodUpdated.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L1707">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L1709">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1710">    String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1711">    assertEquals(&quot;Both Products are Different, Updation Failed!&quot;, status);</span>
+<span class="fc" id="L1712">  }</span>
+
+  // test updateProductWithoutImage with no changes
+  @Test
+  public void testUpdateProductWithoutImageWithNoChanges() {
+<span class="fc" id="L1717">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1718">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1719">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1720">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1721">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1722">    int prodQuantity = 5;</span>
+<span class="fc" id="L1723">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1726">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1727">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1728">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1729">    } catch (Exception ex) {</span>
+<span class="nc" id="L1730">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1731">    }</span>
+
+<span class="fc" id="L1733">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1734">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L1735">    prodUpdated.setProdName(prodName);</span>
+<span class="fc" id="L1736">    prodUpdated.setProdType(prodType);</span>
+<span class="fc" id="L1737">    prodUpdated.setProdInfo(prodInfo);</span>
+<span class="fc" id="L1738">    prodUpdated.setProdPrice(prodPrice);</span>
+<span class="fc" id="L1739">    prodUpdated.setProdQuantity(prodQuantity);</span>
+<span class="fc" id="L1740">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L1742">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1743">    String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1744">    assertEquals(&quot;Product Updated Successfully!&quot;, status);</span>
+<span class="fc" id="L1745">  }</span>
+
+  // test updateProductWithoutImage with null inputs
+  @Test
+  public void testUpdateProductWithoutImageWithNullInputs() {
+<span class="fc" id="L1750">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1751">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L1752">      String status = productService.updateProductWithoutImage(null, null);</span>
+<span class="nc" id="L1753">    });</span>
+<span class="nc" id="L1754">  }</span>
+
+  // test updateProductWithoutImage with null changes
+  @Test
+  public void testUpdateProductWithoutImageWithNullUpdates() {
+<span class="fc" id="L1759">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1760">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1761">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1762">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1763">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1764">    int prodQuantity = 5;</span>
+<span class="fc" id="L1765">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1768">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1769">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1770">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1771">    } catch (Exception ex) {</span>
+<span class="nc" id="L1772">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1773">    }</span>
+
+<span class="fc" id="L1775">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1776">    prodUpdated.setProdId(null);</span>
+<span class="fc" id="L1777">    prodUpdated.setProdName(null);</span>
+<span class="fc" id="L1778">    prodUpdated.setProdType(null);</span>
+<span class="fc" id="L1779">    prodUpdated.setProdInfo(null);</span>
+<span class="fc" id="L1780">    prodUpdated.setProdPrice(0);</span>
+<span class="fc" id="L1781">    prodUpdated.setProdQuantity(0);</span>
+<span class="fc" id="L1782">    prodUpdated.setProdImage(null);</span>
+
+<span class="fc" id="L1784">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1785">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1786">      String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1787">    });</span>
+<span class="nc" id="L1788">  }</span>
+
+  // test updateProductWithoutImage with empty changes
+  @Test
+  public void testUpdateProductWithoutImageWithEmptyUpdates() {
+<span class="fc" id="L1793">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1794">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1795">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1796">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1797">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1798">    int prodQuantity = 5;</span>
+<span class="fc" id="L1799">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+    try {
+<span class="fc" id="L1802">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1803">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1804">      assertTrue(getProductExists(prodId));</span>
+<span class="nc" id="L1805">    } catch (Exception ex) {</span>
+<span class="nc" id="L1806">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1807">    }</span>
+
+<span class="fc" id="L1809">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1810">    prodUpdated.setProdId(&quot;&quot;);</span>
+<span class="fc" id="L1811">    prodUpdated.setProdName(&quot;&quot;);</span>
+<span class="fc" id="L1812">    prodUpdated.setProdType(&quot;&quot;);</span>
+<span class="fc" id="L1813">    prodUpdated.setProdInfo(&quot;&quot;);</span>
+<span class="fc" id="L1814">    prodUpdated.setProdPrice(0);</span>
+<span class="fc" id="L1815">    prodUpdated.setProdQuantity(0);</span>
+<span class="fc" id="L1816">    prodUpdated.setProdImage(ProductServiceImplTest.class.getResourceAsStream(&quot;&quot;));</span>
+
+<span class="fc" id="L1818">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="nc" id="L1819">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L1820">      String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1821">    });</span>
+<span class="nc" id="L1822">  }</span>
+
+  // test updateProductWithoutImage with demand for product
+  @Test
+  public void testUpdateProductWithoutImageWithDemandForProduct() {
+<span class="fc" id="L1827">    String prodId = &quot;12345&quot;;</span>
+<span class="fc" id="L1828">    String prodName = &quot;Blue Jeans&quot;;</span>
+<span class="fc" id="L1829">    String prodType = &quot;Pants&quot;;</span>
+<span class="fc" id="L1830">    String prodInfo = &quot;Dark wash jeans&quot;;</span>
+<span class="fc" id="L1831">    double prodPrice = 9.99;</span>
+<span class="fc" id="L1832">    int prodQuantity = 5;</span>
+<span class="fc" id="L1833">    InputStream prodImage = ProductServiceImplTest.class.getResourceAsStream(&quot;/test.png&quot;);</span>
+
+<span class="fc" id="L1835">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L1836">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L1837">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L1838">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L1839">    int pinCode = 123456;</span>
+<span class="fc" id="L1840">    String password = &quot;test&quot;;</span>
+
+<span class="fc" id="L1842">    int demandQty = 1;</span>
+
+    try {
+<span class="fc" id="L1845">      assertFalse(getProductExists(prodId));</span>
+<span class="fc" id="L1846">      addProduct(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+<span class="fc" id="L1847">      assertTrue(getProductExists(prodId));</span>
+<span class="fc" id="L1848">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L1849">      addDemandForProduct(userName, prodId, demandQty);</span>
+<span class="nc" id="L1850">    } catch (Exception ex) {</span>
+<span class="nc" id="L1851">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1852">    }</span>
+
+<span class="fc" id="L1854">    ProductBean prodUpdated = new ProductBean();</span>
+<span class="fc" id="L1855">    prodUpdated.setProdId(prodId);</span>
+<span class="fc" id="L1856">    prodUpdated.setProdName(&quot;New name&quot;);</span>
+<span class="fc" id="L1857">    prodUpdated.setProdType(&quot;type&quot;);</span>
+<span class="fc" id="L1858">    prodUpdated.setProdInfo(prodInfo);</span>
+<span class="fc" id="L1859">    prodUpdated.setProdPrice(prodPrice);</span>
+<span class="fc" id="L1860">    prodUpdated.setProdQuantity(12);</span>
+<span class="fc" id="L1861">    prodUpdated.setProdImage(prodImage);</span>
+
+<span class="fc" id="L1863">    ProductServiceImpl productService = new ProductServiceImpl();</span>
+<span class="fc" id="L1864">    String status = productService.updateProductWithoutImage(prodId, prodUpdated);</span>
+<span class="fc" id="L1865">    assertEquals(&quot;Product Updated Successfully! And Mail Send to the customers who were waiting for this product!&quot;, status);</span>
+<span class="fc" id="L1866">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

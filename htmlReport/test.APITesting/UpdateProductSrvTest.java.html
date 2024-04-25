@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateProductSrvTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.APITesting</a> &gt; <span class="el_source">UpdateProductSrvTest.java</span></div><h1>UpdateProductSrvTest.java</h1><pre class="source lang-java linenums">package test.APITesting;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
+<span class="nc" id="L10">public class UpdateProductSrvTest {</span>
+    @BeforeAll
+    public static void setup() {
+<span class="nc" id="L13">        RestAssured.baseURI = &quot;http://localhost&quot;;</span>
+<span class="nc" id="L14">        RestAssured.port = 8080;</span>
+<span class="nc" id="L15">        RestAssured.basePath = &quot;/shopping_cart_war&quot;;</span>
+<span class="nc" id="L16">    }</span>
+
+    @Test
+    void testUpdateProductWithValidAdminLogin() {
+        // first admin login
+<span class="nc" id="L21">        Response loginResponse = given()</span>
+<span class="nc" id="L22">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L23">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L24">                .formParam(&quot;password&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L25">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L26">                .when()</span>
+<span class="nc" id="L27">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L28">                .then()</span>
+<span class="nc" id="L29">                .statusCode(200)</span>
+<span class="nc" id="L30">                .extract().response();</span>
+
+<span class="nc" id="L32">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // use default products
+<span class="nc" id="L35">        String productId = &quot;P20230423084148&quot;;</span>
+
+<span class="nc" id="L37">        given()</span>
+<span class="nc" id="L38">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L39">                .param(&quot;pid&quot;, productId)</span>
+<span class="nc" id="L40">                .param(&quot;name&quot;, &quot;Updated Product&quot;)</span>
+<span class="nc" id="L41">                .param(&quot;type&quot;, &quot;Updated Type&quot;)</span>
+<span class="nc" id="L42">                .param(&quot;info&quot;, &quot;Updated Info&quot;)</span>
+<span class="nc" id="L43">                .param(&quot;price&quot;, &quot;19.99&quot;)</span>
+<span class="nc" id="L44">                .param(&quot;quantity&quot;, &quot;10&quot;)</span>
+<span class="nc" id="L45">                .when()</span>
+<span class="nc" id="L46">                .post(&quot;/UpdateProductSrv&quot;)</span>
+<span class="nc" id="L47">                .then()</span>
+<span class="nc" id="L48">                .statusCode(200)</span>
+<span class="nc" id="L49">                .body(containsString(&quot;Product Updated Successfully&quot;));</span>
+<span class="nc" id="L50">    }</span>
+
+    @Test
+    void testUpdateProductWithInvalidLogin() {
+        // no login info
+<span class="nc" id="L55">        String productId = &quot;P123&quot;;</span>
+
+<span class="nc" id="L57">        given()</span>
+<span class="nc" id="L58">                .param(&quot;pid&quot;, productId)</span>
+<span class="nc" id="L59">                .param(&quot;name&quot;, &quot;Updated Product&quot;)</span>
+<span class="nc" id="L60">                .param(&quot;type&quot;, &quot;Updated Type&quot;)</span>
+<span class="nc" id="L61">                .param(&quot;info&quot;, &quot;Updated Info&quot;)</span>
+<span class="nc" id="L62">                .param(&quot;price&quot;, &quot;19.99&quot;)</span>
+<span class="nc" id="L63">                .param(&quot;quantity&quot;, &quot;10&quot;)</span>
+<span class="nc" id="L64">                .when()</span>
+<span class="nc" id="L65">                .post(&quot;/UpdateProductSrv&quot;)</span>
+<span class="nc" id="L66">                .then()</span>
+<span class="nc" id="L67">                .statusCode(302)</span>
+<span class="nc" id="L68">                .header(&quot;Location&quot;, containsString(&quot;Access Denied, Login As Admin!!&quot;));</span>
+<span class="nc" id="L69">    }</span>
+
+    @Test
+    void testUpdateProductWithExpiredSession() {
+        // first admin login
+<span class="nc" id="L74">        Response loginResponse = given()</span>
+<span class="nc" id="L75">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L76">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L77">                .formParam(&quot;password&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L78">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L79">                .when()</span>
+<span class="nc" id="L80">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L81">                .then()</span>
+<span class="nc" id="L82">                .statusCode(200)</span>
+<span class="nc" id="L83">                .extract().response();</span>
+
+<span class="nc" id="L85">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // log out, reset cookies
+<span class="nc" id="L88">        given()</span>
+<span class="nc" id="L89">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L90">                .when()</span>
+<span class="nc" id="L91">                .get(&quot;/LogoutSrv&quot;)</span>
+<span class="nc" id="L92">                .then()</span>
+<span class="nc" id="L93">                .statusCode(200);</span>
+
+<span class="nc" id="L95">        String productId = &quot;P123&quot;;</span>
+
+<span class="nc" id="L97">        given()</span>
+<span class="nc" id="L98">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L99">                .param(&quot;pid&quot;, productId)</span>
+<span class="nc" id="L100">                .param(&quot;name&quot;, &quot;Updated Product&quot;)</span>
+<span class="nc" id="L101">                .param(&quot;type&quot;, &quot;Updated Type&quot;)</span>
+<span class="nc" id="L102">                .param(&quot;info&quot;, &quot;Updated Info&quot;)</span>
+<span class="nc" id="L103">                .param(&quot;price&quot;, &quot;19.99&quot;)</span>
+<span class="nc" id="L104">                .param(&quot;quantity&quot;, &quot;10&quot;)</span>
+<span class="nc" id="L105">                .when()</span>
+<span class="nc" id="L106">                .post(&quot;/UpdateProductSrv&quot;)</span>
+<span class="nc" id="L107">                .then()</span>
+<span class="nc" id="L108">                .statusCode(302)</span>
+<span class="nc" id="L109">                .header(&quot;Location&quot;, containsString(&quot;Session Expired, Login Again!!&quot;));</span>
+<span class="nc" id="L110">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

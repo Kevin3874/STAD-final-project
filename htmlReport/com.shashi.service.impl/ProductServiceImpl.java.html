@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.service.impl</a> &gt; <span class="el_source">ProductServiceImpl.java</span></div><h1>ProductServiceImpl.java</h1><pre class="source lang-java linenums">package com.shashi.service.impl;
+
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.shashi.beans.DemandBean;
+import com.shashi.beans.ProductBean;
+import com.shashi.service.ProductService;
+import com.shashi.utility.DBUtil;
+import com.shashi.utility.IDUtil;
+import com.shashi.utility.MailMessage;
+
+<span class="fc" id="L18">public class ProductServiceImpl implements ProductService {</span>
+
+	@Override
+	public String addProduct(String prodName, String prodType, String prodInfo, double prodPrice, int prodQuantity,
+			InputStream prodImage) {
+<span class="fc" id="L23">		String status = null;</span>
+<span class="fc" id="L24">		String prodId = IDUtil.generateId();</span>
+
+<span class="fc" id="L26">		ProductBean product = new ProductBean(prodId, prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+
+<span class="fc" id="L28">		status = addProduct(product);</span>
+
+<span class="fc" id="L30">		return status;</span>
+	}
+
+	@Override
+	public String addProduct(ProductBean product) {
+<span class="fc" id="L35">		String status = &quot;Product Registration Failed!&quot;;</span>
+
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">		if (product.getProdId() == null)</span>
+<span class="nc" id="L38">			product.setProdId(IDUtil.generateId());</span>
+
+<span class="fc" id="L40">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L42">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L45">			ps = con.prepareStatement(&quot;insert into product values(?,?,?,?,?,?,?);&quot;);</span>
+<span class="fc" id="L46">			ps.setString(1, product.getProdId());</span>
+<span class="fc" id="L47">			ps.setString(2, product.getProdName());</span>
+<span class="fc" id="L48">			ps.setString(3, product.getProdType());</span>
+<span class="fc" id="L49">			ps.setString(4, product.getProdInfo());</span>
+<span class="fc" id="L50">			ps.setDouble(5, product.getProdPrice());</span>
+<span class="fc" id="L51">			ps.setInt(6, product.getProdQuantity());</span>
+<span class="fc" id="L52">			ps.setBlob(7, product.getProdImage());</span>
+
+<span class="fc" id="L54">			int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">			if (k &gt; 0) {</span>
+
+<span class="fc" id="L58">				status = &quot;Product Added Successfully with Product Id: &quot; + product.getProdId();</span>
+
+			} else {
+
+<span class="nc" id="L62">				status = &quot;Product Updation Failed!&quot;;</span>
+			}
+
+<span class="nc" id="L65">		} catch (SQLException e) {</span>
+<span class="nc" id="L66">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L67">			e.printStackTrace();</span>
+<span class="fc" id="L68">		}</span>
+
+<span class="fc" id="L70">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L71">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L73">		return status;</span>
+	}
+
+	@Override
+	public String removeProduct(String prodId) {
+<span class="fc" id="L78">		String status = &quot;Product Removal Failed!&quot;;</span>
+
+<span class="fc" id="L80">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L82">		PreparedStatement ps = null;</span>
+<span class="fc" id="L83">		PreparedStatement ps2 = null;</span>
+
+		try {
+<span class="fc" id="L86">			ps = con.prepareStatement(&quot;delete from product where pid=?&quot;);</span>
+<span class="fc" id="L87">			ps.setString(1, prodId);</span>
+
+<span class="fc" id="L89">			int k = ps.executeUpdate();</span>
+
+<span class="fc bfc" id="L91" title="All 2 branches covered.">			if (k &gt; 0) {</span>
+<span class="fc" id="L92">				status = &quot;Product Removed Successfully!&quot;;</span>
+
+<span class="fc" id="L94">				ps2 = con.prepareStatement(&quot;delete from usercart where prodid=?&quot;);</span>
+
+<span class="fc" id="L96">				ps2.setString(1, prodId);</span>
+
+<span class="fc" id="L98">				ps2.executeUpdate();</span>
+
+			}
+
+<span class="nc" id="L102">		} catch (SQLException e) {</span>
+<span class="nc" id="L103">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L104">			e.printStackTrace();</span>
+<span class="fc" id="L105">		}</span>
+
+<span class="fc" id="L107">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L108">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L109">		DBUtil.closeConnection(ps2);</span>
+
+<span class="fc" id="L111">		return status;</span>
+	}
+
+	@Override
+	public String updateProduct(ProductBean prevProduct, ProductBean updatedProduct) {
+<span class="fc" id="L116">		String status = &quot;Product Updation Failed!&quot;;</span>
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		if (!prevProduct.getProdId().equals(updatedProduct.getProdId())) {</span>
+
+<span class="fc" id="L120">			status = &quot;Both Products are Different, Updation Failed!&quot;;</span>
+
+<span class="fc" id="L122">			return status;</span>
+		}
+
+<span class="fc" id="L125">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L127">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L130">			ps = con.prepareStatement(</span>
+					&quot;update product set pname=?,ptype=?,pinfo=?,pprice=?,pquantity=?,image=? where pid=?&quot;);
+
+<span class="fc" id="L133">			ps.setString(1, updatedProduct.getProdName());</span>
+<span class="fc" id="L134">			ps.setString(2, updatedProduct.getProdType());</span>
+<span class="fc" id="L135">			ps.setString(3, updatedProduct.getProdInfo());</span>
+<span class="fc" id="L136">			ps.setDouble(4, updatedProduct.getProdPrice());</span>
+<span class="fc" id="L137">			ps.setInt(5, updatedProduct.getProdQuantity());</span>
+<span class="fc" id="L138">			ps.setBlob(6, updatedProduct.getProdImage());</span>
+<span class="fc" id="L139">			ps.setString(7, prevProduct.getProdId());</span>
+
+<span class="fc" id="L141">			int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">			if (k &gt; 0)</span>
+<span class="fc" id="L144">				status = &quot;Product Updated Successfully!&quot;;</span>
+
+<span class="nc" id="L146">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L148">			e.printStackTrace();</span>
+<span class="fc" id="L149">		}</span>
+
+<span class="fc" id="L151">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L152">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L154">		return status;</span>
+	}
+
+	@Override
+	public String updateProductPrice(String prodId, double updatedPrice) {
+<span class="fc" id="L159">		String status = &quot;Price Updation Failed!&quot;;</span>
+
+<span class="fc" id="L161">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L163">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L166">			ps = con.prepareStatement(&quot;update product set pprice=? where pid=?&quot;);</span>
+
+<span class="fc" id="L168">			ps.setDouble(1, updatedPrice);</span>
+<span class="fc" id="L169">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L171">			int k = ps.executeUpdate();</span>
+
+<span class="fc bfc" id="L173" title="All 2 branches covered.">			if (k &gt; 0)</span>
+<span class="fc" id="L174">				status = &quot;Price Updated Successfully!&quot;;</span>
+<span class="nc" id="L175">		} catch (SQLException e) {</span>
+<span class="nc" id="L176">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L177">			e.printStackTrace();</span>
+<span class="fc" id="L178">		}</span>
+
+<span class="fc" id="L180">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L181">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L183">		return status;</span>
+	}
+
+	@Override
+	public List&lt;ProductBean&gt; getAllProducts() {
+<span class="fc" id="L188">		List&lt;ProductBean&gt; products = new ArrayList&lt;ProductBean&gt;();</span>
+
+<span class="fc" id="L190">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L192">		PreparedStatement ps = null;</span>
+<span class="fc" id="L193">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L196">			ps = con.prepareStatement(&quot;select * from product&quot;);</span>
+
+<span class="fc" id="L198">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L200" title="All 2 branches covered.">			while (rs.next()) {</span>
+
+<span class="fc" id="L202">				ProductBean product = new ProductBean();</span>
+
+<span class="fc" id="L204">				product.setProdId(rs.getString(1));</span>
+<span class="fc" id="L205">				product.setProdName(rs.getString(2));</span>
+<span class="fc" id="L206">				product.setProdType(rs.getString(3));</span>
+<span class="fc" id="L207">				product.setProdInfo(rs.getString(4));</span>
+<span class="fc" id="L208">				product.setProdPrice(rs.getDouble(5));</span>
+<span class="fc" id="L209">				product.setProdQuantity(rs.getInt(6));</span>
+<span class="fc" id="L210">				product.setProdImage(rs.getAsciiStream(7));</span>
+
+<span class="fc" id="L212">				products.add(product);</span>
+
+<span class="fc" id="L214">			}</span>
+
+<span class="nc" id="L216">		} catch (SQLException e) {</span>
+<span class="nc" id="L217">			e.printStackTrace();</span>
+<span class="fc" id="L218">		}</span>
+
+<span class="fc" id="L220">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L221">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L222">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L224">		return products;</span>
+	}
+
+	@Override
+	public List&lt;ProductBean&gt; getAllProductsByType(String type) {
+<span class="fc" id="L229">		List&lt;ProductBean&gt; products = new ArrayList&lt;ProductBean&gt;();</span>
+
+<span class="fc" id="L231">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L233">		PreparedStatement ps = null;</span>
+<span class="fc" id="L234">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L237">			ps = con.prepareStatement(&quot;SELECT * FROM `shopping-cart`.product where lower(ptype) like ?;&quot;);</span>
+<span class="fc" id="L238">			ps.setString(1, &quot;%&quot; + type + &quot;%&quot;);</span>
+<span class="fc" id="L239">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L241" title="All 2 branches covered.">			while (rs.next()) {</span>
+
+<span class="fc" id="L243">				ProductBean product = new ProductBean();</span>
+
+<span class="fc" id="L245">				product.setProdId(rs.getString(1));</span>
+<span class="fc" id="L246">				product.setProdName(rs.getString(2));</span>
+<span class="fc" id="L247">				product.setProdType(rs.getString(3));</span>
+<span class="fc" id="L248">				product.setProdInfo(rs.getString(4));</span>
+<span class="fc" id="L249">				product.setProdPrice(rs.getDouble(5));</span>
+<span class="fc" id="L250">				product.setProdQuantity(rs.getInt(6));</span>
+<span class="fc" id="L251">				product.setProdImage(rs.getAsciiStream(7));</span>
+
+<span class="fc" id="L253">				products.add(product);</span>
+
+<span class="fc" id="L255">			}</span>
+
+<span class="nc" id="L257">		} catch (SQLException e) {</span>
+<span class="nc" id="L258">			e.printStackTrace();</span>
+<span class="fc" id="L259">		}</span>
+
+<span class="fc" id="L261">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L262">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L263">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L265">		return products;</span>
+	}
+
+	@Override
+	public List&lt;ProductBean&gt; searchAllProducts(String search) {
+<span class="fc" id="L270">		List&lt;ProductBean&gt; products = new ArrayList&lt;ProductBean&gt;();</span>
+
+<span class="fc" id="L272">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L274">		PreparedStatement ps = null;</span>
+<span class="fc" id="L275">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L278">			ps = con.prepareStatement(</span>
+					&quot;SELECT * FROM `shopping-cart`.product where lower(ptype) like ? or lower(pname) like ? or lower(pinfo) like ?&quot;);
+<span class="fc" id="L280">			search = &quot;%&quot; + search + &quot;%&quot;;</span>
+<span class="fc" id="L281">			ps.setString(1, search);</span>
+<span class="fc" id="L282">			ps.setString(2, search);</span>
+<span class="fc" id="L283">			ps.setString(3, search);</span>
+<span class="fc" id="L284">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L286" title="All 2 branches covered.">			while (rs.next()) {</span>
+
+<span class="fc" id="L288">				ProductBean product = new ProductBean();</span>
+
+<span class="fc" id="L290">				product.setProdId(rs.getString(1));</span>
+<span class="fc" id="L291">				product.setProdName(rs.getString(2));</span>
+<span class="fc" id="L292">				product.setProdType(rs.getString(3));</span>
+<span class="fc" id="L293">				product.setProdInfo(rs.getString(4));</span>
+<span class="fc" id="L294">				product.setProdPrice(rs.getDouble(5));</span>
+<span class="fc" id="L295">				product.setProdQuantity(rs.getInt(6));</span>
+<span class="fc" id="L296">				product.setProdImage(rs.getAsciiStream(7));</span>
+
+<span class="fc" id="L298">				products.add(product);</span>
+
+<span class="fc" id="L300">			}</span>
+
+<span class="nc" id="L302">		} catch (SQLException e) {</span>
+<span class="nc" id="L303">			e.printStackTrace();</span>
+<span class="fc" id="L304">		}</span>
+
+<span class="fc" id="L306">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L307">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L308">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L310">		return products;</span>
+	}
+
+	@Override
+	public byte[] getImage(String prodId) {
+<span class="fc" id="L315">		byte[] image = null;</span>
+
+<span class="fc" id="L317">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L319">		PreparedStatement ps = null;</span>
+<span class="fc" id="L320">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L323">			ps = con.prepareStatement(&quot;select image from product where  pid=?&quot;);</span>
+
+<span class="fc" id="L325">			ps.setString(1, prodId);</span>
+
+<span class="fc" id="L327">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L329" title="All 2 branches covered.">			if (rs.next())</span>
+<span class="fc" id="L330">				image = rs.getBytes(&quot;image&quot;);</span>
+
+<span class="nc" id="L332">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L334">			e.printStackTrace();</span>
+<span class="fc" id="L335">		}</span>
+
+<span class="fc" id="L337">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L338">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L339">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L341">		return image;</span>
+	}
+
+	@Override
+	public ProductBean getProductDetails(String prodId) {
+<span class="fc" id="L346">		ProductBean product = null;</span>
+
+<span class="fc" id="L348">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L350">		PreparedStatement ps = null;</span>
+<span class="fc" id="L351">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L354">			ps = con.prepareStatement(&quot;select * from product where pid=?&quot;);</span>
+
+<span class="fc" id="L356">			ps.setString(1, prodId);</span>
+<span class="fc" id="L357">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L359" title="All 2 branches covered.">			if (rs.next()) {</span>
+<span class="fc" id="L360">				product = new ProductBean();</span>
+<span class="fc" id="L361">				product.setProdId(rs.getString(1));</span>
+<span class="fc" id="L362">				product.setProdName(rs.getString(2));</span>
+<span class="fc" id="L363">				product.setProdType(rs.getString(3));</span>
+<span class="fc" id="L364">				product.setProdInfo(rs.getString(4));</span>
+<span class="fc" id="L365">				product.setProdPrice(rs.getDouble(5));</span>
+<span class="fc" id="L366">				product.setProdQuantity(rs.getInt(6));</span>
+<span class="fc" id="L367">				product.setProdImage(rs.getAsciiStream(7));</span>
+			}
+
+<span class="nc" id="L370">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L372">			e.printStackTrace();</span>
+<span class="fc" id="L373">		}</span>
+
+<span class="fc" id="L375">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L376">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L378">		return product;</span>
+	}
+
+	@Override
+	public String updateProductWithoutImage(String prevProductId, ProductBean updatedProduct) {
+<span class="fc" id="L383">		String status = &quot;Product Updation Failed!&quot;;</span>
+
+<span class="fc bfc" id="L385" title="All 2 branches covered.">		if (!prevProductId.equals(updatedProduct.getProdId())) {</span>
+
+<span class="fc" id="L387">			status = &quot;Both Products are Different, Updation Failed!&quot;;</span>
+
+<span class="fc" id="L389">			return status;</span>
+		}
+
+<span class="fc" id="L392">		int prevQuantity = new ProductServiceImpl().getProductQuantity(prevProductId);</span>
+<span class="fc" id="L393">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L395">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L398">			ps = con.prepareStatement(&quot;update product set pname=?,ptype=?,pinfo=?,pprice=?,pquantity=? where pid=?&quot;);</span>
+
+<span class="fc" id="L400">			ps.setString(1, updatedProduct.getProdName());</span>
+<span class="fc" id="L401">			ps.setString(2, updatedProduct.getProdType());</span>
+<span class="fc" id="L402">			ps.setString(3, updatedProduct.getProdInfo());</span>
+<span class="fc" id="L403">			ps.setDouble(4, updatedProduct.getProdPrice());</span>
+<span class="fc" id="L404">			ps.setInt(5, updatedProduct.getProdQuantity());</span>
+<span class="fc" id="L405">			ps.setString(6, prevProductId);</span>
+
+<span class="fc" id="L407">			int k = ps.executeUpdate();</span>
+			// System.out.println(&quot;prevQuantity: &quot;+prevQuantity);
+<span class="fc bfc" id="L409" title="All 4 branches covered.">			if ((k &gt; 0) &amp;&amp; (prevQuantity &lt; updatedProduct.getProdQuantity())) {</span>
+<span class="fc" id="L410">				status = &quot;Product Updated Successfully!&quot;;</span>
+				// System.out.println(&quot;updated!&quot;);
+<span class="fc" id="L412">				List&lt;DemandBean&gt; demandList = new DemandServiceImpl().haveDemanded(prevProductId);</span>
+
+<span class="fc bfc" id="L414" title="All 2 branches covered.">				for (DemandBean demand : demandList) {</span>
+
+<span class="fc" id="L416">					String userFName = new UserServiceImpl().getFName(demand.getUserName());</span>
+					try {
+<span class="fc" id="L418">						MailMessage.productAvailableNow(demand.getUserName(), userFName, updatedProduct.getProdName(),</span>
+								prevProductId);
+<span class="nc" id="L420">					} catch (Exception e) {</span>
+<span class="nc" id="L421">						System.out.println(&quot;Mail Sending Failed: &quot; + e.getMessage());</span>
+<span class="fc" id="L422">					}</span>
+<span class="fc" id="L423">					boolean flag = new DemandServiceImpl().removeProduct(demand.getUserName(), prevProductId);</span>
+
+<span class="pc bpc" id="L425" title="1 of 2 branches missed.">					if (flag)</span>
+<span class="fc" id="L426">						status += &quot; And Mail Send to the customers who were waiting for this product!&quot;;</span>
+<span class="fc" id="L427">				}</span>
+<span class="fc bfc" id="L428" title="All 2 branches covered.">			} else if (k &gt; 0)</span>
+<span class="fc" id="L429">				status = &quot;Product Updated Successfully!&quot;;</span>
+			else
+<span class="fc" id="L431">				status = &quot;Product Not available in the store!&quot;;</span>
+
+<span class="nc" id="L433">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L435">			e.printStackTrace();</span>
+<span class="fc" id="L436">		}</span>
+
+<span class="fc" id="L438">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L439">		DBUtil.closeConnection(ps);</span>
+		// System.out.println(&quot;Prod Update status : &quot;+status);
+
+<span class="fc" id="L442">		return status;</span>
+	}
+
+	@Override
+	public double getProductPrice(String prodId) {
+<span class="fc" id="L447">		double price = 0;</span>
+
+<span class="fc" id="L449">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L451">		PreparedStatement ps = null;</span>
+<span class="fc" id="L452">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L455">			ps = con.prepareStatement(&quot;select * from product where pid=?&quot;);</span>
+
+<span class="fc" id="L457">			ps.setString(1, prodId);</span>
+<span class="fc" id="L458">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L460" title="All 2 branches covered.">			if (rs.next()) {</span>
+<span class="fc" id="L461">				price = rs.getDouble(&quot;pprice&quot;);</span>
+			}
+
+<span class="nc" id="L464">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L466">			e.printStackTrace();</span>
+<span class="fc" id="L467">		}</span>
+
+<span class="fc" id="L469">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L470">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L472">		return price;</span>
+	}
+
+	@Override
+	public boolean sellNProduct(String prodId, int n) {
+<span class="fc" id="L477">		boolean flag = false;</span>
+
+<span class="fc" id="L479">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L481">		PreparedStatement ps = null;</span>
+
+		try {
+
+<span class="fc" id="L485">			ps = con.prepareStatement(&quot;update product set pquantity=(pquantity - ?) where pid=?&quot;);</span>
+
+<span class="fc" id="L487">			ps.setInt(1, n);</span>
+
+<span class="fc" id="L489">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L491">			int k = ps.executeUpdate();</span>
+
+<span class="fc bfc" id="L493" title="All 2 branches covered.">			if (k &gt; 0)</span>
+<span class="fc" id="L494">				flag = true;</span>
+<span class="nc" id="L495">		} catch (SQLException e) {</span>
+<span class="nc" id="L496">			flag = false;</span>
+<span class="nc" id="L497">			e.printStackTrace();</span>
+<span class="fc" id="L498">		}</span>
+
+<span class="fc" id="L500">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L501">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L503">		return flag;</span>
+	}
+
+	@Override
+	public int getProductQuantity(String prodId) {
+
+<span class="fc" id="L509">		int quantity = 0;</span>
+
+<span class="fc" id="L511">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L513">		PreparedStatement ps = null;</span>
+<span class="fc" id="L514">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L517">			ps = con.prepareStatement(&quot;select * from product where pid=?&quot;);</span>
+
+<span class="fc" id="L519">			ps.setString(1, prodId);</span>
+<span class="fc" id="L520">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L522" title="All 2 branches covered.">			if (rs.next()) {</span>
+<span class="fc" id="L523">				quantity = rs.getInt(&quot;pquantity&quot;);</span>
+			}
+
+<span class="nc" id="L526">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L528">			e.printStackTrace();</span>
+<span class="fc" id="L529">		}</span>
+
+<span class="fc" id="L531">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L532">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L534">		return quantity;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

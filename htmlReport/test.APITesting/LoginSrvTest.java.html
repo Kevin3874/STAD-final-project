@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginSrvTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.APITesting</a> &gt; <span class="el_source">LoginSrvTest.java</span></div><h1>LoginSrvTest.java</h1><pre class="source lang-java linenums">package test.APITesting;
+
+import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
+<span class="nc" id="L9">public class LoginSrvTest {</span>
+    @BeforeAll
+    public static void setup() {
+<span class="nc" id="L12">        RestAssured.baseURI = &quot;http://localhost&quot;;</span>
+<span class="nc" id="L13">        RestAssured.port = 8080;</span>
+<span class="nc" id="L14">        RestAssured.basePath = &quot;/shopping_cart_war/LoginSrv&quot;;</span>
+<span class="nc" id="L15">    }</span>
+
+    @Test
+    void testAdminLogin() {
+<span class="nc" id="L19">        given()</span>
+<span class="nc" id="L20">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L21">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L22">                .formParam(&quot;password&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L23">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L24">                .when()</span>
+<span class="nc" id="L25">                .post()</span>
+<span class="nc" id="L26">                .then()</span>
+<span class="nc" id="L27">                .statusCode(200)</span>
+<span class="nc" id="L28">                .cookie(&quot;JSESSIONID&quot;, not(emptyString()))</span>
+<span class="nc" id="L29">                .header(&quot;Content-Type&quot;, containsString(&quot;text/html&quot;))</span>
+<span class="nc" id="L30">                .body(containsString(&quot;adminViewProduct.jsp&quot;));</span>
+<span class="nc" id="L31">    }</span>
+
+    @Test
+    void testAdminLoginWithInvalidCredentials() {
+<span class="nc" id="L35">        given()</span>
+<span class="nc" id="L36">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L37">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L38">                .formParam(&quot;password&quot;, &quot;wrongpassword&quot;)</span>
+<span class="nc" id="L39">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L40">                .when()</span>
+<span class="nc" id="L41">                .post()</span>
+<span class="nc" id="L42">                .then()</span>
+<span class="nc" id="L43">                .statusCode(200)</span>
+<span class="nc" id="L44">                .header(&quot;Content-Type&quot;, containsString(&quot;text/html&quot;))</span>
+<span class="nc" id="L45">                .body(containsString(&quot;Login Denied! Invalid Username or password.&quot;));</span>
+<span class="nc" id="L46">    }</span>
+
+    @Test
+    void testCustomerLoginWithValidCredentials() {
+<span class="nc" id="L50">        given()</span>
+<span class="nc" id="L51">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L52">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L53">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L54">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L55">                .when()</span>
+<span class="nc" id="L56">                .post()</span>
+<span class="nc" id="L57">                .then()</span>
+<span class="nc" id="L58">                .statusCode(200)</span>
+<span class="nc" id="L59">                .cookie(&quot;JSESSIONID&quot;, not(emptyString()))</span>
+<span class="nc" id="L60">                .header(&quot;Content-Type&quot;, containsString(&quot;text/html&quot;))</span>
+<span class="nc" id="L61">                .body(containsString(&quot;userHome.jsp&quot;));</span>
+<span class="nc" id="L62">    }</span>
+
+    @Test
+    void testCustomerLoginWithInvalidCredentials() {
+<span class="nc" id="L66">        given()</span>
+<span class="nc" id="L67">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L68">                .formParam(&quot;username&quot;, &quot;invaliduser@example.com&quot;)</span>
+<span class="nc" id="L69">                .formParam(&quot;password&quot;, &quot;invalidpassword&quot;)</span>
+<span class="nc" id="L70">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L71">                .when()</span>
+<span class="nc" id="L72">                .post()</span>
+<span class="nc" id="L73">                .then()</span>
+<span class="nc" id="L74">                .statusCode(200)</span>
+<span class="nc" id="L75">                .header(&quot;Content-Type&quot;, containsString(&quot;text/html&quot;))</span>
+<span class="nc" id="L76">                .body(containsString(&quot;Login Denied! Incorrect Username or Password&quot;));</span>
+<span class="nc" id="L77">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

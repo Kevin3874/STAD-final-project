@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.GUITesting</a> &gt; <span class="el_source">LoginTest.java</span></div><h1>LoginTest.java</h1><pre class="source lang-java linenums">package test.GUITesting;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="nc" id="L20">class LoginTest {</span>
+    private WebDriver driver;
+    private Actions actions;
+<span class="nc" id="L23">    private String BASE_URL = &quot;http://localhost:8080/shopping_cart_war/login.jsp&quot;;</span>
+
+    @BeforeEach
+    public void setUp() {
+<span class="nc" id="L27">        System.setProperty(&quot;webdriver.chrome.driver&quot;, &quot;/Users/Kevin/Desktop/Programming/chromedriver&quot;);</span>
+<span class="nc" id="L28">        ChromeOptions options = new ChromeOptions();</span>
+<span class="nc" id="L29">        options.addArguments(&quot;--headless&quot;);</span>
+<span class="nc" id="L30">        options.addArguments(&quot;--disable-gpu&quot;);</span>
+<span class="nc" id="L31">        options.addArguments(&quot;--window-size=1920,1080&quot;);</span>
+
+<span class="nc" id="L33">        driver = new ChromeDriver(options);</span>
+<span class="nc" id="L34">        actions = new Actions(driver);</span>
+<span class="nc" id="L35">        driver.get(&quot;http://localhost:8080/shopping_cart_war/login.jsp&quot;);</span>
+<span class="nc" id="L36">    }</span>
+
+    @AfterEach
+    public void tearDown() {
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (driver != null) {</span>
+<span class="nc" id="L41">            driver.quit();</span>
+        }
+<span class="nc" id="L43">    }</span>
+
+    @Test
+    void testLoginSuccessful() {
+        // find fields
+<span class="nc" id="L48">        driver.findElement(By.name(&quot;username&quot;)).sendKeys(&quot;guest@gmail.com&quot;);</span>
+<span class="nc" id="L49">        driver.findElement(By.name(&quot;password&quot;)).sendKeys(&quot;guest&quot;);</span>
+<span class="nc" id="L50">        driver.findElement(By.cssSelector(&quot;button[type='submit'][class='btn btn-success']&quot;)).click();</span>
+<span class="nc" id="L51">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+        // we are now in homepage successfuly
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        assert(bodyText.contains(&quot;All Products&quot;));</span>
+<span class="nc" id="L54">    }</span>
+
+    @Test
+    void testLoginFailed() {
+        // find fields
+<span class="nc" id="L59">        driver.findElement(By.name(&quot;username&quot;)).sendKeys(&quot;wrgonusername@gmail.com&quot;);</span>
+<span class="nc" id="L60">        driver.findElement(By.name(&quot;password&quot;)).sendKeys(&quot;guest&quot;);</span>
+<span class="nc" id="L61">        driver.findElement(By.cssSelector(&quot;button[type='submit'][class='btn btn-success']&quot;)).click();</span>
+<span class="nc" id="L62">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+        // still in login page, wrong login
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        assert(bodyText.contains(&quot;Login Denied! Incorrect Username or Password&quot;));</span>
+<span class="nc" id="L65">    }</span>
+
+    @Test
+    void testLoginWithBlankFields() {
+        // find fields
+<span class="nc" id="L70">        driver.findElement(By.name(&quot;username&quot;)).sendKeys(&quot;&quot;);</span>
+<span class="nc" id="L71">        driver.findElement(By.name(&quot;password&quot;)).sendKeys(&quot;&quot;);</span>
+<span class="nc" id="L72">        driver.findElement(By.cssSelector(&quot;button[type='submit'][class='btn btn-success']&quot;)).click();</span>
+
+        // Check if the &quot;Please fill out this field&quot; popup is displayed for the username field
+<span class="nc" id="L75">        String usernamePopupText = driver.findElement(By.name(&quot;username&quot;)).getAttribute(&quot;validationMessage&quot;);</span>
+<span class="nc" id="L76">        assertEquals(&quot;Please fill out this field.&quot;, usernamePopupText);</span>
+<span class="nc" id="L77">    }</span>
+
+    @Test
+    void testLoginWithInvalidEmail() {
+<span class="nc" id="L81">        driver.get(&quot;http://localhost:8080/shopping_cart_war/login.jsp&quot;);</span>
+        // take them to login page
+<span class="nc" id="L83">        driver.findElement(By.name(&quot;username&quot;)).sendKeys(&quot;hello&quot;);</span>
+<span class="nc" id="L84">        driver.findElement(By.name(&quot;password&quot;)).sendKeys(&quot;guest&quot;);</span>
+<span class="nc" id="L85">        driver.findElement(By.cssSelector(&quot;button[type='submit'][class='btn btn-success']&quot;)).click();</span>
+
+        // Check if the &quot;Please include an '@' in the email address&quot; popup is displayed
+<span class="nc" id="L88">        String emailPopupText = driver.findElement(By.name(&quot;username&quot;)).getAttribute(&quot;validationMessage&quot;);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        assert(emailPopupText.contains(&quot;Please include an '@' in the email address.&quot;));</span>
+<span class="nc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

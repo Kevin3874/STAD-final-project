@@ -1,0 +1,1366 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CartServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.ImplTesting</a> &gt; <span class="el_source">CartServiceImplTest.java</span></div><h1>CartServiceImplTest.java</h1><pre class="source lang-java linenums">package test.ImplTesting;
+
+import com.shashi.beans.CartBean;
+import com.shashi.utility.DBUtil;
+import org.junit.jupiter.api.*;
+import com.shashi.service.impl.CartServiceImpl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L16">public class CartServiceImplTest {</span>
+    // This file contains blackbox, whitebox methods to verify that each method works as intended.
+    // It also contains helper methods mostly specific to the cart tests
+
+    // IMPORTANT!! must have MYSQL Server/Workbench installed, set up, and connected. Contact Jiashu
+    // if you have questions.
+    // IMPORTANT!! many tests assume the default setup has been completed and unaltered. Tests also try
+    // to restore the table to the default state after completion.
+    // On a first startup, these tests may  fail due to SQL errors: I resolved these by running the
+    // creator's startup SQL query script individually, as the product commit crashed my MySQL Workbench.
+
+    public int getResultSetSize(ResultSet rs) {
+        try {
+<span class="fc" id="L29">            int size = 0;</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L31">                size++;</span>
+            }
+<span class="fc" id="L33">            return size;</span>
+<span class="nc" id="L34">        } catch (Exception ex) {</span>
+<span class="nc" id="L35">            return -1;</span>
+        }
+    }
+
+    public void addToCart(String userId, String productId, int quantity) throws Exception {
+<span class="fc" id="L40">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L41">        PreparedStatement ps = con.prepareStatement(&quot;insert into usercart values(?,?,?)&quot;);</span>
+
+<span class="fc" id="L43">        ps.setString(1, userId);</span>
+
+<span class="fc" id="L45">        ps.setString(2, productId);</span>
+
+<span class="fc" id="L47">        ps.setInt(3, quantity);</span>
+
+<span class="fc" id="L49">        int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (k == 0) {</span>
+<span class="nc" id="L52">            throw new Exception(&quot;did not insert successfully&quot;);</span>
+        }
+
+<span class="fc" id="L55">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L56">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L57">    }</span>
+
+    public boolean getProductExistsProdIDOnly(String productId) throws Exception {
+<span class="fc" id="L60">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L61">        PreparedStatement ps = con.prepareStatement(&quot;select * from usercart where prodid=?&quot;);</span>
+
+<span class="fc" id="L63">        ps.setString(1, productId);</span>
+
+<span class="fc" id="L65">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L67">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L69">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L70">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L71">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        return num &gt; 0;</span>
+    }
+
+    public boolean getProductExistsUsernameOnly(String userID) throws Exception {
+<span class="fc" id="L77">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L78">        PreparedStatement ps = con.prepareStatement(&quot;select * from usercart where username=?&quot;);</span>
+
+<span class="fc" id="L80">        ps.setString(1, userID);</span>
+
+<span class="fc" id="L82">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L84">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L86">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L87">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L88">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        return num &gt; 0;</span>
+    }
+
+    public boolean getProductExists(String userId, String productId) throws Exception {
+<span class="fc" id="L94">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L95">        PreparedStatement ps = con.prepareStatement(&quot;select * from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L97">        ps.setString(1, userId);</span>
+<span class="fc" id="L98">        ps.setString(2, productId);</span>
+
+<span class="fc" id="L100">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L102">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L104">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L105">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L106">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        return num &gt; 0;</span>
+    }
+
+    public boolean getProductExistsWithQuantity(String userId, String productId, int quantity) throws Exception {
+<span class="fc" id="L112">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L113">        PreparedStatement ps = con.prepareStatement(&quot;select * from usercart where username=? and prodid=? and quantity=?&quot;);</span>
+
+<span class="fc" id="L115">        ps.setString(1, userId);</span>
+<span class="fc" id="L116">        ps.setString(2, productId);</span>
+<span class="fc" id="L117">        ps.setInt(3, quantity);</span>
+
+<span class="fc" id="L119">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L121">        int result = getResultSetSize(rs);</span>
+
+<span class="fc" id="L123">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L124">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L125">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        return result &gt; 0;</span>
+    }
+
+
+    public void deleteDemands() throws SQLException {
+<span class="fc" id="L132">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L133">        PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM user_demand&quot;);</span>
+
+<span class="fc" id="L135">        ps.execute();</span>
+
+<span class="fc" id="L137">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L138">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L139">    }</span>
+
+    @AfterAll
+    public static void restoreDemand() {
+        try {
+<span class="fc" id="L144">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L145">            PreparedStatement ps = con.prepareStatement(&quot;INSERT INTO `shopping-cart`.`user_demand` (`username`, `prodid`, `quantity`) VALUES ('guest@gmail.com', 'P20230423084144', 3)&quot;);</span>
+
+<span class="fc" id="L147">            ps.execute();</span>
+
+<span class="fc" id="L149">            DBUtil.closeConnection(con);</span>
+<span class="fc" id="L150">            DBUtil.closeConnection(ps);</span>
+
+<span class="nc" id="L152">        } catch (Exception ex) {</span>
+<span class="nc" id="L153">            System.out.println(&quot;FAILED TO SET/CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="nc" id="L154">            fail();</span>
+<span class="fc" id="L155">        }</span>
+<span class="fc" id="L156">    }</span>
+
+    @AfterEach
+    public void clearCartResetOrder() {
+        try {
+<span class="fc" id="L161">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L162">            PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM usercart&quot;);</span>
+
+<span class="fc" id="L164">            ps.execute();</span>
+
+<span class="fc" id="L166">            DBUtil.closeConnection(con);</span>
+<span class="fc" id="L167">            DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L169">            deleteDemands();</span>
+
+<span class="nc" id="L171">        } catch (Exception ex) {</span>
+<span class="nc" id="L172">            System.out.println(&quot;FAILED TO SET/CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="nc" id="L173">            fail();</span>
+<span class="fc" id="L174">        }</span>
+<span class="fc" id="L175">    }</span>
+
+    @BeforeEach
+    public void clearBefore() {
+<span class="fc" id="L179">        clearCartResetOrder();</span>
+<span class="fc" id="L180">    }</span>
+
+    // Adds a new item to a cart using update with null username
+    @Test
+    public void testUpdateProductToCartNullUsername() {
+<span class="fc" id="L185">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L186">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L188">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L189">        String status = cartService.updateProductToCart(null, prodId, 1);</span>
+<span class="fc" id="L190">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L194">            assertTrue(getProductExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L195">        } catch (Exception ex) {</span>
+<span class="nc" id="L196">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L197">        }</span>
+<span class="fc" id="L198">    }</span>
+
+    // Adds a new item to a cart using update with null product id
+    @Test
+    public void testUpdateProductToCartNullProductID() {
+<span class="fc" id="L203">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L204">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L206">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L207">        String status = cartService.updateProductToCart(userId, null, 1);</span>
+<span class="fc" id="L208">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L212">            assertTrue(getProductExistsUsernameOnly(userId));</span>
+<span class="nc" id="L213">        } catch (Exception ex) {</span>
+<span class="nc" id="L214">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L215">        }</span>
+<span class="fc" id="L216">    }</span>
+
+    // Adds a new item to a cart using update unsuccessfully with invalid username
+    @Test
+    public void testUpdateProductToCartInvalidUsername() {
+<span class="fc" id="L221">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L222">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L224">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L225">        String status = cartService.updateProductToCart(&quot;abcdefg&quot;, prodId, 1);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L229">            assertTrue(status.contains(&quot;Error: Cannot add or update a child row&quot;));</span>
+<span class="fc" id="L230">            assertFalse(getProductExistsUsernameOnly(&quot;abcdefg&quot;));</span>
+<span class="nc" id="L231">        } catch (Exception ex) {</span>
+<span class="nc" id="L232">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L233">        }</span>
+<span class="fc" id="L234">    }</span>
+
+    // Adds a new item to a cart using update unsuccessfully with invalid product id
+    @Test
+    public void testUpdateProductToCartInvalidProductID() {
+<span class="fc" id="L239">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L240">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L241">        String status = &quot;&quot;;</span>
+
+<span class="fc" id="L243">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L244">        status = cartService.updateProductToCart(userId, &quot;abcdefg&quot;, 1);</span>
+
+        try {
+<span class="fc" id="L247">            assertTrue(status.contains(&quot;Error: Cannot add or update a child row: a foreign key constraint fails&quot;));</span>
+<span class="fc" id="L248">            assertFalse(getProductExistsWithQuantity(userId, &quot;abcdefg&quot;, 1));</span>
+<span class="nc" id="L249">        } catch (Exception ex) {</span>
+<span class="nc" id="L250">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L251">        }</span>
+<span class="fc" id="L252">    }</span>
+
+    // Adds a new item to a cart using update
+    @Test
+    public void testUpdateProductToCartAddNewItem() {
+<span class="fc" id="L257">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L258">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L260">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L261">        } catch (Exception ex) {</span>
+<span class="nc" id="L262">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L263">        }</span>
+
+<span class="fc" id="L265">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L266">        String status = cartService.updateProductToCart(userId, prodId, 1);</span>
+<span class="fc" id="L267">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L271">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L272">        } catch (Exception ex) {</span>
+<span class="nc" id="L273">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L274">        }</span>
+<span class="fc" id="L275">    }</span>
+
+    // Updates an old item to a cart using update
+    @Test
+    public void testUpdateProductToCartUpdateExistingItem() {
+<span class="fc" id="L280">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L281">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L283">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L284">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L285">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L286">        } catch (Exception ex) {</span>
+<span class="nc" id="L287">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L288">        }</span>
+
+<span class="fc" id="L290">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L291">        String status = cartService.updateProductToCart(userId, prodId, 1);</span>
+<span class="fc" id="L292">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L296">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L297">        } catch (Exception ex) {</span>
+<span class="nc" id="L298">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L299">        }</span>
+<span class="fc" id="L300">    }</span>
+
+    // Updates an old item to a cart using update, with multiple users
+    @Test
+    public void testUpdateProductToCartUpdateExistingItemMultipleUsers() {
+<span class="fc" id="L305">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L306">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L307">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L309">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L310">            addToCart(userId1, prodId, 3);</span>
+<span class="fc" id="L311">            addToCart(userId2, prodId, 3);</span>
+<span class="fc" id="L312">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 3));</span>
+<span class="fc" id="L313">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 3));</span>
+<span class="nc" id="L314">        } catch (Exception ex) {</span>
+<span class="nc" id="L315">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L316">        }</span>
+
+<span class="fc" id="L318">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L319">        String status = cartService.updateProductToCart(userId1, prodId, 1);</span>
+<span class="fc" id="L320">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L324">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 1));</span>
+<span class="fc" id="L325">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 3));</span>
+<span class="nc" id="L326">        } catch (Exception ex) {</span>
+<span class="nc" id="L327">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L328">        }</span>
+<span class="fc" id="L329">    }</span>
+
+    // Updates an old item to a cart using update, with multiple items
+    @Test
+    public void testUpdateProductToCartUpdateExistingItemMultipleItems() {
+<span class="fc" id="L334">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L335">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L336">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L338">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L339">            assertFalse(getProductExists(userId, prodId2));</span>
+<span class="fc" id="L340">            addToCart(userId, prodId1, 3);</span>
+<span class="fc" id="L341">            addToCart(userId, prodId2, 3);</span>
+<span class="fc" id="L342">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 3));</span>
+<span class="fc" id="L343">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 3));</span>
+<span class="nc" id="L344">        } catch (Exception ex) {</span>
+<span class="nc" id="L345">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L346">        }</span>
+
+<span class="fc" id="L348">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L349">        String status = cartService.updateProductToCart(userId, prodId1, 1);</span>
+<span class="fc" id="L350">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L354">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 1));</span>
+<span class="fc" id="L355">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 3));</span>
+<span class="nc" id="L356">        } catch (Exception ex) {</span>
+<span class="nc" id="L357">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L358">        }</span>
+<span class="fc" id="L359">    }</span>
+
+    // Updates an old item to a cart using update, but using a negative quantity
+    @Test
+    public void testUpdateProductToCartUpdateExistingItemNegativeQuantity() {
+<span class="fc" id="L364">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L365">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L367">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L368">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L369">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L370">        } catch (Exception ex) {</span>
+<span class="nc" id="L371">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L372">        }</span>
+
+<span class="fc" id="L374">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L375">        String status = cartService.updateProductToCart(userId, prodId, -1);</span>
+<span class="fc" id="L376">        assertEquals(&quot;Failed to Add into Cart&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L380">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L381">        } catch (Exception ex) {</span>
+<span class="nc" id="L382">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L383">        }</span>
+<span class="fc" id="L384">    }</span>
+
+    // Removes an old item to a cart using update
+    @Test
+    public void testUpdateProductToCartRemoveExistingItem() {
+<span class="fc" id="L389">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L390">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L392">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L393">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L394">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L395">        } catch (Exception ex) {</span>
+<span class="nc" id="L396">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L397">        }</span>
+
+<span class="fc" id="L399">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L400">        String status = cartService.updateProductToCart(userId, prodId, 0);</span>
+<span class="fc" id="L401">        assertEquals(&quot;Product Successfully Updated in Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L405">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L406">        } catch (Exception ex) {</span>
+<span class="nc" id="L407">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L408">        }</span>
+<span class="fc" id="L409">    }</span>
+
+    // Removes an old item to a cart using update with multiple users
+    @Test
+    public void testUpdateProductToCartRemoveExistingItemMultipleUsers() {
+<span class="fc" id="L414">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L415">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L416">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L418">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L419">            addToCart(userId1, prodId, 3);</span>
+<span class="fc" id="L420">            addToCart(userId2, prodId, 3);</span>
+<span class="fc" id="L421">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 3));</span>
+<span class="fc" id="L422">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 3));</span>
+<span class="nc" id="L423">        } catch (Exception ex) {</span>
+<span class="nc" id="L424">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L425">        }</span>
+
+<span class="fc" id="L427">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L428">        String status = cartService.updateProductToCart(userId1, prodId, 0);</span>
+<span class="fc" id="L429">        assertEquals(&quot;Product Successfully Updated in Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L433">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L434">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 3));</span>
+<span class="nc" id="L435">        } catch (Exception ex) {</span>
+<span class="nc" id="L436">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L437">        }</span>
+<span class="fc" id="L438">    }</span>
+
+    // Removes an old item to a cart using update with multiple items
+    @Test
+    public void testUpdateProductToCartRemoveExistingItemMultipleItems() {
+<span class="fc" id="L443">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L444">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L445">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L447">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L448">            assertFalse(getProductExists(userId, prodId2));</span>
+<span class="fc" id="L449">            addToCart(userId, prodId1, 3);</span>
+<span class="fc" id="L450">            addToCart(userId, prodId2, 3);</span>
+<span class="fc" id="L451">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 3));</span>
+<span class="fc" id="L452">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 3));</span>
+<span class="nc" id="L453">        } catch (Exception ex) {</span>
+<span class="nc" id="L454">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L455">        }</span>
+
+<span class="fc" id="L457">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L458">        String status = cartService.updateProductToCart(userId, prodId1, 0);</span>
+<span class="fc" id="L459">        assertEquals(&quot;Product Successfully Updated in Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L463">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L464">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 3));</span>
+<span class="nc" id="L465">        } catch (Exception ex) {</span>
+<span class="nc" id="L466">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L467">        }</span>
+<span class="fc" id="L468">    }</span>
+
+    // Adds a new item to a cart with null username
+    @Test
+    public void testAddProductToCartNullUsername() {
+<span class="fc" id="L473">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L474">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L476">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L477">        String status = cartService.addProductToCart(null, prodId, 1);</span>
+<span class="fc" id="L478">        assertEquals(&quot;Failed to Add into Cart&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L482">            assertFalse(getProductExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L483">        } catch (Exception ex) {</span>
+<span class="nc" id="L484">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L485">        }</span>
+<span class="fc" id="L486">    }</span>
+
+    // Adds a new item to a cart with null product id
+    @Test
+    public void testAddProductToCartNullProductID() {
+<span class="fc" id="L491">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L492">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L494">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L495">        String status = cartService.addProductToCart(userId, null, 1);</span>
+<span class="fc" id="L496">        assertEquals(&quot;Failed to Add into Cart&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L500">            assertFalse(getProductExistsUsernameOnly(userId));</span>
+<span class="nc" id="L501">        } catch (Exception ex) {</span>
+<span class="nc" id="L502">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L503">        }</span>
+<span class="fc" id="L504">    }</span>
+
+    // Adds an item to cart unsuccessfully (addProductToCart operates on existing cart items)
+    @Test
+    public void testAddProductToCartNoItemFound() {
+<span class="fc" id="L509">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L510">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L512">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L513">        } catch (Exception ex) {</span>
+<span class="nc" id="L514">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L515">        }</span>
+
+<span class="fc" id="L517">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L518">        String status = cartService.addProductToCart(userId, prodId, 1);</span>
+<span class="fc" id="L519">        assertEquals(&quot;Failed to Add into Cart&quot;, status);</span>
+        // cleanup and verification
+        try {
+<span class="fc" id="L522">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L523">        } catch (Exception ex) {</span>
+<span class="nc" id="L524">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L525">        }</span>
+<span class="fc" id="L526">    }</span>
+
+    // Adds an item to cart successfully (addProductToCart operates on existing items)
+    @Test
+    public void testAddProductToCartItemFoundSufficientQuantity() {
+<span class="fc" id="L531">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L532">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L534">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L535">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L536">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L537">        } catch (Exception ex) {</span>
+<span class="nc" id="L538">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L539">        }</span>
+
+<span class="fc" id="L541">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L542">        String status = cartService.addProductToCart(userId, prodId, 1);</span>
+<span class="fc" id="L543">        assertEquals(&quot;Product Successfully Updated to Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L547">            assertTrue(getProductExistsWithQuantity(userId, prodId, 4));</span>
+<span class="nc" id="L548">        } catch (Exception ex) {</span>
+<span class="nc" id="L549">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L550">        }</span>
+<span class="fc" id="L551">    }</span>
+
+    // Adds an item to cart unsuccessfully due to low stock (addProductToCart operates on existing items)
+    @Test
+    public void testAddProductToCartItemFoundInsufficientQuantity() {
+<span class="fc" id="L556">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L557">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L559">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L560">            addToCart(userId, prodId, 1001);</span>
+<span class="fc" id="L561">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1001));</span>
+<span class="nc" id="L562">        } catch (Exception ex) {</span>
+<span class="nc" id="L563">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L564">        }</span>
+
+<span class="fc" id="L566">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L567">        String status = cartService.addProductToCart(userId, prodId, 1001);</span>
+<span class="fc" id="L568">        assertEquals(&quot;Only 1000 no of APPLE iPhone 13 Pro (Graphite, 512 GB) are available in the shop! So we are adding only 1000 no of that item into Your Cart&lt;br/&gt;Later, We Will Mail You when APPLE iPhone 13 Pro (Graphite, 512 GB) will be available into the Store!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L572">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1000));</span>
+<span class="nc" id="L573">        } catch (Exception ex) {</span>
+<span class="nc" id="L574">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L575">        }</span>
+<span class="fc" id="L576">    }</span>
+
+    // Adds a new item to a cart unsuccessfully with invalid username
+    @Test
+    public void testAddProductToCartInvalidUsername() {
+<span class="fc" id="L581">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L582">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L583">        String status = &quot;&quot;;</span>
+
+<span class="fc" id="L585">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L586">        status = cartService.addProductToCart(&quot;abcdefg&quot;, prodId, 1);</span>
+
+        try {
+<span class="fc" id="L589">            assertEquals(&quot;Failed to Add into Cart&quot;, status);</span>
+<span class="fc" id="L590">            assertFalse(getProductExists(&quot;abcdefg&quot;, prodId));</span>
+<span class="nc" id="L591">        } catch (Exception e) {</span>
+<span class="nc" id="L592">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L593">        }</span>
+<span class="fc" id="L594">    }</span>
+
+    // Adds a new item to a cart unsuccessfully with invalid product id
+    @Test
+    public void testAddProductToCartInvalidProductID() {
+<span class="fc" id="L599">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L600">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L601">        String status = &quot;&quot;;</span>
+
+        try {
+<span class="fc" id="L604">            CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L605">            status = cartService.addProductToCart(userId, &quot;abcdefg&quot;, 1);</span>
+<span class="nc" id="L606">        } catch (Exception ex) {</span>
+            assert (true);
+<span class="fc" id="L608">        }</span>
+<span class="fc" id="L609">        assertEquals(&quot;Failed to Add into Cart&quot;, status);</span>
+<span class="fc" id="L610">    }</span>
+
+    // Retrieves all cart items when username is null
+    @Test
+    public void testGetAllCartItemsNullUsername() {
+<span class="fc" id="L615">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L616">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L618">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L619">        List&lt;CartBean&gt; list = cartService.getAllCartItems(null);</span>
+<span class="fc" id="L620">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L621">    }</span>
+
+    // Retrieves all cart items when username is invalid
+    @Test
+    public void testGetAllCartItemsInvalidUsername() {
+<span class="fc" id="L626">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L627">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L629">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L630">        List&lt;CartBean&gt; list = cartService.getAllCartItems(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L631">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L632">    }</span>
+
+    // Retrieves all cart items when none exist
+    @Test
+    public void testGetAllCartItemsEmptyCart() {
+<span class="fc" id="L637">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L638">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L640">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L641">        List&lt;CartBean&gt; list = cartService.getAllCartItems(userId);</span>
+<span class="fc" id="L642">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L643">    }</span>
+
+    // Retrieves all cart items when some exist
+    @Test
+    public void testGetAllCartItemsNonEmptyCart() {
+<span class="fc" id="L648">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L649">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L650">        String prodId3 = &quot;P20230423084143&quot;;</span>
+<span class="fc" id="L651">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L653">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L654">            assertFalse(getProductExists(userId, prodId2));</span>
+<span class="fc" id="L655">            assertFalse(getProductExists(userId, prodId3));</span>
+<span class="fc" id="L656">            addToCart(userId, prodId1, 3);</span>
+<span class="fc" id="L657">            addToCart(userId, prodId2, 2);</span>
+<span class="fc" id="L658">            addToCart(userId, prodId3, 1);</span>
+<span class="fc" id="L659">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 3));</span>
+<span class="fc" id="L660">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 2));</span>
+<span class="fc" id="L661">            assertTrue(getProductExistsWithQuantity(userId, prodId3, 1));</span>
+<span class="nc" id="L662">        } catch (Exception ex) {</span>
+<span class="nc" id="L663">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L664">        }</span>
+
+<span class="fc" id="L666">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L667">        List&lt;CartBean&gt; list = cartService.getAllCartItems(userId);</span>
+<span class="pc bpc" id="L668" title="1 of 2 branches missed.">        assertTrue(list.size() == 3);</span>
+<span class="fc" id="L669">        boolean has1 = false;</span>
+<span class="fc" id="L670">        boolean has2 = false;</span>
+<span class="fc" id="L671">        boolean has3 = false;</span>
+<span class="fc bfc" id="L672" title="All 2 branches covered.">        for (CartBean cartBean : list) {</span>
+<span class="pc bpc" id="L673" title="2 of 6 branches missed.">            if (cartBean.getProdId().equals(prodId1) &amp;&amp; cartBean.getUserId().equals(userId) &amp;&amp; cartBean.getQuantity() == 3) {</span>
+<span class="fc" id="L674">                has1 = true;</span>
+<span class="pc bpc" id="L675" title="2 of 6 branches missed.">            } else if (cartBean.getProdId().equals(prodId2) &amp;&amp; cartBean.getUserId().equals(userId) &amp;&amp; cartBean.getQuantity() == 2) {</span>
+<span class="fc" id="L676">                has2 = true;</span>
+<span class="pc bpc" id="L677" title="3 of 6 branches missed.">            } else if (cartBean.getProdId().equals(prodId3) &amp;&amp; cartBean.getUserId().equals(userId) &amp;&amp; cartBean.getQuantity() == 1) {</span>
+<span class="fc" id="L678">                has3 = true;</span>
+            }
+<span class="fc" id="L680">        }</span>
+<span class="pc bpc" id="L681" title="3 of 6 branches missed.">        assertTrue(has1 &amp;&amp; has2 &amp;&amp; has3);</span>
+<span class="fc" id="L682">    }</span>
+
+    // Retrieves all cart items when some exist for multiple users
+    @Test
+    public void testGetAllCartItemsNonEmptyCartMultipleUsers() {
+<span class="fc" id="L687">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L688">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L689">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L691">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L692">            assertFalse(getProductExists(userId2, prodId));</span>
+<span class="fc" id="L693">            addToCart(userId1, prodId, 3);</span>
+<span class="fc" id="L694">            addToCart(userId2, prodId, 2);</span>
+<span class="fc" id="L695">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 3));</span>
+<span class="fc" id="L696">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 2));</span>
+<span class="nc" id="L697">        } catch (Exception ex) {</span>
+<span class="nc" id="L698">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L699">        }</span>
+
+<span class="fc" id="L701">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L702">        List&lt;CartBean&gt; list = cartService.getAllCartItems(userId1);</span>
+<span class="fc" id="L703">        assertEquals(1, list.size());</span>
+<span class="fc bfc" id="L704" title="All 2 branches covered.">        for (CartBean cartBean : list) {</span>
+<span class="pc bpc" id="L705" title="3 of 6 branches missed.">            if (cartBean.getProdId().equals(prodId) &amp;&amp; cartBean.getUserId().equals(userId1) &amp;&amp; cartBean.getQuantity() == 3) {</span>
+<span class="fc" id="L706">                continue;</span>
+            } else {
+<span class="nc" id="L708">                fail(&quot;Invalid entry&quot;);</span>
+            }
+<span class="nc" id="L710">        }</span>
+<span class="fc" id="L711">    }</span>
+
+    // Retrieves sum of all cart item quantities when none exist
+    @Test
+    public void testGetCartCountEmptyCart() {
+<span class="fc" id="L716">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L718">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L719">        int sum = cartService.getCartCount(userId);</span>
+<span class="fc" id="L720">        assertEquals(0, sum);</span>
+<span class="fc" id="L721">    }</span>
+
+    // Retrieves sum of all cart item quantities when some exist
+    @Test
+    public void testGetCartCountNonEmptyCart() {
+<span class="fc" id="L726">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L727">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L728">        String prodId3 = &quot;P20230423084143&quot;;</span>
+<span class="fc" id="L729">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L731">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L732">            assertFalse(getProductExists(userId, prodId2));</span>
+<span class="fc" id="L733">            assertFalse(getProductExists(userId, prodId3));</span>
+<span class="fc" id="L734">            addToCart(userId, prodId1, 3);</span>
+<span class="fc" id="L735">            addToCart(userId, prodId2, 2);</span>
+<span class="fc" id="L736">            addToCart(userId, prodId3, 1);</span>
+<span class="fc" id="L737">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 3));</span>
+<span class="fc" id="L738">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 2));</span>
+<span class="fc" id="L739">            assertTrue(getProductExistsWithQuantity(userId, prodId3, 1));</span>
+<span class="nc" id="L740">        } catch (Exception ex) {</span>
+<span class="nc" id="L741">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L742">        }</span>
+
+<span class="fc" id="L744">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L745">        int sum = cartService.getCartCount(userId);</span>
+<span class="fc" id="L746">        assertEquals(sum, 6);</span>
+<span class="fc" id="L747">    }</span>
+
+    // Retrieves sum of all cart item quantities when some exist for multiple users
+    @Test
+    public void testGetCartCountNonEmptyCartMultipleUsers() {
+<span class="fc" id="L752">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L753">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L754">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L756">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L757">            assertFalse(getProductExists(userId2, prodId));</span>
+<span class="fc" id="L758">            addToCart(userId1, prodId, 3);</span>
+<span class="fc" id="L759">            addToCart(userId2, prodId, 2);</span>
+<span class="fc" id="L760">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 3));</span>
+<span class="fc" id="L761">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 2));</span>
+<span class="nc" id="L762">        } catch (Exception ex) {</span>
+<span class="nc" id="L763">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L764">        }</span>
+
+<span class="fc" id="L766">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L767">        int sum = cartService.getCartCount(userId1);</span>
+<span class="fc" id="L768">        assertEquals(sum, 3);</span>
+<span class="fc" id="L769">    }</span>
+
+    // Retrieves sum of all cart item quantities when a null value exists in a column
+    @Test
+    public void testGetCartCountNullColumn() {
+<span class="fc" id="L774">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L775">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L777">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L778">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L779">            PreparedStatement ps = con.prepareStatement(&quot;insert into usercart values(\&quot;guest@gmail.com\&quot;,\&quot;P20230423082243\&quot;,NULL)&quot;);</span>
+<span class="fc" id="L780">            int k = ps.executeUpdate();</span>
+<span class="pc bpc" id="L781" title="1 of 2 branches missed.">            if (k == 0) {</span>
+<span class="nc" id="L782">                throw new Exception(&quot;did not insert successfully&quot;);</span>
+            }
+<span class="fc" id="L784">            assertTrue(getProductExists(userId, prodId));</span>
+<span class="nc" id="L785">        } catch (Exception ex) {</span>
+<span class="nc" id="L786">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L787">        }</span>
+
+<span class="fc" id="L789">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L790">        int sum = cartService.getCartCount(userId);</span>
+<span class="fc" id="L791">        assertEquals(sum, 0);</span>
+<span class="fc" id="L792">    }</span>
+
+    // Retrieves sum of all cart item quantities when username is invalid
+    @Test
+    public void testGetCartCountInvalid() {
+<span class="fc" id="L797">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L798">        int sum = cartService.getCartCount(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L799">        assertEquals(sum, 0);</span>
+<span class="fc" id="L800">    }</span>
+
+    // Retrieves sum of all cart item quantities when username is null
+    @Test
+    public void testGetCartCountNull() {
+<span class="fc" id="L805">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L806">        int sum = cartService.getCartCount(null);</span>
+<span class="fc" id="L807">        assertEquals(sum, 0);</span>
+<span class="fc" id="L808">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when none exist
+    @Test
+    public void testGetProductCountEmptyCart() {
+<span class="fc" id="L813">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L814">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L816">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L817">        int sum = cartService.getProductCount(userId, prodId);</span>
+<span class="fc" id="L818">        assertEquals(0, sum);</span>
+<span class="fc" id="L819">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when some exist
+    @Test
+    public void testGetProductCountNonEmptyCart() {
+<span class="fc" id="L824">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L825">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L827">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L828">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L829">            addToCart(userId, prodId, 2);</span>
+<span class="fc" id="L830">            addToCart(userId, prodId, 1);</span>
+<span class="fc" id="L831">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="fc" id="L832">            assertTrue(getProductExistsWithQuantity(userId, prodId, 2));</span>
+<span class="fc" id="L833">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L834">        } catch (Exception ex) {</span>
+<span class="nc" id="L835">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L836">        }</span>
+
+<span class="fc" id="L838">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L839">        int sum = cartService.getProductCount(userId, prodId);</span>
+<span class="fc" id="L840">        assertEquals(6, sum);</span>
+<span class="fc" id="L841">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when some exist for multiple users
+    @Test
+    public void testGetProductCountNonEmptyCartMultipleUsers() {
+<span class="fc" id="L846">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L847">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L848">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L850">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L851">            assertFalse(getProductExists(userId2, prodId));</span>
+<span class="fc" id="L852">            addToCart(userId1, prodId, 3);</span>
+<span class="fc" id="L853">            addToCart(userId2, prodId, 2);</span>
+<span class="fc" id="L854">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 3));</span>
+<span class="fc" id="L855">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 2));</span>
+<span class="nc" id="L856">        } catch (Exception ex) {</span>
+<span class="nc" id="L857">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L858">        }</span>
+
+<span class="fc" id="L860">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L861">        int sum = cartService.getProductCount(userId1, prodId);</span>
+<span class="fc" id="L862">        assertEquals(3, sum);</span>
+<span class="fc" id="L863">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when a null value exists in a column
+    @Test
+    public void testGetProductCountNullColumn() {
+<span class="fc" id="L868">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L869">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L871">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L872">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L873">            PreparedStatement ps = con.prepareStatement(&quot;insert into usercart values(\&quot;guest@gmail.com\&quot;,\&quot;P20230423082243\&quot;,NULL)&quot;);</span>
+<span class="fc" id="L874">            int k = ps.executeUpdate();</span>
+<span class="pc bpc" id="L875" title="1 of 2 branches missed.">            if (k == 0) {</span>
+<span class="nc" id="L876">                throw new Exception(&quot;did not insert successfully&quot;);</span>
+            }
+<span class="fc" id="L878">            assertTrue(getProductExists(userId, prodId));</span>
+<span class="nc" id="L879">        } catch (Exception ex) {</span>
+<span class="nc" id="L880">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L881">        }</span>
+
+<span class="fc" id="L883">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L884">        int sum = cartService.getProductCount(userId, prodId);</span>
+<span class="fc" id="L885">        assertEquals(sum, 0);</span>
+<span class="fc" id="L886">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when username is invalid
+    @Test
+    public void testGetProductCountUsernameInvalid() {
+<span class="fc" id="L891">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L892">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L893">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L894">        int sum = cartService.getProductCount(&quot;abcdefg&quot;, prodId);</span>
+<span class="fc" id="L895">        assertEquals(sum, 0);</span>
+<span class="fc" id="L896">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when username is null
+    @Test
+    public void testGetProductCountUsernameNull() {
+<span class="fc" id="L901">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L902">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L903">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L904">        int sum = cartService.getProductCount(&quot;abcdefg&quot;, prodId);</span>
+<span class="fc" id="L905">        assertEquals(sum, 0);</span>
+<span class="fc" id="L906">    }</span>
+
+    // Retrieves sum of all cart item quantities for a certain product when prodid is invalid
+    @Test
+    public void testGetProductCountProductIDInvalid() {
+<span class="fc" id="L911">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L912">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L913">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L914">        int sum = cartService.getProductCount(userId, &quot;abcdefg&quot;);</span>
+<span class="fc" id="L915">        assertEquals(sum, 0);</span>
+<span class="fc" id="L916">    }</span>
+
+    // Retrieves cart item quantity of an item when it exists
+    @Test
+    public void testGetCartItemCountNonEmptyCart() {
+<span class="fc" id="L921">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L922">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L924">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L925">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L926">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L927">        } catch (Exception ex) {</span>
+<span class="nc" id="L928">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L929">        }</span>
+
+<span class="fc" id="L931">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L932">        int count = cartService.getCartItemCount(userId, prodId);</span>
+<span class="fc" id="L933">        assertEquals(3, count);</span>
+<span class="fc" id="L934">    }</span>
+
+    // Retrieves cart item quantity of an item when it exists for multiple users
+    @Test
+    public void testGetCartItemCountNonEmptyCartMultipleUsers() {
+<span class="fc" id="L939">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L940">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L941">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L943">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L944">            assertFalse(getProductExists(userId2, prodId));</span>
+<span class="fc" id="L945">            addToCart(userId1, prodId, 3);</span>
+<span class="fc" id="L946">            addToCart(userId2, prodId, 2);</span>
+<span class="fc" id="L947">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 3));</span>
+<span class="fc" id="L948">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 2));</span>
+<span class="nc" id="L949">        } catch (Exception ex) {</span>
+<span class="nc" id="L950">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L951">        }</span>
+
+<span class="fc" id="L953">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L954">        int count = cartService.getCartItemCount(userId1, prodId);</span>
+<span class="fc" id="L955">        assertEquals(3, count);</span>
+<span class="fc" id="L956">    }</span>
+
+    // Retrieves cart item quantity of an item when cart is empty
+    @Test
+    public void testGetCartItemCountEmptyCart() {
+<span class="fc" id="L961">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L962">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L964">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L965">        } catch (Exception ex) {</span>
+<span class="nc" id="L966">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L967">        }</span>
+
+<span class="fc" id="L969">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L970">        int count = cartService.getCartItemCount(userId, prodId);</span>
+<span class="fc" id="L971">        assertEquals(0, count);</span>
+<span class="fc" id="L972">    }</span>
+
+    // Retrieves cart item quantity of an item when a null value exists in a column
+    @Test
+    public void testGetCartItemCountNullColumn() {
+<span class="fc" id="L977">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L978">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L980">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L981">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L982">            PreparedStatement ps = con.prepareStatement(&quot;insert into usercart values(\&quot;guest@gmail.com\&quot;,\&quot;P20230423082243\&quot;,NULL)&quot;);</span>
+<span class="fc" id="L983">            int k = ps.executeUpdate();</span>
+<span class="pc bpc" id="L984" title="1 of 2 branches missed.">            if (k == 0) {</span>
+<span class="nc" id="L985">                throw new Exception(&quot;did not insert successfully&quot;);</span>
+            }
+<span class="fc" id="L987">            assertTrue(getProductExists(userId, prodId));</span>
+<span class="nc" id="L988">        } catch (Exception ex) {</span>
+<span class="nc" id="L989">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L990">        }</span>
+
+<span class="fc" id="L992">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L993">        int sum = cartService.getCartItemCount(userId, prodId);</span>
+<span class="fc" id="L994">        assertEquals(sum, 0);</span>
+<span class="fc" id="L995">    }</span>
+
+    // Retrieves cart item quantity of an item when username is invalid
+    @Test
+    public void testGetCartItemCountUsernameInvalid() {
+<span class="fc" id="L1000">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1001">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1002">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1003">        int sum = cartService.getCartItemCount(&quot;abcdefg&quot;, prodId);</span>
+<span class="fc" id="L1004">        assertEquals(sum, 0);</span>
+<span class="fc" id="L1005">    }</span>
+
+    // Retrieves cart item quantity of an item when username is null
+    @Test
+    public void testGetCartItemCountUsernameNull() {
+<span class="fc" id="L1010">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1011">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1012">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1013">        int sum = cartService.getCartItemCount(null, prodId);</span>
+<span class="fc" id="L1014">        assertEquals(sum, 0);</span>
+<span class="fc" id="L1015">    }</span>
+
+    // Retrieves cart item quantity of an item when prodid is invalid
+    @Test
+    public void testGetCartItemCountProductIDInvalid() {
+<span class="fc" id="L1020">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1021">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1022">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1023">        int sum = cartService.getCartItemCount(userId, &quot;abcdefg&quot;);</span>
+<span class="fc" id="L1024">        assertEquals(sum, 0);</span>
+<span class="fc" id="L1025">    }</span>
+
+    // Retrieves cart item quantity of an item when prodid is null
+    @Test
+    public void testGetCartItemCountProductIDNull() {
+<span class="fc" id="L1030">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1031">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1032">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1033">        int sum = cartService.getCartItemCount(userId, null);</span>
+<span class="fc" id="L1034">        assertEquals(sum, 0);</span>
+<span class="fc" id="L1035">    }</span>
+
+    // Deletes a cart item of an id when it exists and there are more than one
+    @Test
+    public void testRemoveProductFromCartGreaterThanOne() {
+<span class="fc" id="L1040">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1041">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1043">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L1044">            addToCart(userId, prodId, 3);</span>
+<span class="fc" id="L1045">            assertTrue(getProductExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L1046">        } catch (Exception ex) {</span>
+<span class="nc" id="L1047">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1048">        }</span>
+
+<span class="fc" id="L1050">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1051">        String status = cartService.removeProductFromCart(userId, prodId);</span>
+<span class="fc" id="L1052">        assertEquals(&quot;Product Successfully removed from the Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1056">            assertTrue(getProductExistsWithQuantity(userId, prodId, 2));</span>
+<span class="nc" id="L1057">        } catch (Exception ex) {</span>
+<span class="nc" id="L1058">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1059">        }</span>
+<span class="fc" id="L1060">    }</span>
+
+    // Deletes a cart item of an id when it exists and there are more than one for multiple users
+    @Test
+    public void testRemoveProductFromCartGreaterThanOneMultipleUsers() {
+<span class="fc" id="L1065">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1066">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1067">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1069">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L1070">            assertFalse(getProductExists(userId2, prodId));</span>
+<span class="fc" id="L1071">            addToCart(userId1, prodId, 1);</span>
+<span class="fc" id="L1072">            addToCart(userId2, prodId, 1);</span>
+<span class="fc" id="L1073">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 1));</span>
+<span class="fc" id="L1074">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L1075">        } catch (Exception ex) {</span>
+<span class="nc" id="L1076">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1077">        }</span>
+
+<span class="fc" id="L1079">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1080">        String status = cartService.removeProductFromCart(userId1, prodId);</span>
+<span class="fc" id="L1081">        assertEquals(&quot;Product Successfully removed from the Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1085">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L1086">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L1087">        } catch (Exception ex) {</span>
+<span class="nc" id="L1088">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1089">        }</span>
+<span class="fc" id="L1090">    }</span>
+
+    // Deletes a cart item of an id when it exists and there are more than one for multiple items
+    @Test
+    public void testRemoveProductFromCartGreaterThanOneMultipleItems() {
+<span class="fc" id="L1095">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1096">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L1097">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1099">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L1100">            assertFalse(getProductExists(userId, prodId2));</span>
+<span class="fc" id="L1101">            addToCart(userId, prodId1, 1);</span>
+<span class="fc" id="L1102">            addToCart(userId, prodId2, 1);</span>
+<span class="fc" id="L1103">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 1));</span>
+<span class="fc" id="L1104">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="nc" id="L1105">        } catch (Exception ex) {</span>
+<span class="nc" id="L1106">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1107">        }</span>
+
+<span class="fc" id="L1109">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1110">        String status = cartService.removeProductFromCart(userId, prodId1);</span>
+<span class="fc" id="L1111">        assertEquals(&quot;Product Successfully removed from the Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1115">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L1116">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="nc" id="L1117">        } catch (Exception ex) {</span>
+<span class="nc" id="L1118">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1119">        }</span>
+<span class="fc" id="L1120">    }</span>
+
+    // Deletes a cart item of an id when it exists and there is one
+    @Test
+    public void testRemoveProductFromCartEqualToOne() {
+<span class="fc" id="L1125">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1126">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1128">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L1129">            addToCart(userId, prodId, 1);</span>
+<span class="fc" id="L1130">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L1131">        } catch (Exception ex) {</span>
+<span class="nc" id="L1132">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1133">        }</span>
+
+<span class="fc" id="L1135">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1136">        String status = cartService.removeProductFromCart(userId, prodId);</span>
+<span class="fc" id="L1137">        assertEquals(&quot;Product Successfully removed from the Cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1141">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L1142">        } catch (Exception ex) {</span>
+<span class="nc" id="L1143">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1144">        }</span>
+<span class="fc" id="L1145">    }</span>
+
+    // Deletes a cart item of an id when cart is empty
+    @Test
+    public void testRemoveProductFromCartEmpty() {
+<span class="fc" id="L1150">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1151">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1153">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L1154">        } catch (Exception ex) {</span>
+<span class="nc" id="L1155">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1156">        }</span>
+
+<span class="fc" id="L1158">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1159">        String status = cartService.removeProductFromCart(userId, prodId);</span>
+<span class="fc" id="L1160">        assertEquals(&quot;Product Not Available in the cart!&quot;, status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1164">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L1165">        } catch (Exception ex) {</span>
+<span class="nc" id="L1166">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1167">        }</span>
+<span class="fc" id="L1168">    }</span>
+
+    // Deletes a cart item of an id unsuccessfully when username is invalid
+    @Test
+    public void testRemoveProductFromCartInvalidUsername() {
+<span class="fc" id="L1173">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1174">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1176">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1177">        String status = cartService.removeProductFromCart(&quot;abcdefg&quot;, prodId);</span>
+<span class="fc" id="L1178">        assertEquals(&quot;Product Not Available in the cart!&quot;, status);</span>
+<span class="fc" id="L1179">    }</span>
+
+    // Deletes a cart item of an id unsuccessfully when product id is invalid
+    @Test
+    public void testRemoveProductFromCartInvalidProductID() {
+<span class="fc" id="L1184">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1185">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1187">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1188">        String status = cartService.removeProductFromCart(userId, &quot;abcdefg&quot;);</span>
+<span class="fc" id="L1189">        assertEquals(&quot;Product Not Available in the cart!&quot;, status);</span>
+<span class="fc" id="L1190">    }</span>
+
+    // Deletes a cart item of an id when username is null
+    @Test
+    public void testRemoveProductFromCartNullUsername() {
+<span class="fc" id="L1195">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1196">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1198">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1199">        String status = cartService.removeProductFromCart(null, prodId);</span>
+<span class="fc" id="L1200">        assertEquals(&quot;Product Not Available in the cart!&quot;, status);</span>
+<span class="fc" id="L1201">    }</span>
+
+    // Deletes a cart item of an id when product id is null
+    @Test
+    public void testRemoveProductFromCartNullProductID() {
+<span class="fc" id="L1206">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1207">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1209">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1210">        String status = cartService.removeProductFromCart(userId, null);</span>
+<span class="fc" id="L1211">        assertEquals(&quot;Product Not Available in the cart!&quot;, status);</span>
+<span class="fc" id="L1212">    }</span>
+
+    // Deletes all cart item of an id when it exists
+    @Test
+    public void testRemoveAProductExists() {
+<span class="fc" id="L1217">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1218">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1220">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="fc" id="L1221">            addToCart(userId, prodId, 1);</span>
+<span class="fc" id="L1222">            assertTrue(getProductExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L1223">        } catch (Exception ex) {</span>
+<span class="nc" id="L1224">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1225">        }</span>
+
+<span class="fc" id="L1227">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1228">        boolean flag = cartService.removeAProduct(userId, prodId);</span>
+<span class="fc" id="L1229">        assertTrue(flag);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1233">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L1234">        } catch (Exception ex) {</span>
+<span class="nc" id="L1235">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1236">        }</span>
+<span class="fc" id="L1237">    }</span>
+
+    // Deletes all cart item of an id when it exists for multiple users
+    @Test
+    public void testRemoveAProductExistsMultipleUsers() {
+<span class="fc" id="L1242">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1243">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1244">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1246">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L1247">            assertFalse(getProductExists(userId2, prodId));</span>
+<span class="fc" id="L1248">            addToCart(userId1, prodId, 1);</span>
+<span class="fc" id="L1249">            addToCart(userId2, prodId, 1);</span>
+<span class="fc" id="L1250">            assertTrue(getProductExistsWithQuantity(userId1, prodId, 1));</span>
+<span class="fc" id="L1251">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L1252">        } catch (Exception ex) {</span>
+<span class="nc" id="L1253">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1254">        }</span>
+
+<span class="fc" id="L1256">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1257">        boolean flag = cartService.removeAProduct(userId1, prodId);</span>
+<span class="fc" id="L1258">        assertTrue(flag);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1262">            assertFalse(getProductExists(userId1, prodId));</span>
+<span class="fc" id="L1263">            assertTrue(getProductExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L1264">        } catch (Exception ex) {</span>
+<span class="nc" id="L1265">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1266">        }</span>
+<span class="fc" id="L1267">    }</span>
+
+    // Deletes all cart item of an id when it exists for multiple products
+    @Test
+    public void testRemoveAProductExistsMultipleItems() {
+<span class="fc" id="L1272">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1273">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L1274">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1276">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L1277">            assertFalse(getProductExists(userId, prodId2));</span>
+<span class="fc" id="L1278">            addToCart(userId, prodId1, 1);</span>
+<span class="fc" id="L1279">            addToCart(userId, prodId2, 1);</span>
+<span class="fc" id="L1280">            assertTrue(getProductExistsWithQuantity(userId, prodId1, 1));</span>
+<span class="fc" id="L1281">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="nc" id="L1282">        } catch (Exception ex) {</span>
+<span class="nc" id="L1283">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1284">        }</span>
+
+<span class="fc" id="L1286">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1287">        boolean flag = cartService.removeAProduct(userId, prodId1);</span>
+<span class="fc" id="L1288">        assertTrue(flag);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1292">            assertFalse(getProductExists(userId, prodId1));</span>
+<span class="fc" id="L1293">            assertTrue(getProductExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="nc" id="L1294">        } catch (Exception ex) {</span>
+<span class="nc" id="L1295">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1296">        }</span>
+<span class="fc" id="L1297">    }</span>
+
+    // Deletes all cart item of an id when it does not exist
+    @Test
+    public void testRemoveAProductNonExistent() {
+<span class="fc" id="L1302">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1303">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L1305">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L1306">        } catch (Exception ex) {</span>
+<span class="nc" id="L1307">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1308">        }</span>
+
+<span class="fc" id="L1310">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1311">        boolean flag = cartService.removeAProduct(userId, prodId);</span>
+<span class="fc" id="L1312">        assertFalse(flag);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L1316">            assertFalse(getProductExists(userId, prodId));</span>
+<span class="nc" id="L1317">        } catch (Exception ex) {</span>
+<span class="nc" id="L1318">            fail(&quot;failed to clean up&quot;);</span>
+<span class="fc" id="L1319">        }</span>
+<span class="fc" id="L1320">    }</span>
+
+    // Deletes all cart item of an id when username is null
+    @Test
+    public void testRemoveAProductNullUsername() {
+<span class="fc" id="L1325">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1326">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1328">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1329">        boolean status = cartService.removeAProduct(null, prodId);</span>
+<span class="fc" id="L1330">        assertFalse(status);</span>
+<span class="fc" id="L1331">    }</span>
+
+    // Deletes all cart item of an id when product id is null
+    @Test
+    public void testRemoveAProductNullProductID() {
+<span class="fc" id="L1336">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1337">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1339">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1340">        boolean status = cartService.removeAProduct(userId, null);</span>
+<span class="fc" id="L1341">        assertFalse(status);</span>
+<span class="fc" id="L1342">    }</span>
+
+    // Deletes all cart item of an id unsuccessfully when username is invalid
+    @Test
+    public void testRemoveAProductInvalidUsername() {
+<span class="fc" id="L1347">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1348">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1350">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1351">        boolean status = cartService.removeAProduct(&quot;abcdefg&quot;, prodId);</span>
+<span class="fc" id="L1352">        assertFalse(status);</span>
+<span class="fc" id="L1353">    }</span>
+
+    // Deletes all cart item of an id unsuccessfully when product id is invalid
+    @Test
+    public void testRemoveAProductInvalidProductID() {
+<span class="fc" id="L1358">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1359">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L1361">        CartServiceImpl cartService = new CartServiceImpl();</span>
+<span class="fc" id="L1362">        boolean status = cartService.removeAProduct(userId, &quot;abcdefg&quot;);</span>
+<span class="fc" id="L1363">        assertFalse(status);</span>
+<span class="fc" id="L1364">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

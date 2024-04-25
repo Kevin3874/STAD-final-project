@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FansMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.srv</a> &gt; <span class="el_source">FansMessage.java</span></div><h1>FansMessage.java</h1><pre class="source lang-java linenums">package com.shashi.srv;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.shashi.utility.MailMessage;
+
+/**
+ * Servlet implementation class fansMessage
+ */
+@WebServlet(&quot;/fansMessage&quot;)
+<span class="nc" id="L18">public class FansMessage extends HttpServlet {</span>
+	private static final long serialVersionUID = 1L;
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L24">		response.setContentType(&quot;text/html&quot;);</span>
+<span class="nc" id="L25">		String name = request.getParameter(&quot;name&quot;);</span>
+<span class="nc" id="L26">		String email = request.getParameter(&quot;email&quot;);</span>
+<span class="nc" id="L27">		String comments = request.getParameter(&quot;comments&quot;);</span>
+
+<span class="nc" id="L29">		response.setContentType(&quot;text/html&quot;);</span>
+<span class="nc" id="L30">		String htmlTextMessage = &quot;&quot; + &quot;&lt;html&gt;&quot; + &quot;&lt;body&gt;&quot;</span>
+				+ &quot;&lt;h2 style='color:green;'&gt;Message to Ellison Electronics&lt;/h2&gt;&quot; + &quot;&quot;
+				+ &quot;Fans Message Received !!&lt;br/&gt;&lt;br/&gt; Name: &quot; + name + &quot;,&quot; + &quot;&lt;br/&gt;&lt;br/&gt; Email Id: &quot; + email
+				+ &quot;&lt;br&gt;&lt;br/&gt;&quot; + &quot;Comment: &quot; + &quot;&lt;span style='color:grey;'&gt;&quot; + comments + &quot;&lt;/span&gt;&quot;
+				+ &quot;&lt;br/&gt;&lt;br/&gt;We are glad that fans are choosing us! &lt;br/&gt;&lt;br/&gt;Thanks &amp; Regards&lt;br/&gt;&lt;br/&gt;Auto Generated Mail&quot;
+				+ &quot;&lt;/body&gt;&quot; + &quot;&lt;/html&gt;&quot;;
+<span class="nc" id="L36">		String message = MailMessage.sendMessage(&quot;ellison.alumni@gmail.com&quot;, &quot;Fans Message | &quot; + name + &quot; | &quot; + email,</span>
+				htmlTextMessage);
+<span class="nc bnc" id="L38" title="All 2 branches missed.">		if (&quot;SUCCESS&quot;.equals(message)) {</span>
+<span class="nc" id="L39">			message = &quot;Comments Sent Successfully&quot;;</span>
+		} else {
+<span class="nc" id="L41">			message = &quot;Failed: Please Configure mailer.email and password in application.properties first&quot;;</span>
+		}
+<span class="nc" id="L43">		RequestDispatcher rd = request.getRequestDispatcher(&quot;index.jsp&quot;);</span>
+
+<span class="nc" id="L45">		rd.include(request, response);</span>
+
+<span class="nc" id="L47">		response.getWriter().print(&quot;&lt;script&gt;alert('&quot; + message + &quot;')&lt;/script&gt;&quot;);</span>
+
+<span class="nc" id="L49">	}</span>
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L54">		doGet(request, response);</span>
+<span class="nc" id="L55">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

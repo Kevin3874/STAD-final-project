@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderServletTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.APITesting</a> &gt; <span class="el_source">OrderServletTest.java</span></div><h1>OrderServletTest.java</h1><pre class="source lang-java linenums">package test.APITesting;
+
+import com.shashi.service.impl.OrderServiceImpl;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+<span class="nc" id="L19">public class OrderServletTest {</span>
+    @BeforeAll
+    public static void setup() {
+<span class="nc" id="L22">        RestAssured.baseURI = &quot;http://localhost&quot;;</span>
+<span class="nc" id="L23">        RestAssured.port = 8080;</span>
+<span class="nc" id="L24">        RestAssured.basePath = &quot;/shopping_cart_war&quot;;</span>
+<span class="nc" id="L25">    }</span>
+
+    @Test
+    void testPlaceOrderAmountWrong() {
+<span class="nc" id="L29">        Response loginResponse = given()</span>
+<span class="nc" id="L30">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L31">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L32">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L33">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L34">                .when()</span>
+<span class="nc" id="L35">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L36">                .then()</span>
+<span class="nc" id="L37">                .statusCode(200)</span>
+<span class="nc" id="L38">                .extract().response();</span>
+
+<span class="nc" id="L40">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // Place an order with a valid session
+<span class="nc" id="L43">        given()</span>
+<span class="nc" id="L44">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L45">                .param(&quot;amount&quot;, &quot;1000.0&quot;)</span>
+<span class="nc" id="L46">                .when()</span>
+<span class="nc" id="L47">                .post(&quot;/OrderServlet&quot;)</span>
+<span class="nc" id="L48">                .then()</span>
+<span class="nc" id="L49">                .statusCode(200)</span>
+<span class="nc" id="L50">                .body(containsString(&quot;Order Placement Failed!&quot;));</span>
+<span class="nc" id="L51">    }</span>
+
+
+
+    @Test
+    void testPlaceOrderWithInvalidSession() {
+        // Try to place an order without a valid session
+<span class="nc" id="L58">        given()</span>
+<span class="nc" id="L59">                .param(&quot;amount&quot;, &quot;100.0&quot;)</span>
+<span class="nc" id="L60">                .when()</span>
+<span class="nc" id="L61">                .post(&quot;/OrderServlet&quot;)</span>
+<span class="nc" id="L62">                .then()</span>
+<span class="nc" id="L63">                .statusCode(302)</span>
+<span class="nc" id="L64">                .header(&quot;Location&quot;, containsString(&quot;Session Expired, Login Again!!&quot;));</span>
+<span class="nc" id="L65">    }</span>
+
+    @Test
+    void testPlaceOrderWithAddedProduct() {
+        // Perform admin login to obtain a valid session ID
+<span class="nc" id="L70">        Response adminLoginResponse = given()</span>
+<span class="nc" id="L71">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L72">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L73">                .formParam(&quot;password&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L74">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L75">                .when()</span>
+<span class="nc" id="L76">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L77">                .then()</span>
+<span class="nc" id="L78">                .statusCode(200)</span>
+<span class="nc" id="L79">                .extract().response();</span>
+
+<span class="nc" id="L81">        String adminSessionId = adminLoginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // Add a new product using the admin session
+<span class="nc" id="L84">        Response addProductResponse = given()</span>
+<span class="nc" id="L85">                .cookie(&quot;JSESSIONID&quot;, adminSessionId)</span>
+<span class="nc" id="L86">                .contentType(&quot;multipart/form-data&quot;)</span>
+<span class="nc" id="L87">                .multiPart(&quot;name&quot;, &quot;Test Product Order Help&quot;)</span>
+<span class="nc" id="L88">                .multiPart(&quot;type&quot;, &quot;Test Type&quot;)</span>
+<span class="nc" id="L89">                .multiPart(&quot;info&quot;, &quot;Test Info&quot;)</span>
+<span class="nc" id="L90">                .multiPart(&quot;price&quot;, &quot;10.99&quot;)</span>
+<span class="nc" id="L91">                .multiPart(&quot;quantity&quot;, &quot;5&quot;)</span>
+<span class="nc" id="L92">                .multiPart(&quot;image&quot;, new File(&quot;./WebContent/images/image.jpg&quot;))</span>
+<span class="nc" id="L93">                .when()</span>
+<span class="nc" id="L94">                .post(&quot;/AddProductSrv&quot;)</span>
+<span class="nc" id="L95">                .then()</span>
+<span class="nc" id="L96">                .statusCode(200)</span>
+<span class="nc" id="L97">                .extract().response();</span>
+
+        // Extract the product ID from the response
+<span class="nc" id="L100">        String responseBody = addProductResponse.getBody().asString();</span>
+<span class="nc" id="L101">        String productId = extractProductId(responseBody);</span>
+
+<span class="nc" id="L103">        given()</span>
+<span class="nc" id="L104">                .cookie(&quot;JSESSIONID&quot;, adminSessionId)</span>
+<span class="nc" id="L105">                .when()</span>
+<span class="nc" id="L106">                .post(&quot;/LogoutSrv&quot;)</span>
+<span class="nc" id="L107">                .then()</span>
+<span class="nc" id="L108">                .statusCode(200)</span>
+<span class="nc" id="L109">                .header(&quot;Content-Type&quot;, containsString(&quot;text/html&quot;))</span>
+<span class="nc" id="L110">                .body(containsString(&quot;Successfully Logged Out!&quot;));</span>
+
+        // Perform customer login to obtain a valid session ID
+<span class="nc" id="L113">        Response customerLoginResponse = given()</span>
+<span class="nc" id="L114">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L115">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L116">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L117">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L118">                .when()</span>
+<span class="nc" id="L119">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L120">                .then()</span>
+<span class="nc" id="L121">                .statusCode(200)</span>
+<span class="nc" id="L122">                .extract().response();</span>
+
+<span class="nc" id="L124">        String customerSessionId = customerLoginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+<span class="nc" id="L125">        System.out.println(&quot;ProductId: &quot; + productId);</span>
+        // Add the product to the cart using the customer session
+<span class="nc" id="L127">        given()</span>
+<span class="nc" id="L128">                .cookie(&quot;JSESSIONID&quot;, customerSessionId)</span>
+<span class="nc" id="L129">                .param(&quot;pid&quot;, productId)</span>
+<span class="nc" id="L130">                .param(&quot;pqty&quot;, &quot;1&quot;)</span>
+<span class="nc" id="L131">                .when()</span>
+<span class="nc" id="L132">                .post(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L133">                .then()</span>
+<span class="nc" id="L134">                .statusCode(200)</span>
+<span class="nc" id="L135">                .body(containsString(&quot;Product Successfully Updated to Cart!&quot;));</span>
+
+        // Place an order with the total amount
+<span class="nc" id="L138">        given()</span>
+<span class="nc" id="L139">                .cookie(&quot;JSESSIONID&quot;, customerSessionId)</span>
+<span class="nc" id="L140">                .param(&quot;amount&quot;, &quot;100.00&quot;)</span>
+<span class="nc" id="L141">                .when()</span>
+<span class="nc" id="L142">                .post(&quot;/OrderServlet&quot;)</span>
+<span class="nc" id="L143">                .then()</span>
+<span class="nc" id="L144">                .statusCode(200)</span>
+<span class="nc" id="L145">                .body(containsString(&quot;Order Placed Successfully!&quot;));</span>
+<span class="nc" id="L146">    }</span>
+
+    private String extractProductId(String responseBody) {
+<span class="nc" id="L149">        Pattern pattern = Pattern.compile(&quot;Product Added Successfully with Product Id: (P\\d+)&quot;);</span>
+<span class="nc" id="L150">        Matcher matcher = pattern.matcher(responseBody);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (matcher.find()) {</span>
+<span class="nc" id="L152">            return matcher.group(1);</span>
+        }
+<span class="nc" id="L154">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

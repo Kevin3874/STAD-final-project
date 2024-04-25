@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.ImplTesting</a> &gt; <span class="el_source">TransServiceImplTest.java</span></div><h1>TransServiceImplTest.java</h1><pre class="source lang-java linenums">package test.ImplTesting;
+
+import com.shashi.constants.IUserConstants;
+import com.shashi.service.impl.TransServiceImpl;
+import com.shashi.utility.DBUtil;
+import org.junit.jupiter.api.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+
+import java.sql.*;
+import java.util.ResourceBundle;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+<span class="fc" id="L18">class TransServiceImplTest {</span>
+  public void addTransaction(String userName, String transId, Timestamp transDateTime, double transAmount) throws Exception {
+<span class="fc" id="L20">    Connection conn = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L22">    PreparedStatement ps1 = conn.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=0&quot;);</span>
+<span class="fc" id="L23">    ps1.execute();</span>
+
+<span class="fc" id="L25">    PreparedStatement ps2 = conn.prepareStatement(&quot;insert into transactions values(?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L27">    ps2.setString(1, transId);</span>
+<span class="fc" id="L28">    ps2.setString(2, userName);</span>
+<span class="fc" id="L29">    ps2.setTimestamp(3, transDateTime);</span>
+<span class="fc" id="L30">    ps2.setDouble(4, transAmount);</span>
+
+<span class="fc" id="L32">    int k2 = ps2.executeUpdate();</span>
+
+<span class="fc" id="L34">    PreparedStatement ps3 = conn.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=1&quot;);</span>
+<span class="fc" id="L35">    ps3.execute();</span>
+
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">    if (k2 &lt; 0) {</span>
+<span class="nc" id="L38">      throw new Exception(&quot;did not insert successfully&quot;);</span>
+    }
+
+<span class="fc" id="L41">    DBUtil.closeConnection(conn);</span>
+<span class="fc" id="L42">    DBUtil.closeConnection(ps1);</span>
+<span class="fc" id="L43">    DBUtil.closeConnection(ps2);</span>
+<span class="fc" id="L44">    DBUtil.closeConnection(ps3);</span>
+<span class="fc" id="L45">  }</span>
+
+
+  public boolean getTransactionExists(String transId) throws Exception {
+<span class="fc" id="L49">    boolean transaction = false;</span>
+
+<span class="fc" id="L51">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L53">    PreparedStatement ps = null;</span>
+<span class="fc" id="L54">    ResultSet rs = null;</span>
+
+<span class="fc" id="L56">    ps = con.prepareStatement(&quot;select * from transactions where transid=?&quot;);</span>
+
+<span class="fc" id="L58">    ps.setString(1, transId);</span>
+<span class="fc" id="L59">    rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (rs.next())</span>
+<span class="fc" id="L62">      transaction = true;</span>
+
+<span class="fc" id="L64">    DBUtil.closeConnection(con);</span>
+<span class="fc" id="L65">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L66">    DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L68">    return transaction;</span>
+  }
+
+  public void registerUser(String userName, Long mobileNo, String emailId, String address, int pinCode,
+                           String password) throws Exception {
+
+<span class="fc" id="L74">    Connection conn = DBUtil.provideConnection();</span>
+<span class="fc" id="L75">    PreparedStatement ps = conn.prepareStatement(&quot;insert into &quot; + IUserConstants.TABLE_USER + &quot; values(?,?,?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L77">    ps.setString(1, emailId);</span>
+<span class="fc" id="L78">    ps.setString(2, userName);</span>
+<span class="fc" id="L79">    ps.setLong(3, mobileNo);</span>
+<span class="fc" id="L80">    ps.setString(4, address);</span>
+<span class="fc" id="L81">    ps.setInt(5, pinCode);</span>
+<span class="fc" id="L82">    ps.setString(6, password);</span>
+
+<span class="fc" id="L84">    int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">    if (k == 0) {</span>
+<span class="nc" id="L87">      throw new Exception(&quot;did not insert successfully&quot;);</span>
+    }
+
+<span class="fc" id="L90">    DBUtil.closeConnection(conn);</span>
+<span class="fc" id="L91">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L92">  }</span>
+
+  public boolean getUserExists(String emailId) throws Exception {
+<span class="fc" id="L95">    boolean user = false;</span>
+
+<span class="fc" id="L97">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L99">    PreparedStatement ps = null;</span>
+<span class="fc" id="L100">    ResultSet rs = null;</span>
+
+<span class="fc" id="L102">    ps = con.prepareStatement(&quot;select * from user where email=?&quot;);</span>
+
+<span class="fc" id="L104">    ps.setString(1, emailId);</span>
+<span class="fc" id="L105">    rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">    if (rs.next())</span>
+<span class="fc" id="L108">      user = true;</span>
+
+<span class="fc" id="L110">    DBUtil.closeConnection(con);</span>
+<span class="fc" id="L111">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L112">    DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L114">    return user;</span>
+  }
+
+<span class="fc" id="L117">  static ResourceBundle rb = ResourceBundle.getBundle(&quot;application&quot;);</span>
+<span class="fc" id="L118">  static String DATABASE_URL = rb.getString(&quot;db.connectionString&quot;);</span>
+<span class="fc" id="L119">  static String USER = rb.getString(&quot;db.username&quot;);</span>
+<span class="fc" id="L120">  static String PASSWORD = rb.getString(&quot;db.password&quot;);</span>
+  @AfterAll
+  public static void resetDatabase() {
+    try {
+<span class="fc" id="L124">      String sql = new String(Files.readAllBytes(Paths.get(&quot;databases/mysql_query.sql&quot;)));</span>
+<span class="fc" id="L125">      try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD)) {</span>
+
+        // Create a statement to execute SQL
+<span class="fc" id="L128">        Statement stmt = conn.createStatement();</span>
+
+        // Splitting the SQL statements by semicolon
+<span class="fc" id="L131">        String[] sqlStatements = sql.split(&quot;;&quot;);</span>
+
+        // Execute each SQL statement
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (String statement : sqlStatements) {</span>
+          // Trim whitespace and execute non-empty statements
+<span class="fc bfc" id="L136" title="All 2 branches covered.">          if (!statement.trim().isEmpty()) {</span>
+<span class="fc" id="L137">            stmt.execute(statement.trim());</span>
+          }
+        }
+
+<span class="fc" id="L141">        stmt.close();</span>
+<span class="fc" id="L142">        conn.close();</span>
+      }
+<span class="nc" id="L144">    } catch (Exception ex) {</span>
+<span class="nc" id="L145">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L146">      System.out.println(&quot;FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="fc" id="L147">    }</span>
+<span class="fc" id="L148">  }</span>
+
+  @AfterEach
+  public void clearTransactionsAndUsers() {
+    try {
+<span class="fc" id="L153">      Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L155">      PreparedStatement ps1 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=0&quot;);</span>
+<span class="fc" id="L156">      ps1.execute();</span>
+
+<span class="fc" id="L158">      PreparedStatement ps2 = con.prepareStatement(&quot;DELETE FROM product&quot;);</span>
+<span class="fc" id="L159">      ps2.execute();</span>
+
+<span class="fc" id="L161">      PreparedStatement ps3 = con.prepareStatement(&quot;DELETE FROM orders&quot;);</span>
+<span class="fc" id="L162">      ps3.execute();</span>
+
+<span class="fc" id="L164">      PreparedStatement ps4 = con.prepareStatement(&quot;DELETE FROM transactions&quot;);</span>
+<span class="fc" id="L165">      ps4.execute();</span>
+
+<span class="fc" id="L167">      PreparedStatement ps5 = con.prepareStatement(&quot;DELETE FROM user&quot;);</span>
+<span class="fc" id="L168">      ps5.execute();</span>
+
+<span class="fc" id="L170">      PreparedStatement ps6 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=1&quot;);</span>
+<span class="fc" id="L171">      ps6.execute();</span>
+
+<span class="fc" id="L173">      DBUtil.closeConnection(con);</span>
+<span class="fc" id="L174">      DBUtil.closeConnection(ps1);</span>
+<span class="fc" id="L175">      DBUtil.closeConnection(ps2);</span>
+<span class="fc" id="L176">      DBUtil.closeConnection(ps3);</span>
+<span class="fc" id="L177">      DBUtil.closeConnection(ps4);</span>
+<span class="fc" id="L178">      DBUtil.closeConnection(ps5);</span>
+<span class="fc" id="L179">      DBUtil.closeConnection(ps6);</span>
+
+<span class="nc" id="L181">    } catch (Exception ex) {</span>
+<span class="nc" id="L182">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L183">      System.out.println(&quot;FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="fc" id="L184">    }</span>
+<span class="fc" id="L185">  }</span>
+
+  @BeforeEach
+  public void clearBefore() {
+<span class="fc" id="L189">    clearTransactionsAndUsers();</span>
+<span class="fc" id="L190">  }</span>
+
+
+  // test getUserId with existing user
+  @Test
+  public void testGetUserIdWithExistingUser() {
+<span class="fc" id="L196">    String transId = &quot;12345&quot;;</span>
+<span class="fc" id="L197">    Timestamp transDateTime = Timestamp.valueOf(&quot;2018-09-01 09:01:15&quot;);</span>
+<span class="fc" id="L198">    double transAmount = 99.99;</span>
+
+<span class="fc" id="L200">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L201">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L202">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L203">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L204">    int pinCode = 123456;</span>
+<span class="fc" id="L205">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L208">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L209">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L210">      assertTrue(getUserExists(emailId));</span>
+<span class="fc" id="L211">      assertFalse(getTransactionExists(transId));</span>
+<span class="fc" id="L212">      addTransaction(userName, transId, transDateTime, transAmount);</span>
+<span class="fc" id="L213">      assertTrue(getTransactionExists(transId));</span>
+<span class="nc" id="L214">    } catch (Exception ex) {</span>
+<span class="nc" id="L215">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L216">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L217">    }</span>
+
+<span class="fc" id="L219">    TransServiceImpl transService = new TransServiceImpl();</span>
+<span class="fc" id="L220">    String res = transService.getUserId(transId);</span>
+<span class="fc" id="L221">    assertEquals(userName, res);</span>
+
+    // cleanup and verification
+    try {
+<span class="fc" id="L225">      assertTrue(getTransactionExists(transId));</span>
+<span class="nc" id="L226">    } catch (Exception ex) {</span>
+<span class="nc" id="L227">      fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L228">    }</span>
+<span class="fc" id="L229">  }</span>
+
+
+  // test getUserId with multiple existing user
+  @Test
+  public void testGetUserIdWithMultipleUsers() {
+<span class="fc" id="L235">    String transId = &quot;12345&quot;;</span>
+<span class="fc" id="L236">    Timestamp transDateTime = Timestamp.valueOf(&quot;2018-09-01 09:01:15&quot;);</span>
+<span class="fc" id="L237">    double transAmount = 99.99;</span>
+
+<span class="fc" id="L239">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L240">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L241">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L242">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L243">    int pinCode = 123456;</span>
+<span class="fc" id="L244">    String password = &quot;test&quot;;</span>
+
+<span class="fc" id="L246">    String userName2 = &quot;guest&quot;;</span>
+<span class="fc" id="L247">    Long mobileNo2 = 9999999998L;</span>
+<span class="fc" id="L248">    String emailId2 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L249">    String address2 = &quot;guest street&quot;;</span>
+<span class="fc" id="L250">    int pinCode2 = 654321;</span>
+<span class="fc" id="L251">    String password2 = &quot;guest&quot;;</span>
+
+    try {
+<span class="fc" id="L254">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L255">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L256">      assertTrue(getUserExists(emailId));</span>
+<span class="fc" id="L257">      assertFalse(getUserExists(emailId2));</span>
+<span class="fc" id="L258">      registerUser(userName2, mobileNo2, emailId2, address2, pinCode2, password2);</span>
+<span class="fc" id="L259">      assertTrue(getUserExists(emailId2));</span>
+<span class="fc" id="L260">      assertFalse(getTransactionExists(transId));</span>
+<span class="fc" id="L261">      addTransaction(userName2, transId, transDateTime, transAmount);</span>
+<span class="fc" id="L262">      assertTrue(getTransactionExists(transId));</span>
+<span class="nc" id="L263">    } catch (Exception ex) {</span>
+<span class="nc" id="L264">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L265">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L266">    }</span>
+
+<span class="fc" id="L268">    TransServiceImpl transService = new TransServiceImpl();</span>
+<span class="fc" id="L269">    String res = transService.getUserId(transId);</span>
+<span class="fc" id="L270">    assertEquals(userName2, res);</span>
+
+    // cleanup and verification
+    try {
+<span class="fc" id="L274">      assertTrue(getTransactionExists(transId));</span>
+<span class="nc" id="L275">    } catch (Exception ex) {</span>
+<span class="nc" id="L276">      fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L277">    }</span>
+<span class="fc" id="L278">  }</span>
+
+  // test getUserId with nonexistent user
+  @Test
+  public void testGetUserIdWithNonexistentUser() {
+<span class="fc" id="L283">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L284">    String transId = &quot;12345&quot;;</span>
+<span class="fc" id="L285">    Timestamp transDateTime = Timestamp.valueOf(&quot;2018-09-01 09:01:15&quot;);</span>
+<span class="fc" id="L286">    double transAmount = 99.99;</span>
+
+    try {
+<span class="fc" id="L289">      assertFalse(getTransactionExists(transId));</span>
+<span class="fc" id="L290">      addTransaction(userName, transId, transDateTime, transAmount);</span>
+<span class="fc" id="L291">      assertTrue(getTransactionExists(transId));</span>
+<span class="nc" id="L292">    } catch (Exception ex) {</span>
+<span class="nc" id="L293">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L294">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L295">    }</span>
+
+<span class="fc" id="L297">    TransServiceImpl transService = new TransServiceImpl();</span>
+<span class="nc" id="L298">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L299">      String res = transService.getUserId(transId);</span>
+<span class="fc" id="L300">    });</span>
+
+    // cleanup and verification
+    try {
+<span class="nc" id="L304">      assertTrue(getTransactionExists(transId));</span>
+<span class="nc" id="L305">    } catch (Exception ex) {</span>
+<span class="nc" id="L306">      fail(&quot;failed to verify&quot;);</span>
+<span class="nc" id="L307">    }</span>
+<span class="nc" id="L308">  }</span>
+
+  // test getUserId with nonexistent transaction
+  @Test
+  public void testGetUserIdWithNonexistentTransaction() {
+<span class="fc" id="L313">    String transId = &quot;12345&quot;;</span>
+
+    try {
+<span class="fc" id="L316">      assertFalse(getTransactionExists(transId));</span>
+<span class="nc" id="L317">    } catch (Exception ex) {</span>
+<span class="nc" id="L318">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L319">    }</span>
+
+<span class="fc" id="L321">    TransServiceImpl transService = new TransServiceImpl();</span>
+<span class="nc" id="L322">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L323">      String res = transService.getUserId(transId);</span>
+<span class="fc" id="L324">    });</span>
+<span class="nc" id="L325">  }</span>
+
+
+  // test getUserId with null inputs
+  @Test
+  public void testGetUserIdWithNullInputs() {
+<span class="fc" id="L331">    String transId = null;</span>
+
+    try {
+<span class="fc" id="L334">      assertFalse(getTransactionExists(transId));</span>
+<span class="nc" id="L335">    } catch (Exception ex) {</span>
+<span class="nc" id="L336">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L337">    }</span>
+
+<span class="fc" id="L339">    TransServiceImpl transService = new TransServiceImpl();</span>
+<span class="nc" id="L340">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L341">      String res = transService.getUserId(transId);</span>
+<span class="fc" id="L342">    });</span>
+<span class="nc" id="L343">  }</span>
+
+  // test getUserId with empty inputs
+  @Test
+  public void testGetUserIdWithEmptyInputs() {
+<span class="fc" id="L348">    String transId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L351">      assertFalse(getTransactionExists(transId));</span>
+<span class="nc" id="L352">    } catch (Exception ex) {</span>
+<span class="nc" id="L353">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L354">    }</span>
+
+<span class="fc" id="L356">    TransServiceImpl transService = new TransServiceImpl();</span>
+<span class="nc" id="L357">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L358">      String res = transService.getUserId(transId);</span>
+<span class="fc" id="L359">    });</span>
+<span class="nc" id="L360">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

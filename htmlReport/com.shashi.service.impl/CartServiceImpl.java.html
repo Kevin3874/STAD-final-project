@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CartServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.service.impl</a> &gt; <span class="el_source">CartServiceImpl.java</span></div><h1>CartServiceImpl.java</h1><pre class="source lang-java linenums">package com.shashi.service.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.shashi.beans.CartBean;
+import com.shashi.beans.DemandBean;
+import com.shashi.beans.ProductBean;
+import com.shashi.service.CartService;
+import com.shashi.utility.DBUtil;
+
+<span class="fc" id="L16">public class CartServiceImpl implements CartService {</span>
+
+	@Override
+	public String addProductToCart(String userId, String prodId, int prodQty) {
+<span class="fc" id="L20">		String status = &quot;Failed to Add into Cart&quot;;</span>
+
+<span class="fc" id="L22">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L24">		PreparedStatement ps = null;</span>
+<span class="fc" id="L25">		PreparedStatement ps2 = null;</span>
+<span class="fc" id="L26">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L30">			ps = con.prepareStatement(&quot;select * from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L32">			ps.setString(1, userId);</span>
+<span class="fc" id="L33">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L35">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">			if (rs.next()) {</span>
+
+<span class="fc" id="L39">				int cartQuantity = rs.getInt(&quot;quantity&quot;);</span>
+
+<span class="fc" id="L41">				ProductBean product = new ProductServiceImpl().getProductDetails(prodId);</span>
+
+<span class="fc" id="L43">				int availableQty = product.getProdQuantity();</span>
+
+<span class="fc" id="L45">				prodQty += cartQuantity;</span>
+				//
+<span class="fc bfc" id="L47" title="All 2 branches covered.">				if (availableQty &lt; prodQty) {</span>
+
+<span class="fc" id="L49">					status = updateProductToCart(userId, prodId, availableQty);</span>
+
+<span class="fc" id="L51">					status = &quot;Only &quot; + availableQty + &quot; no of &quot; + product.getProdName()</span>
+							+ &quot; are available in the shop! So we are adding only &quot; + availableQty
+							+ &quot; no of that item into Your Cart&quot; + &quot;&quot;;
+
+<span class="fc" id="L55">					DemandBean demandBean = new DemandBean(userId, product.getProdId(), prodQty - availableQty);</span>
+
+<span class="fc" id="L57">					DemandServiceImpl demand = new DemandServiceImpl();</span>
+
+<span class="fc" id="L59">					boolean flag = demand.addProduct(demandBean);</span>
+
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">					if (flag)</span>
+<span class="fc" id="L62">						status += &quot;&lt;br/&gt;Later, We Will Mail You when &quot; + product.getProdName()</span>
+								+ &quot; will be available into the Store!&quot;;
+
+<span class="fc" id="L65">				} else {</span>
+<span class="fc" id="L66">					status = updateProductToCart(userId, prodId, prodQty);</span>
+
+				}
+			}
+
+<span class="nc" id="L71">		} catch (SQLException e) {</span>
+<span class="nc" id="L72">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L73">			e.printStackTrace();</span>
+<span class="fc" id="L74">		}</span>
+
+<span class="fc" id="L76">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L77">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L78">		DBUtil.closeConnection(rs);</span>
+<span class="fc" id="L79">		DBUtil.closeConnection(ps2);</span>
+
+<span class="fc" id="L81">		return status;</span>
+	}
+
+	@Override
+	public List&lt;CartBean&gt; getAllCartItems(String userId) {
+<span class="fc" id="L86">		List&lt;CartBean&gt; items = new ArrayList&lt;CartBean&gt;();</span>
+
+<span class="fc" id="L88">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L90">		PreparedStatement ps = null;</span>
+<span class="fc" id="L91">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L95">			ps = con.prepareStatement(&quot;select * from usercart where username=?&quot;);</span>
+
+<span class="fc" id="L97">			ps.setString(1, userId);</span>
+
+<span class="fc" id="L99">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">			while (rs.next()) {</span>
+<span class="fc" id="L102">				CartBean cart = new CartBean();</span>
+
+<span class="fc" id="L104">				cart.setUserId(rs.getString(&quot;username&quot;));</span>
+<span class="fc" id="L105">				cart.setProdId(rs.getString(&quot;prodid&quot;));</span>
+<span class="fc" id="L106">				cart.setQuantity(Integer.parseInt(rs.getString(&quot;quantity&quot;)));</span>
+
+<span class="fc" id="L108">				items.add(cart);</span>
+
+<span class="fc" id="L110">			}</span>
+
+<span class="nc" id="L112">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L114">			e.printStackTrace();</span>
+<span class="fc" id="L115">		}</span>
+
+<span class="fc" id="L117">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L118">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L119">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L121">		return items;</span>
+	}
+
+	@Override
+	public int getCartCount(String userId) {
+<span class="fc" id="L126">		int count = 0;</span>
+
+<span class="fc" id="L128">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L130">		PreparedStatement ps = null;</span>
+
+<span class="fc" id="L132">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L135">			ps = con.prepareStatement(&quot;select sum(quantity) from usercart where username=?&quot;);</span>
+
+<span class="fc" id="L137">			ps.setString(1, userId);</span>
+
+<span class="fc" id="L139">			rs = ps.executeQuery();</span>
+
+<span class="pc bpc" id="L141" title="2 of 4 branches missed.">			if (rs.next() &amp;&amp; !rs.wasNull())</span>
+<span class="fc" id="L142">				count = rs.getInt(1);</span>
+
+<span class="nc" id="L144">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L146">			e.printStackTrace();</span>
+<span class="fc" id="L147">		}</span>
+
+<span class="fc" id="L149">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L150">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L151">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L153">		return count;</span>
+	}
+
+	@Override
+	public String removeProductFromCart(String userId, String prodId) {
+<span class="fc" id="L158">		String status = &quot;Product Removal Failed&quot;;</span>
+
+<span class="fc" id="L160">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L162">		PreparedStatement ps = null;</span>
+<span class="fc" id="L163">		PreparedStatement ps2 = null;</span>
+<span class="fc" id="L164">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L168">			ps = con.prepareStatement(&quot;select * from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L170">			ps.setString(1, userId);</span>
+<span class="fc" id="L171">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L173">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">			if (rs.next()) {</span>
+
+<span class="fc" id="L177">				int prodQuantity = rs.getInt(&quot;quantity&quot;);</span>
+
+<span class="fc" id="L179">				prodQuantity -= 1;</span>
+
+<span class="fc bfc" id="L181" title="All 2 branches covered.">				if (prodQuantity &gt; 0) {</span>
+<span class="fc" id="L182">					ps2 = con.prepareStatement(&quot;update usercart set quantity=? where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L184">					ps2.setInt(1, prodQuantity);</span>
+
+<span class="fc" id="L186">					ps2.setString(2, userId);</span>
+
+<span class="fc" id="L188">					ps2.setString(3, prodId);</span>
+
+<span class="fc" id="L190">					int k = ps2.executeUpdate();</span>
+
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">					if (k &gt; 0)</span>
+<span class="fc" id="L193">						status = &quot;Product Successfully removed from the Cart!&quot;;</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">				} else if (prodQuantity &lt;= 0) {</span>
+
+<span class="fc" id="L196">					ps2 = con.prepareStatement(&quot;delete from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L198">					ps2.setString(1, userId);</span>
+
+<span class="fc" id="L200">					ps2.setString(2, prodId);</span>
+
+<span class="fc" id="L202">					int k = ps2.executeUpdate();</span>
+
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">					if (k &gt; 0)</span>
+<span class="fc" id="L205">						status = &quot;Product Successfully removed from the Cart!&quot;;</span>
+				}
+
+<span class="fc" id="L208">			} else {</span>
+
+<span class="fc" id="L210">				status = &quot;Product Not Available in the cart!&quot;;</span>
+
+			}
+
+<span class="nc" id="L214">		} catch (SQLException e) {</span>
+<span class="nc" id="L215">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L216">			e.printStackTrace();</span>
+<span class="fc" id="L217">		}</span>
+
+<span class="fc" id="L219">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L220">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L221">		DBUtil.closeConnection(rs);</span>
+<span class="fc" id="L222">		DBUtil.closeConnection(ps2);</span>
+
+<span class="fc" id="L224">		return status;</span>
+	}
+
+	@Override
+	public boolean removeAProduct(String userId, String prodId) {
+<span class="fc" id="L229">		boolean flag = false;</span>
+
+<span class="fc" id="L231">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L233">		PreparedStatement ps = null;</span>
+<span class="fc" id="L234">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L238">			ps = con.prepareStatement(&quot;delete from usercart where username=? and prodid=?&quot;);</span>
+<span class="fc" id="L239">			ps.setString(1, userId);</span>
+<span class="fc" id="L240">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L242">			int k = ps.executeUpdate();</span>
+
+<span class="fc bfc" id="L244" title="All 2 branches covered.">			if (k &gt; 0)</span>
+<span class="fc" id="L245">				flag = true;</span>
+
+<span class="nc" id="L247">		} catch (SQLException e) {</span>
+<span class="nc" id="L248">			flag = false;</span>
+<span class="nc" id="L249">			e.printStackTrace();</span>
+<span class="fc" id="L250">		}</span>
+
+<span class="fc" id="L252">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L253">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L254">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L256">		return flag;</span>
+	}
+
+	@Override
+	public String updateProductToCart(String userId, String prodId, int prodQty) {
+
+<span class="fc" id="L262">		String status = &quot;Failed to Add into Cart&quot;;</span>
+
+<span class="fc" id="L264">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L266">		PreparedStatement ps = null;</span>
+<span class="fc" id="L267">		PreparedStatement ps2 = null;</span>
+<span class="fc" id="L268">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L272">			ps = con.prepareStatement(&quot;select * from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L274">			ps.setString(1, userId);</span>
+<span class="fc" id="L275">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L277">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">			if (rs.next()) {</span>
+
+<span class="fc bfc" id="L281" title="All 2 branches covered.">				if (prodQty &gt; 0) {</span>
+<span class="fc" id="L282">					ps2 = con.prepareStatement(&quot;update usercart set quantity=? where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L284">					ps2.setInt(1, prodQty);</span>
+
+<span class="fc" id="L286">					ps2.setString(2, userId);</span>
+
+<span class="fc" id="L288">					ps2.setString(3, prodId);</span>
+
+<span class="fc" id="L290">					int k = ps2.executeUpdate();</span>
+
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">					if (k &gt; 0)</span>
+<span class="fc" id="L293">						status = &quot;Product Successfully Updated to Cart!&quot;;</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">				} else if (prodQty == 0) {</span>
+<span class="fc" id="L295">					ps2 = con.prepareStatement(&quot;delete from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L297">					ps2.setString(1, userId);</span>
+
+<span class="fc" id="L299">					ps2.setString(2, prodId);</span>
+
+<span class="fc" id="L301">					int k = ps2.executeUpdate();</span>
+
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">					if (k &gt; 0)</span>
+<span class="fc" id="L304">						status = &quot;Product Successfully Updated in Cart!&quot;;</span>
+<span class="fc" id="L305">				}</span>
+			} else {
+
+<span class="fc" id="L308">				ps2 = con.prepareStatement(&quot;insert into usercart values(?,?,?)&quot;);</span>
+
+<span class="fc" id="L310">				ps2.setString(1, userId);</span>
+
+<span class="fc" id="L312">				ps2.setString(2, prodId);</span>
+
+<span class="fc" id="L314">				ps2.setInt(3, prodQty);</span>
+
+<span class="fc" id="L316">				int k = ps2.executeUpdate();</span>
+
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">				if (k &gt; 0)</span>
+<span class="fc" id="L319">					status = &quot;Product Successfully Updated to Cart!&quot;;</span>
+
+			}
+
+<span class="fc" id="L323">		} catch (SQLException e) {</span>
+<span class="fc" id="L324">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="fc" id="L325">			e.printStackTrace();</span>
+<span class="fc" id="L326">		}</span>
+
+<span class="fc" id="L328">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L329">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L330">		DBUtil.closeConnection(rs);</span>
+<span class="fc" id="L331">		DBUtil.closeConnection(ps2);</span>
+
+<span class="fc" id="L333">		return status;</span>
+	}
+
+	public int getProductCount(String userId, String prodId) {
+<span class="fc" id="L337">		int count = 0;</span>
+
+<span class="fc" id="L339">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L341">		PreparedStatement ps = null;</span>
+<span class="fc" id="L342">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L345">			ps = con.prepareStatement(&quot;select sum(quantity) from usercart where username=? and prodid=?&quot;);</span>
+<span class="fc" id="L346">			ps.setString(1, userId);</span>
+<span class="fc" id="L347">			ps.setString(2, prodId);</span>
+<span class="fc" id="L348">			rs = ps.executeQuery();</span>
+
+<span class="pc bpc" id="L350" title="2 of 4 branches missed.">			if (rs.next() &amp;&amp; !rs.wasNull())</span>
+<span class="fc" id="L351">				count = rs.getInt(1);</span>
+
+<span class="nc" id="L353">		} catch (SQLException e) {</span>
+<span class="nc" id="L354">			e.printStackTrace();</span>
+<span class="fc" id="L355">		}</span>
+
+<span class="fc" id="L357">		return count;</span>
+	}
+
+	@Override
+	public int getCartItemCount(String userId, String itemId) {
+<span class="fc" id="L362">		int count = 0;</span>
+<span class="fc bfc" id="L363" title="All 4 branches covered.">		if (userId == null || itemId == null)</span>
+<span class="fc" id="L364">			return 0;</span>
+<span class="fc" id="L365">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L367">		PreparedStatement ps = null;</span>
+
+<span class="fc" id="L369">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L372">			ps = con.prepareStatement(&quot;select quantity from usercart where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L374">			ps.setString(1, userId);</span>
+<span class="fc" id="L375">			ps.setString(2, itemId);</span>
+
+<span class="fc" id="L377">			rs = ps.executeQuery();</span>
+
+<span class="pc bpc" id="L379" title="1 of 4 branches missed.">			if (rs.next() &amp;&amp; !rs.wasNull())</span>
+<span class="fc" id="L380">				count = rs.getInt(1);</span>
+
+<span class="nc" id="L382">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L384">			e.printStackTrace();</span>
+<span class="fc" id="L385">		}</span>
+
+<span class="fc" id="L387">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L388">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L389">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L391">		return count;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

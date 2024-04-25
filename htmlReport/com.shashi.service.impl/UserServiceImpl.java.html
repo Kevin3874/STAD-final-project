@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.service.impl</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package com.shashi.service.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.shashi.beans.UserBean;
+import com.shashi.constants.IUserConstants;
+import com.shashi.service.UserService;
+import com.shashi.utility.DBUtil;
+import com.shashi.utility.MailMessage;
+
+<span class="fc" id="L14">public class UserServiceImpl implements UserService {</span>
+
+	@Override
+	public String registerUser(String userName, Long mobileNo, String emailId, String address, int pinCode,
+			String password) {
+
+<span class="fc" id="L20">		UserBean user = new UserBean(userName, mobileNo, emailId, address, pinCode, password);</span>
+
+<span class="fc" id="L22">		String status = registerUser(user);</span>
+
+<span class="fc" id="L24">		return status;</span>
+	}
+
+	@Override
+	public String registerUser(UserBean user) {
+
+<span class="fc" id="L30">		String status = &quot;User Registration Failed!&quot;;</span>
+
+<span class="fc" id="L32">		boolean isRegtd = isRegistered(user.getEmail());</span>
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (isRegtd) {</span>
+<span class="fc" id="L35">			status = &quot;Email Id Already Registered!&quot;;</span>
+<span class="fc" id="L36">			return status;</span>
+		}
+<span class="fc" id="L38">		Connection conn = DBUtil.provideConnection();</span>
+<span class="fc" id="L39">		PreparedStatement ps = null;</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		if (conn != null) {</span>
+<span class="fc" id="L41">			System.out.println(&quot;Connected Successfully!&quot;);</span>
+		}
+
+		try {
+
+<span class="fc" id="L46">			ps = conn.prepareStatement(&quot;insert into &quot; + IUserConstants.TABLE_USER + &quot; values(?,?,?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L48">			ps.setString(1, user.getEmail());</span>
+<span class="fc" id="L49">			ps.setString(2, user.getName());</span>
+<span class="fc" id="L50">			ps.setLong(3, user.getMobile());</span>
+<span class="fc" id="L51">			ps.setString(4, user.getAddress());</span>
+<span class="fc" id="L52">			ps.setInt(5, user.getPinCode());</span>
+<span class="fc" id="L53">			ps.setString(6, user.getPassword());</span>
+
+<span class="fc" id="L55">			int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">			if (k &gt; 0) {</span>
+<span class="fc" id="L58">				status = &quot;User Registered Successfully!&quot;;</span>
+<span class="fc" id="L59">				MailMessage.registrationSuccess(user.getEmail(), user.getName().split(&quot; &quot;)[0]);</span>
+			}
+
+<span class="nc" id="L62">		} catch (SQLException e) {</span>
+<span class="nc" id="L63">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L64">			e.printStackTrace();</span>
+<span class="fc" id="L65">		}</span>
+
+<span class="fc" id="L67">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L68">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L70">		return status;</span>
+	}
+
+	@Override
+	public boolean isRegistered(String emailId) {
+<span class="fc" id="L75">		boolean flag = false;</span>
+
+<span class="fc" id="L77">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L79">		PreparedStatement ps = null;</span>
+<span class="fc" id="L80">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L83">			ps = con.prepareStatement(&quot;select * from user where email=?&quot;);</span>
+
+<span class="fc" id="L85">			ps.setString(1, emailId);</span>
+
+<span class="fc" id="L87">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">			if (rs.next())</span>
+<span class="fc" id="L90">				flag = true;</span>
+
+<span class="nc" id="L92">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L94">			e.printStackTrace();</span>
+<span class="fc" id="L95">		}</span>
+
+<span class="fc" id="L97">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L98">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L99">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L101">		return flag;</span>
+	}
+
+	@Override
+	public String isValidCredential(String emailId, String password) {
+<span class="fc" id="L106">		String status = &quot;Login Denied! Incorrect Username or Password&quot;;</span>
+
+<span class="fc" id="L108">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L110">		PreparedStatement ps = null;</span>
+<span class="fc" id="L111">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L115">			ps = con.prepareStatement(&quot;select * from user where email=? and password=?&quot;);</span>
+
+<span class="fc" id="L117">			ps.setString(1, emailId);</span>
+<span class="fc" id="L118">			ps.setString(2, password);</span>
+
+<span class="fc" id="L120">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">			if (rs.next())</span>
+<span class="fc" id="L123">				status = &quot;valid&quot;;</span>
+
+<span class="nc" id="L125">		} catch (SQLException e) {</span>
+<span class="nc" id="L126">			status = &quot;Error: &quot; + e.getMessage();</span>
+<span class="nc" id="L127">			e.printStackTrace();</span>
+<span class="fc" id="L128">		}</span>
+
+<span class="fc" id="L130">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L131">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L132">		DBUtil.closeConnection(rs);</span>
+<span class="fc" id="L133">		return status;</span>
+	}
+
+	@Override
+	public UserBean getUserDetails(String emailId, String password) {
+
+<span class="fc" id="L139">		UserBean user = null;</span>
+
+<span class="fc" id="L141">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L143">		PreparedStatement ps = null;</span>
+<span class="fc" id="L144">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L147">			ps = con.prepareStatement(&quot;select * from user where email=? and password=?&quot;);</span>
+<span class="fc" id="L148">			ps.setString(1, emailId);</span>
+<span class="fc" id="L149">			ps.setString(2, password);</span>
+<span class="fc" id="L150">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L152" title="All 2 branches covered.">			if (rs.next()) {</span>
+<span class="fc" id="L153">				user = new UserBean();</span>
+<span class="fc" id="L154">				user.setName(rs.getString(&quot;name&quot;));</span>
+<span class="fc" id="L155">				user.setMobile(rs.getLong(&quot;mobile&quot;));</span>
+<span class="fc" id="L156">				user.setEmail(rs.getString(&quot;email&quot;));</span>
+<span class="fc" id="L157">				user.setAddress(rs.getString(&quot;address&quot;));</span>
+<span class="fc" id="L158">				user.setPinCode(rs.getInt(&quot;pincode&quot;));</span>
+<span class="fc" id="L159">				user.setPassword(rs.getString(&quot;password&quot;));</span>
+
+<span class="fc" id="L161">				return user;</span>
+			}
+
+<span class="nc" id="L164">		} catch (SQLException e) {</span>
+<span class="nc" id="L165">			e.printStackTrace();</span>
+<span class="fc" id="L166">		}</span>
+
+<span class="fc" id="L168">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L169">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L170">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L172">		return user;</span>
+	}
+
+	@Override
+	public String getFName(String emailId) {
+<span class="fc" id="L177">		String fname = &quot;&quot;;</span>
+
+<span class="fc" id="L179">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L181">		PreparedStatement ps = null;</span>
+<span class="fc" id="L182">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L185">			ps = con.prepareStatement(&quot;select name from user where email=?&quot;);</span>
+<span class="fc" id="L186">			ps.setString(1, emailId);</span>
+
+<span class="fc" id="L188">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L190" title="All 2 branches covered.">			if (rs.next()) {</span>
+<span class="fc" id="L191">				fname = rs.getString(1);</span>
+
+<span class="fc" id="L193">				fname = fname.split(&quot; &quot;)[0];</span>
+
+			}
+
+<span class="nc" id="L197">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L199">			e.printStackTrace();</span>
+<span class="fc" id="L200">		}</span>
+
+<span class="fc" id="L202">		return fname;</span>
+	}
+
+	@Override
+	public String getUserAddr(String userId) {
+<span class="fc" id="L207">		String userAddr = &quot;&quot;;</span>
+
+<span class="fc" id="L209">		Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L210">		PreparedStatement ps = null;</span>
+<span class="fc" id="L211">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L214">			ps = con.prepareStatement(&quot;select address from user where email=?&quot;);</span>
+
+<span class="fc" id="L216">			ps.setString(1, userId);</span>
+
+<span class="fc" id="L218">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L220" title="All 2 branches covered.">			if (rs.next())</span>
+<span class="fc" id="L221">				userAddr = rs.getString(1);</span>
+
+<span class="nc" id="L223">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L225">			e.printStackTrace();</span>
+<span class="fc" id="L226">		}</span>
+
+<span class="fc" id="L228">		return userAddr;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

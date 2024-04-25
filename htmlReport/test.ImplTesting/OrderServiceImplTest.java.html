@@ -1,0 +1,1462 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.ImplTesting</a> &gt; <span class="el_source">OrderServiceImplTest.java</span></div><h1>OrderServiceImplTest.java</h1><pre class="source lang-java linenums">package test.ImplTesting;
+
+import com.shashi.beans.OrderBean;
+import com.shashi.beans.OrderDetails;
+import com.shashi.beans.TransactionBean;
+import com.shashi.service.impl.DemandServiceImpl;
+import com.shashi.service.impl.OrderServiceImpl;
+import com.shashi.utility.DBUtil;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.sql.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L19">public class OrderServiceImplTest {</span>
+
+    // This file contains blackbox, whitebox methods to verify that each method works as intended.
+    // It also contains helper methods mostly specific to the cart tests
+
+    // IMPORTANT!! This test requires the Gmail app password setup in the README that the author created.
+    // IMPORTANT!! many tests assume the default setup has been completed and unaltered. Tests also try
+    // to restore the table to the default state after completion.
+    // IMPORTANT!! must have MYSQL Server/Workbench installed, set up, and connected. Contact Jiashu
+    // if you have questions.
+    // On a first startup, these tests may  fail due to SQL errors: I resolved these by running the
+    // creator's startup SQL query script individually, as the product commit crashed my MySQL Workbench.
+
+    public boolean getProductExistsUsernameOnly(String userID) throws Exception {
+<span class="fc" id="L33">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L34">        PreparedStatement ps = con.prepareStatement(&quot;select * from usercart where username=?&quot;);</span>
+
+<span class="fc" id="L36">        ps.setString(1, userID);</span>
+
+<span class="fc" id="L38">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L40">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L42">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L43">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L44">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+
+    public boolean getProductExistsWithQuantity(String userId, String productId, int quantity) throws Exception {
+<span class="fc" id="L51">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L52">        PreparedStatement ps = con.prepareStatement(&quot;select * from usercart where username=? and prodid=? and quantity=?&quot;);</span>
+
+<span class="fc" id="L54">        ps.setString(1, userId);</span>
+<span class="fc" id="L55">        ps.setString(2, productId);</span>
+<span class="fc" id="L56">        ps.setInt(3, quantity);</span>
+
+<span class="fc" id="L58">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L60">        int result = getResultSetSize(rs);</span>
+
+<span class="fc" id="L62">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L63">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L64">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        return result &gt; 0;</span>
+    }
+
+    public void addToCart(String userId, String productId, int quantity) throws Exception {
+<span class="fc" id="L70">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L71">        PreparedStatement ps = con.prepareStatement(&quot;insert into usercart values(?,?,?)&quot;);</span>
+
+<span class="fc" id="L73">        ps.setString(1, userId);</span>
+
+<span class="fc" id="L75">        ps.setString(2, productId);</span>
+
+<span class="fc" id="L77">        ps.setInt(3, quantity);</span>
+
+<span class="fc" id="L79">        int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (k == 0) {</span>
+<span class="nc" id="L82">            throw new Exception(&quot;did not insert successfully&quot;);</span>
+        }
+
+<span class="fc" id="L85">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L86">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L87">    }</span>
+
+    public void resetProductCountTo1000(String prodId) throws SQLException {
+<span class="fc" id="L90">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L91">        PreparedStatement ps = con.prepareStatement(&quot;update product set pquantity=1000 where pid=?&quot;);</span>
+
+<span class="fc" id="L93">        ps.setString(1, prodId);</span>
+
+<span class="fc" id="L95">        ps.execute();</span>
+
+<span class="fc" id="L97">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L98">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L99">    }</span>
+
+    public int getProductCount(String prodId) throws SQLException {
+<span class="fc" id="L102">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L103">        PreparedStatement ps = con.prepareStatement(&quot;SELECT * from product where pid=?&quot;);</span>
+
+<span class="fc" id="L105">        ps.setString(1, prodId);</span>
+
+<span class="fc" id="L107">        int num = -1;</span>
+
+<span class="fc" id="L109">        ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (rs.next()) {</span>
+<span class="fc" id="L111">            num = rs.getInt(&quot;pquantity&quot;);</span>
+        }
+
+<span class="fc" id="L114">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L115">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L116">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L118">        return num;</span>
+    }
+
+    public int getResultSetSize(ResultSet rs) {
+        try {
+<span class="fc" id="L123">            int size = 0;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L125">                size++;</span>
+            }
+<span class="fc" id="L127">            return size;</span>
+<span class="nc" id="L128">        } catch (Exception ex) {</span>
+<span class="nc" id="L129">            return -1;</span>
+        }
+    }
+
+    public boolean getOrderExistsProdIDOnly(String productId) throws Exception {
+<span class="fc" id="L134">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L135">        PreparedStatement ps = con.prepareStatement(&quot;select * from orders where prodid=?&quot;);</span>
+
+<span class="fc" id="L137">        ps.setString(1, productId);</span>
+
+<span class="fc" id="L139">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L141">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L143">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L144">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L145">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+    public boolean getOrderExistsOrderIdOnly(String orderID) throws Exception {
+<span class="fc" id="L151">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L152">        PreparedStatement ps = con.prepareStatement(&quot;select * from orders where orderid=?&quot;);</span>
+
+<span class="fc" id="L154">        ps.setString(1, orderID);</span>
+
+<span class="fc" id="L156">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L158">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L160">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L161">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L162">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+    public boolean getOrderExists(String orderId, String productId) throws Exception {
+<span class="fc" id="L168">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L169">        PreparedStatement ps = con.prepareStatement(&quot;select * from orders where orderid=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L171">        ps.setString(1, orderId);</span>
+<span class="fc" id="L172">        ps.setString(2, productId);</span>
+
+<span class="fc" id="L174">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L176">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L178">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L179">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L180">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        return num &gt; 0;</span>
+    }
+
+    public boolean getTransactionExists(String transId, String username) throws Exception {
+<span class="fc" id="L186">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L187">        PreparedStatement ps = con.prepareStatement(&quot;select * from transactions where transid=? and username=?&quot;);</span>
+
+<span class="fc" id="L189">        ps.setString(1, transId);</span>
+<span class="fc" id="L190">        ps.setString(2, username);</span>
+
+<span class="fc" id="L192">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L194">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L196">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L197">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L198">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+    // the amount is hardcoded here, as using the double value from Java may incorporate doubles precision, causing an error
+    public boolean getTransactionExistsWithTimeAmount125999(String transId, String username, Timestamp time) throws Exception {
+<span class="fc" id="L205">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L206">        PreparedStatement ps = con.prepareStatement(&quot;select * from transactions where transid=? and username=? and time=? and amount=125999.00&quot;);</span>
+
+<span class="fc" id="L208">        ps.setString(1, transId);</span>
+<span class="fc" id="L209">        ps.setString(2, username);</span>
+<span class="fc" id="L210">        ps.setTimestamp(3, time);</span>
+
+<span class="fc" id="L212">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L214">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L216">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L217">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L218">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+    // the amount is hardcoded here, as using the double value from Java may incorporate doubles precision, causing an error
+    public boolean getOrderExistsWithQuantity125999AmountShipped(String orderId, String productId, int quantity, int shipped) throws Exception {
+<span class="fc" id="L225">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L226">        PreparedStatement ps = con.prepareStatement(&quot;select * from orders where orderid=? and prodid=? and quantity=? and amount=125999.00 and shipped=?&quot;);</span>
+
+<span class="fc" id="L228">        ps.setString(1, orderId);</span>
+<span class="fc" id="L229">        ps.setString(2, productId);</span>
+<span class="fc" id="L230">        ps.setInt(3, quantity);</span>
+<span class="fc" id="L231">        ps.setInt(4, shipped);</span>
+
+<span class="fc" id="L233">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L235">        int result = getResultSetSize(rs);</span>
+
+<span class="fc" id="L237">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L238">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L239">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        return result &gt; 0;</span>
+    }
+
+    public void addTransactionWithAmount125999(String transId, String username, Timestamp time) throws Exception {
+<span class="fc" id="L245">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L246">        PreparedStatement ps = con.prepareStatement(&quot;insert into transactions values(?,?,?,125999.00)&quot;);</span>
+
+<span class="fc" id="L248">        ps.setString(1, transId);</span>
+<span class="fc" id="L249">        ps.setString(2, username);</span>
+<span class="fc" id="L250">        ps.setTimestamp(3, time);</span>
+
+<span class="fc" id="L252">        int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">        if (k == 0) {</span>
+<span class="nc" id="L255">            throw new Exception(&quot;did not insert successfully&quot;);</span>
+        }
+
+<span class="fc" id="L258">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L259">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L260">    }</span>
+
+    // the amount is hardcoded here, as using the double value from Java may incorporate doubles precision, causing an error
+    public void addToOrdersWithQuantity125999(String orderId, String productId, int quantity, int shipped) throws Exception {
+<span class="fc" id="L264">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L265">        PreparedStatement ps = con.prepareStatement(&quot;insert into orders values(?,?,?,125999.00,?)&quot;);</span>
+
+<span class="fc" id="L267">        ps.setString(1, orderId);</span>
+<span class="fc" id="L268">        ps.setString(2, productId);</span>
+<span class="fc" id="L269">        ps.setInt(3, quantity);</span>
+<span class="fc" id="L270">        ps.setDouble(4, shipped);</span>
+
+<span class="fc" id="L272">        int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (k == 0) {</span>
+<span class="nc" id="L275">            throw new Exception(&quot;did not insert successfully&quot;);</span>
+        }
+
+<span class="fc" id="L278">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L279">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L280">    }</span>
+
+    public static void disableForeignKeyCheck() throws SQLException {
+<span class="fc" id="L283">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L284">        PreparedStatement ps = con.prepareStatement(&quot;SET foreign_key_checks = 0;&quot;);</span>
+<span class="fc" id="L285">        ps.execute();</span>
+
+<span class="fc" id="L287">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L288">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L289">    }</span>
+
+    public static void enableForeignKeyCheck() throws SQLException {
+<span class="fc" id="L292">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L293">        PreparedStatement ps = con.prepareStatement(&quot;SET foreign_key_checks = 1;&quot;);</span>
+<span class="fc" id="L294">        ps.execute();</span>
+
+<span class="fc" id="L296">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L297">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L298">    }</span>
+
+    public static void deleteTransactions() throws SQLException {
+<span class="fc" id="L301">        disableForeignKeyCheck();</span>
+<span class="fc" id="L302">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L303">        PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM transactions&quot;);</span>
+<span class="fc" id="L304">        ps.execute();</span>
+
+<span class="fc" id="L306">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L307">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L308">        enableForeignKeyCheck();</span>
+<span class="fc" id="L309">    }</span>
+
+    public void deleteDemands() throws SQLException {
+<span class="fc" id="L312">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L313">        PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM user_demand&quot;);</span>
+
+<span class="fc" id="L315">        ps.execute();</span>
+
+<span class="fc" id="L317">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L318">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L319">    }</span>
+
+    @AfterAll
+    public static void restoreDemand() {
+        try {
+<span class="fc" id="L324">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L325">            PreparedStatement ps = con.prepareStatement(&quot;INSERT INTO `shopping-cart`.`user_demand` (`username`, `prodid`, `quantity`) VALUES ('guest@gmail.com', 'P20230423084144', 3)&quot;);</span>
+
+<span class="fc" id="L327">            ps.execute();</span>
+
+<span class="fc" id="L329">            DBUtil.closeConnection(con);</span>
+<span class="fc" id="L330">            DBUtil.closeConnection(ps);</span>
+
+<span class="nc" id="L332">        } catch (Exception ex) {</span>
+<span class="nc" id="L333">            System.out.println(&quot;FAILED TO SET/CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="nc" id="L334">            fail();</span>
+<span class="fc" id="L335">        }</span>
+<span class="fc" id="L336">    }</span>
+
+    @AfterEach
+    public void clearCartResetOrder() {
+        try {
+<span class="fc" id="L341">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L342">            PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM usercart&quot;);</span>
+
+<span class="fc" id="L344">            ps.execute();</span>
+
+<span class="fc" id="L346">            DBUtil.closeConnection(con);</span>
+<span class="fc" id="L347">            DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L349">            deleteDemands();</span>
+
+<span class="nc" id="L351">        } catch (Exception ex) {</span>
+<span class="nc" id="L352">            System.out.println(&quot;FAILED TO SET/CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="nc" id="L353">            fail();</span>
+<span class="fc" id="L354">        }</span>
+<span class="fc" id="L355">    }</span>
+
+    @BeforeEach
+    public void deleteOrders() throws SQLException {
+<span class="fc" id="L359">        deleteTransactions();</span>
+<span class="fc" id="L360">        restoreTransaction();</span>
+<span class="fc" id="L361">        disableForeignKeyCheck();</span>
+<span class="fc" id="L362">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L363">        PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM orders&quot;);</span>
+<span class="fc" id="L364">        ps.execute();</span>
+
+<span class="fc" id="L366">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L367">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L368">        enableForeignKeyCheck();</span>
+<span class="fc" id="L369">    }</span>
+
+    @AfterEach
+    public void cleanup() throws SQLException {
+<span class="fc" id="L373">        deleteOrders();</span>
+<span class="fc" id="L374">        enableForeignKeyCheck();</span>
+<span class="fc" id="L375">        resetProductCountTo1000(&quot;P20230423084145&quot;);</span>
+<span class="fc" id="L376">        resetProductCountTo1000(&quot;P20230423083830&quot;);</span>
+<span class="fc" id="L377">    }</span>
+
+    public static void restoreTransaction() throws SQLException {
+<span class="fc" id="L380">        disableForeignKeyCheck();</span>
+<span class="fc" id="L381">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L382">        PreparedStatement ps = con.prepareStatement(&quot;INSERT INTO `shopping-cart`.`transactions` (`transid`, `username`, `time`, `amount`) VALUES ('TR10001', 'guest@gmail.com', '2023-04-23 09:26:56', 125999.00)&quot;);</span>
+
+<span class="fc" id="L384">        ps.execute();</span>
+
+<span class="fc" id="L386">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L387">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L388">        enableForeignKeyCheck();</span>
+<span class="fc" id="L389">    }</span>
+
+    @AfterAll
+    public static void restoreOrder() {
+        try {
+<span class="fc" id="L394">            deleteTransactions();</span>
+<span class="fc" id="L395">            restoreTransaction();</span>
+<span class="fc" id="L396">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L397">            PreparedStatement ps = con.prepareStatement(&quot;INSERT INTO `shopping-cart`.`orders` (`orderid`, `prodid`, `quantity`, `amount`, `shipped`) VALUES ('TR10001', 'P20230423082243', 1, 125999.00, 0)&quot;);</span>
+
+<span class="fc" id="L399">            ps.execute();</span>
+
+<span class="fc" id="L401">            DBUtil.closeConnection(con);</span>
+<span class="fc" id="L402">            DBUtil.closeConnection(ps);</span>
+<span class="nc" id="L403">        } catch (Exception ex) {</span>
+<span class="nc" id="L404">            System.out.println(&quot;FAILED TO SET/CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="nc" id="L405">            fail();</span>
+<span class="fc" id="L406">        }</span>
+<span class="fc" id="L407">    }</span>
+
+    // adds an order with a null transaction ID
+    @Test
+    public void testAddOrderNullTransactionID() {
+<span class="fc" id="L412">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L413">        String orderId = &quot;TR10001&quot;;</span>
+
+<span class="fc" id="L415">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L416">        OrderBean bean = new OrderBean();</span>
+<span class="fc" id="L417">        bean.setTransactionId(null);</span>
+<span class="fc" id="L418">        bean.setProductId(prodId);</span>
+<span class="fc" id="L419">        bean.setAmount(125999.0);</span>
+<span class="fc" id="L420">        bean.setShipped(0);</span>
+<span class="fc" id="L421">        bean.setQuantity(1);</span>
+<span class="fc" id="L422">        boolean status = orderService.addOrder(bean);</span>
+<span class="fc" id="L423">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L427">            assertFalse(getOrderExistsOrderIdOnly(orderId));</span>
+<span class="nc" id="L428">        } catch (Exception ex) {</span>
+<span class="nc" id="L429">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L430">        }</span>
+<span class="fc" id="L431">    }</span>
+
+    // adds an order with a null product ID
+    @Test
+    public void testAddOrderNullProductID() {
+<span class="fc" id="L436">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L437">        String orderId = &quot;TR10001&quot;;</span>
+
+<span class="fc" id="L439">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L440">        OrderBean bean = new OrderBean();</span>
+<span class="fc" id="L441">        bean.setTransactionId(orderId);</span>
+<span class="fc" id="L442">        bean.setProductId(null);</span>
+<span class="fc" id="L443">        bean.setAmount(125999.0);</span>
+<span class="fc" id="L444">        bean.setShipped(0);</span>
+<span class="fc" id="L445">        bean.setQuantity(1);</span>
+<span class="fc" id="L446">        boolean status = orderService.addOrder(bean);</span>
+<span class="fc" id="L447">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L451">            assertFalse(getOrderExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L452">        } catch (Exception ex) {</span>
+<span class="nc" id="L453">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L454">        }</span>
+<span class="fc" id="L455">    }</span>
+
+    // adds an order with an invalid product ID
+    @Test
+    public void testAddOrderInvalidProductID() {
+<span class="fc" id="L460">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L461">        String orderId = &quot;TR10001&quot;;</span>
+
+<span class="fc" id="L463">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L464">        OrderBean bean = new OrderBean();</span>
+<span class="fc" id="L465">        bean.setTransactionId(orderId);</span>
+<span class="fc" id="L466">        bean.setProductId(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L467">        bean.setAmount(125999.0);</span>
+<span class="fc" id="L468">        bean.setShipped(0);</span>
+<span class="fc" id="L469">        bean.setQuantity(1);</span>
+<span class="fc" id="L470">        boolean status = orderService.addOrder(bean);</span>
+<span class="fc" id="L471">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L475">            assertFalse(getOrderExists(orderId, &quot;abcdefg&quot;));</span>
+<span class="nc" id="L476">        } catch (Exception ex) {</span>
+<span class="nc" id="L477">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L478">        }</span>
+<span class="fc" id="L479">    }</span>
+
+    // adds an order
+    @Test
+    public void testAddOrder() {
+<span class="fc" id="L484">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L485">        String orderId = &quot;TR10001&quot;;</span>
+
+<span class="fc" id="L487">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L488">        OrderBean bean = new OrderBean();</span>
+<span class="fc" id="L489">        bean.setTransactionId(orderId);</span>
+<span class="fc" id="L490">        bean.setProductId(prodId);</span>
+<span class="fc" id="L491">        bean.setAmount(125999.0);</span>
+<span class="fc" id="L492">        bean.setShipped(0);</span>
+<span class="fc" id="L493">        bean.setQuantity(1);</span>
+<span class="fc" id="L494">        boolean status = orderService.addOrder(bean);</span>
+<span class="fc" id="L495">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L499">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(orderId, prodId, 1, 0));</span>
+<span class="nc" id="L500">        } catch (Exception ex) {</span>
+<span class="nc" id="L501">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L502">        }</span>
+<span class="fc" id="L503">    }</span>
+
+    // adds an order that already exists
+    @Test
+    public void testAddOrderDuplicate() {
+<span class="fc" id="L508">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L509">        String orderId = &quot;TR10001&quot;;</span>
+
+        try {
+<span class="fc" id="L512">            assertFalse(getOrderExists(orderId, prodId));</span>
+<span class="fc" id="L513">            addToOrdersWithQuantity125999(orderId, prodId, 1, 0);</span>
+<span class="fc" id="L514">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(orderId, prodId, 1, 0));</span>
+<span class="nc" id="L515">        } catch (Exception ex) {</span>
+<span class="nc" id="L516">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L517">        }</span>
+
+<span class="fc" id="L519">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L520">        OrderBean bean = new OrderBean();</span>
+<span class="fc" id="L521">        bean.setTransactionId(orderId);</span>
+<span class="fc" id="L522">        bean.setProductId(prodId);</span>
+<span class="fc" id="L523">        bean.setAmount(125999.0);</span>
+<span class="fc" id="L524">        bean.setShipped(0);</span>
+<span class="fc" id="L525">        bean.setQuantity(1);</span>
+<span class="fc" id="L526">        boolean status = orderService.addOrder(bean);</span>
+<span class="fc" id="L527">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L531">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(orderId, prodId, 1, 0));</span>
+<span class="nc" id="L532">        } catch (Exception ex) {</span>
+<span class="nc" id="L533">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L534">        }</span>
+<span class="fc" id="L535">    }</span>
+
+    // adds a transaction with a null transaction ID
+    @Test
+    public void testAddTransactionNullTransactionID() {
+<span class="fc" id="L540">        String transId = &quot;TR10002&quot;;</span>
+<span class="fc" id="L541">        String username = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L543">            assertFalse(getTransactionExists(null, username));</span>
+<span class="nc" id="L544">        } catch (Exception ex) {</span>
+<span class="nc" id="L545">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L546">        }</span>
+
+<span class="fc" id="L548">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L549">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L550">        bean.setTransactionId(null);</span>
+<span class="fc" id="L551">        bean.setUserName(username);</span>
+<span class="fc" id="L552">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L553">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L554">        bean.setTransDateTime(time);</span>
+<span class="fc" id="L555">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L556">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L560">            assertFalse(getTransactionExists(null, username));</span>
+<span class="nc" id="L561">        } catch (Exception ex) {</span>
+<span class="nc" id="L562">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L563">        }</span>
+<span class="fc" id="L564">    }</span>
+
+    // adds a transaction with an invalid transaction ID
+    @Test
+    public void testAddTransactionInvalidTransactionID() {
+<span class="fc" id="L569">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L570">        String username = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L572">            assertFalse(getTransactionExists(&quot;abcdefg&quot;, username));</span>
+<span class="nc" id="L573">        } catch (Exception ex) {</span>
+<span class="nc" id="L574">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L575">        }</span>
+
+<span class="fc" id="L577">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L578">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L579">        bean.setTransactionId(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L580">        bean.setUserName(username);</span>
+<span class="fc" id="L581">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L582">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L583">        bean.setTransDateTime(time);</span>
+<span class="fc" id="L584">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L585">        assertFalse(status);</span>
+
+        // cleanup and verification
+            try {
+<span class="fc" id="L589">            assertFalse(getTransactionExists(&quot;abcdefg&quot;, username));</span>
+<span class="nc" id="L590">        } catch (Exception ex) {</span>
+<span class="nc" id="L591">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L592">        }</span>
+<span class="fc" id="L593">    }</span>
+
+    // adds a transaction with a null username
+    @Test
+    public void testAddTransactionNullUsername() {
+<span class="fc" id="L598">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L599">        String username = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L601">            assertFalse(getTransactionExists(transId, null));</span>
+<span class="nc" id="L602">        } catch (Exception ex) {</span>
+<span class="nc" id="L603">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L604">        }</span>
+
+<span class="fc" id="L606">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L607">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L608">        bean.setTransactionId(transId);</span>
+<span class="fc" id="L609">        bean.setUserName(null);</span>
+<span class="fc" id="L610">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L611">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L612">        bean.setTransDateTime(time);</span>
+<span class="fc" id="L613">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L614">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L618">            assertFalse(getTransactionExists(transId, null));</span>
+<span class="nc" id="L619">        } catch (Exception ex) {</span>
+<span class="nc" id="L620">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L621">        }</span>
+<span class="fc" id="L622">    }</span>
+
+    // adds a transaction with an invalid username
+    @Test
+    public void testAddTransactionInvalidUsername() {
+<span class="fc" id="L627">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L628">        String username = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L630">            assertFalse(getTransactionExists(transId, &quot;abcdefg&quot;));</span>
+<span class="nc" id="L631">        } catch (Exception ex) {</span>
+<span class="nc" id="L632">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L633">        }</span>
+
+<span class="fc" id="L635">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L636">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L637">        bean.setTransactionId(transId);</span>
+<span class="fc" id="L638">        bean.setUserName(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L639">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L640">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L641">        bean.setTransDateTime(time);</span>
+<span class="fc" id="L642">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L643">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L647">            assertFalse(getTransactionExists(transId, &quot;abcdefg&quot;));</span>
+<span class="nc" id="L648">        } catch (Exception ex) {</span>
+<span class="nc" id="L649">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L650">        }</span>
+<span class="fc" id="L651">    }</span>
+
+    // adds a transaction with a null timestamp
+    @Test
+    public void testAddTransactionNullTimestamp() {
+<span class="fc" id="L656">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L657">        String username = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L659">            assertFalse(getTransactionExists(transId, username));</span>
+<span class="nc" id="L660">        } catch (Exception ex) {</span>
+<span class="nc" id="L661">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L662">        }</span>
+
+<span class="fc" id="L664">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L665">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L666">        bean.setTransactionId(transId);</span>
+<span class="fc" id="L667">        bean.setUserName(username);</span>
+<span class="fc" id="L668">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L669">        bean.setTransDateTime(null);</span>
+<span class="fc" id="L670">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L671">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L675">            assertFalse(getTransactionExists(transId, username));</span>
+<span class="nc" id="L676">        } catch (Exception ex) {</span>
+<span class="nc" id="L677">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L678">        }</span>
+<span class="fc" id="L679">    }</span>
+
+    // adds a transaction
+    @Test
+    public void testAddTransaction() {
+<span class="fc" id="L684">        String transId = &quot;TR10002&quot;;</span>
+<span class="fc" id="L685">        String username = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L686">        String prodId = &quot;P20230423084144&quot;;</span>
+        try {
+<span class="fc" id="L688">            assertFalse(getTransactionExists(transId, username));</span>
+<span class="fc" id="L689">            addToOrdersWithQuantity125999(transId, prodId, 0, 1);</span>
+<span class="fc" id="L690">            assertTrue(getOrderExists(transId, prodId));</span>
+<span class="nc" id="L691">        } catch (Exception ex) {</span>
+<span class="nc" id="L692">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L693">        }</span>
+
+<span class="fc" id="L695">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L696">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L697">        bean.setTransactionId(transId);</span>
+<span class="fc" id="L698">        bean.setUserName(username);</span>
+<span class="fc" id="L699">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L700">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L701">        bean.setTransDateTime(time);</span>
+<span class="fc" id="L702">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L703">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L707">            assertTrue(getTransactionExistsWithTimeAmount125999(transId, username, time));</span>
+<span class="nc" id="L708">        } catch (Exception ex) {</span>
+<span class="nc" id="L709">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L710">        }</span>
+<span class="fc" id="L711">    }</span>
+
+    // adds a transaction when a duplicate exists
+    @Test
+    public void testAddTransactionDuplicate() {
+<span class="fc" id="L716">        String transId = &quot;TR10002&quot;;</span>
+<span class="fc" id="L717">        String username = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L718">        String prodId = &quot;P20230423084144&quot;;</span>
+        try {
+<span class="fc" id="L720">            assertFalse(getTransactionExists(transId, username));</span>
+<span class="fc" id="L721">            addToOrdersWithQuantity125999(transId, prodId, 0, 1);</span>
+<span class="fc" id="L722">            assertTrue(getOrderExists(transId, prodId));</span>
+<span class="fc" id="L723">            Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L724">            addTransactionWithAmount125999(transId, username, time);</span>
+<span class="fc" id="L725">            assertTrue(getTransactionExistsWithTimeAmount125999(transId, username, time));</span>
+<span class="nc" id="L726">        } catch (Exception ex) {</span>
+<span class="nc" id="L727">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L728">        }</span>
+
+<span class="fc" id="L730">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L731">        TransactionBean bean = new TransactionBean();</span>
+<span class="fc" id="L732">        bean.setTransactionId(transId);</span>
+<span class="fc" id="L733">        bean.setUserName(username);</span>
+<span class="fc" id="L734">        bean.setTransAmount(125999.0);</span>
+<span class="fc" id="L735">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L736">        bean.setTransDateTime(time);</span>
+<span class="fc" id="L737">        boolean status = orderService.addTransaction(bean);</span>
+<span class="fc" id="L738">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L742">            assertTrue(getTransactionExistsWithTimeAmount125999(transId, username, time));</span>
+<span class="nc" id="L743">        } catch (Exception ex) {</span>
+<span class="nc" id="L744">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L745">        }</span>
+<span class="fc" id="L746">    }</span>
+
+    // counts sum of quantity in orders with null product id
+    @Test
+    public void testCountSoldItemNullProductId() {
+<span class="fc" id="L751">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L752">        String prodId = &quot;P20230423082243&quot;;</span>
+        try {
+<span class="fc" id="L754">            assertFalse(getOrderExists(transId, prodId));</span>
+<span class="fc" id="L755">            assertFalse(getOrderExists(transId, null));</span>
+<span class="fc" id="L756">            addToOrdersWithQuantity125999(transId, prodId, 1, 0);</span>
+<span class="fc" id="L757">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId, prodId, 1, 0));</span>
+<span class="nc" id="L758">        } catch (Exception ex) {</span>
+<span class="nc" id="L759">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L760">        }</span>
+
+<span class="fc" id="L762">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L763">        int count = orderService.countSoldItem(null);</span>
+<span class="fc" id="L764">        assertEquals(0, count);</span>
+<span class="fc" id="L765">    }</span>
+
+    // counts sum of quantity in orders with an invalid product id
+    @Test
+    public void testCountSoldItemInvalidProductId() {
+<span class="fc" id="L770">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L771">        String prodId = &quot;P20230423084144&quot;;</span>
+        try {
+<span class="fc" id="L773">            assertFalse(getOrderExists(transId, prodId));</span>
+<span class="fc" id="L774">            assertFalse(getOrderExists(transId, &quot;abcdefg&quot;));</span>
+<span class="fc" id="L775">            addToOrdersWithQuantity125999(transId, prodId, 1, 0);</span>
+<span class="fc" id="L776">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId, prodId, 1, 0));</span>
+<span class="nc" id="L777">        } catch (Exception ex) {</span>
+<span class="nc" id="L778">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L779">        }</span>
+
+<span class="fc" id="L781">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L782">        int count = orderService.countSoldItem(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L783">        assertEquals(0, count);</span>
+<span class="fc" id="L784">    }</span>
+
+    // counts sum of quantity in orders
+    @Test
+    public void testCountSoldItem() {
+<span class="fc" id="L789">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L790">        String prodId = &quot;P20230423084144&quot;;</span>
+        try {
+<span class="fc" id="L792">            assertFalse(getOrderExists(transId, prodId));</span>
+<span class="fc" id="L793">            addToOrdersWithQuantity125999(transId, prodId, 1, 0);</span>
+<span class="fc" id="L794">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId, prodId, 1, 0));</span>
+<span class="nc" id="L795">        } catch (Exception ex) {</span>
+<span class="nc" id="L796">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L797">        }</span>
+
+<span class="fc" id="L799">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L800">        int count = orderService.countSoldItem(prodId);</span>
+<span class="fc" id="L801">        assertEquals(1, count);</span>
+<span class="fc" id="L802">    }</span>
+
+    // counts sum of quantity in orders for multiple transactions
+    @Test
+    public void testCountSoldItemMultipleOrders() {
+<span class="fc" id="L807">        String transId1 = &quot;TR10001&quot;;</span>
+<span class="fc" id="L808">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L809">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L810">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L811">        String prodId2 = &quot;P20230423083830&quot;;</span>
+        try {
+<span class="fc" id="L813">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L814">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L815">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L816">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L817">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L818">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L819">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L820">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L821">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="nc" id="L822">        } catch (Exception ex) {</span>
+<span class="nc" id="L823">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L824">        }</span>
+
+<span class="fc" id="L826">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L827">        int count1 = orderService.countSoldItem(prodId1);</span>
+<span class="fc" id="L828">        assertEquals(2, count1);</span>
+<span class="fc" id="L829">        int count2 = orderService.countSoldItem(prodId2);</span>
+<span class="fc" id="L830">        assertEquals(6, count2);</span>
+<span class="fc" id="L831">    }</span>
+
+    // gets all orders in an empty table
+    @Test
+    public void testGetAllOrdersEmpty() {
+<span class="fc" id="L836">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L837">        List&lt;OrderBean&gt; list = orderService.getAllOrders();</span>
+<span class="fc" id="L838">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L839">    }</span>
+
+    // gets all orders in a non-empty table
+    @Test
+    public void testGetAllOrders() {
+<span class="fc" id="L844">        String transId1 = &quot;TR10001&quot;;</span>
+<span class="fc" id="L845">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L846">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L847">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L848">        String prodId2 = &quot;P20230423083830&quot;;</span>
+        try {
+<span class="fc" id="L850">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L851">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L852">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L853">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L854">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L855">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L856">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L857">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L858">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="nc" id="L859">        } catch (Exception ex) {</span>
+<span class="nc" id="L860">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L861">        }</span>
+
+<span class="fc" id="L863">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L864">        List&lt;OrderBean&gt; list = orderService.getAllOrders();</span>
+<span class="fc" id="L865">        assertEquals(3, list.size());</span>
+
+<span class="fc bfc" id="L867" title="All 2 branches covered.">        for (OrderBean bean : list) {</span>
+<span class="pc bpc" id="L868" title="1 of 2 branches missed.">            if (bean.getAmount() != 125999.0) {</span>
+<span class="nc" id="L869">                fail(&quot;incorrect amount returned&quot;);</span>
+<span class="pc bpc" id="L870" title="1 of 2 branches missed.">            } else if (bean.getShipped() != 0) {</span>
+<span class="nc" id="L871">                fail(&quot;incorrect shipped returned&quot;);</span>
+<span class="pc bpc" id="L872" title="2 of 6 branches missed.">            } else if (bean.getProductId().equals(prodId1) &amp;&amp; bean.getQuantity() == 2 &amp;&amp; bean.getTransactionId().equals(transId1)) {</span>
+<span class="fc" id="L873">                continue;</span>
+<span class="pc bpc" id="L874" title="2 of 6 branches missed.">            } else if (bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 5 &amp;&amp; bean.getTransactionId().equals(transId2)) {</span>
+<span class="fc" id="L875">                continue;</span>
+<span class="pc bpc" id="L876" title="3 of 6 branches missed.">            } else if (bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 1 &amp;&amp; bean.getTransactionId().equals(transId3)) {</span>
+<span class="fc" id="L877">                continue;</span>
+            } else {
+<span class="nc" id="L879">                fail(&quot;invalid entry&quot;);</span>
+            }
+<span class="nc" id="L881">        }</span>
+<span class="fc" id="L882">    }</span>
+
+    // gets all orders by a null user id
+    @Test
+    public void testGetOrdersByUserIdNullUserId() {
+<span class="fc" id="L887">        String userId = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L888">        String transId = &quot;TR10001&quot;;</span>
+        try {
+<span class="fc" id="L890">            assertFalse(getTransactionExists(transId, null));</span>
+<span class="nc" id="L891">        } catch (Exception ex) {</span>
+<span class="nc" id="L892">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L893">        }</span>
+<span class="fc" id="L894">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L895">        List&lt;OrderBean&gt; list = orderService.getOrdersByUserId(null);</span>
+<span class="fc" id="L896">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L897">    }</span>
+
+    // gets all orders by an invalid user id
+    @Test
+    public void testGetOrdersByUserIdInvalidUserId() {
+<span class="fc" id="L902">        String userId = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L903">        String transId = &quot;TR10001&quot;;</span>
+        try {
+<span class="fc" id="L905">            assertFalse(getTransactionExists(transId, &quot;abcdefg&quot;));</span>
+<span class="nc" id="L906">        } catch (Exception ex) {</span>
+<span class="nc" id="L907">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L908">        }</span>
+<span class="fc" id="L909">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L910">        List&lt;OrderBean&gt; list = orderService.getOrdersByUserId(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L911">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L912">    }</span>
+
+    // gets all orders by user id in an empty table
+    @Test
+    public void testGetOrdersByUserIdEmpty() {
+<span class="fc" id="L917">        String userId = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L918">        String transId = &quot;TR10001&quot;;</span>
+        try {
+<span class="fc" id="L920">            assertFalse(getTransactionExists(transId, userId));</span>
+<span class="nc" id="L921">        } catch (Exception ex) {</span>
+<span class="nc" id="L922">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L923">        }</span>
+<span class="fc" id="L924">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L925">        List&lt;OrderBean&gt; list = orderService.getOrdersByUserId(userId);</span>
+<span class="fc" id="L926">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L927">    }</span>
+
+    // gets all orders by user id in a non-empty table
+    @Test
+    public void testGetAllOrdersByUserIdMultipleEntries() {
+<span class="fc" id="L932">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L933">        String transId1 = &quot;TR10001&quot;;</span>
+<span class="fc" id="L934">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L935">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L936">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L937">        String prodId2 = &quot;P20230423083830&quot;;</span>
+        try {
+<span class="fc" id="L939">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L940">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L941">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L942">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L943">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L944">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L945">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L946">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L947">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="nc" id="L948">        } catch (Exception ex) {</span>
+<span class="nc" id="L949">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L950">        }</span>
+
+<span class="fc" id="L952">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+        // This is a fault where the query to select orders tries to access the transid field on an order, but it should be orderid
+<span class="fc" id="L954">        List&lt;OrderBean&gt; list = orderService.getOrdersByUserId(userId);</span>
+<span class="nc" id="L955">        assertEquals(3, list.size());</span>
+
+<span class="nc bnc" id="L957" title="All 2 branches missed.">        for (OrderBean bean : list) {</span>
+<span class="nc bnc" id="L958" title="All 2 branches missed.">            if (bean.getAmount() != 125999.0) {</span>
+<span class="nc" id="L959">                fail(&quot;incorrect amount returned&quot;);</span>
+<span class="nc bnc" id="L960" title="All 2 branches missed.">            } else if (bean.getShipped() != 0) {</span>
+<span class="nc" id="L961">                fail(&quot;incorrect shipped returned&quot;);</span>
+<span class="nc bnc" id="L962" title="All 6 branches missed.">            } else if (bean.getProductId().equals(prodId1) &amp;&amp; bean.getQuantity() == 2 &amp;&amp; bean.getTransactionId().equals(transId1)) {</span>
+<span class="nc" id="L963">                continue;</span>
+<span class="nc bnc" id="L964" title="All 6 branches missed.">            } else if (bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 5 &amp;&amp; bean.getTransactionId().equals(transId2)) {</span>
+<span class="nc" id="L965">                continue;</span>
+<span class="nc bnc" id="L966" title="All 6 branches missed.">            } else if (bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 1 &amp;&amp; bean.getTransactionId().equals(transId3)) {</span>
+<span class="nc" id="L967">                continue;</span>
+            } else {
+<span class="nc" id="L969">                fail(&quot;invalid entry&quot;);</span>
+            }
+<span class="nc" id="L971">        }</span>
+<span class="nc" id="L972">    }</span>
+
+    // gets all orders by user id in a non-empty table
+    @Test
+    public void testGetAllOrdersByUserIdMultipleUsers() {
+<span class="fc" id="L977">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L978">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L979">        String transId1 = &quot;TR10001&quot;;</span>
+<span class="fc" id="L980">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L981">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L982">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L983">        String prodId2 = &quot;P20230423083830&quot;;</span>
+        try {
+<span class="fc" id="L985">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L986">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L987">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L988">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L989">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L990">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L991">            Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+<span class="fc" id="L992">            addTransactionWithAmount125999(transId3, userId2, time);</span>
+<span class="fc" id="L993">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L994">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L995">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="fc" id="L996">            assertTrue(getTransactionExistsWithTimeAmount125999(transId3, userId2, time));</span>
+<span class="nc" id="L997">        } catch (Exception ex) {</span>
+<span class="nc" id="L998">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L999">        }</span>
+
+<span class="fc" id="L1001">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+        // This is a fault where the query to select orders tries to access the transid field on an order, but it should be orderid
+<span class="fc" id="L1003">        List&lt;OrderBean&gt; list1 = orderService.getOrdersByUserId(userId1);</span>
+<span class="nc" id="L1004">        assertEquals(3, list1.size());</span>
+
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">        for (OrderBean bean : list1) {</span>
+<span class="nc bnc" id="L1007" title="All 2 branches missed.">            if (bean.getAmount() != 125999.0) {</span>
+<span class="nc" id="L1008">                fail(&quot;incorrect amount returned&quot;);</span>
+<span class="nc bnc" id="L1009" title="All 2 branches missed.">            } else if (bean.getShipped() != 0) {</span>
+<span class="nc" id="L1010">                fail(&quot;incorrect shipped returned&quot;);</span>
+<span class="nc bnc" id="L1011" title="All 6 branches missed.">            } else if (bean.getProductId().equals(prodId1) &amp;&amp; bean.getQuantity() == 2 &amp;&amp; bean.getTransactionId().equals(transId1)) {</span>
+<span class="nc" id="L1012">                continue;</span>
+<span class="nc bnc" id="L1013" title="All 6 branches missed.">            } else if (bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 5 &amp;&amp; bean.getTransactionId().equals(transId2)) {</span>
+<span class="nc" id="L1014">                continue;</span>
+<span class="nc bnc" id="L1015" title="All 6 branches missed.">            } else if (bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 1 &amp;&amp; bean.getTransactionId().equals(transId3)) {</span>
+<span class="nc" id="L1016">                continue;</span>
+            } else {
+<span class="nc" id="L1018">                fail(&quot;invalid entry&quot;);</span>
+            }
+<span class="nc" id="L1020">        }</span>
+
+<span class="nc" id="L1022">        List&lt;OrderBean&gt; list2 = orderService.getOrdersByUserId(userId2);</span>
+<span class="nc" id="L1023">        assertEquals(1, list2.size());</span>
+<span class="nc" id="L1024">        OrderBean bean = list2.get(0);</span>
+<span class="nc bnc" id="L1025" title="All 6 branches missed.">        assertTrue(bean.getProductId().equals(prodId2) &amp;&amp; bean.getQuantity() == 10 &amp;&amp; bean.getTransactionId().equals(transId3));</span>
+<span class="nc" id="L1026">    }</span>
+
+    // gets all order details by a null user id
+    @Test
+    public void testGetAllOrderDetailsNullUserId() {
+<span class="fc" id="L1031">        String userId = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L1032">        String transId = &quot;TR10001&quot;;</span>
+        try {
+<span class="fc" id="L1034">            assertFalse(getTransactionExists(transId, null));</span>
+<span class="nc" id="L1035">        } catch (Exception ex) {</span>
+<span class="nc" id="L1036">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1037">        }</span>
+<span class="fc" id="L1038">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1039">        List&lt;OrderDetails&gt; list = orderService.getAllOrderDetails(null);</span>
+<span class="fc" id="L1040">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L1041">    }</span>
+
+    // gets all order details by an invalid user id
+    @Test
+    public void testGetAllOrderDetailsInvalidUserId() {
+<span class="fc" id="L1046">        String userId = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L1047">        String transId = &quot;TR10001&quot;;</span>
+        try {
+<span class="fc" id="L1049">            assertFalse(getTransactionExists(transId, &quot;abcdefg&quot;));</span>
+<span class="nc" id="L1050">        } catch (Exception ex) {</span>
+<span class="nc" id="L1051">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1052">        }</span>
+<span class="fc" id="L1053">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1054">        List&lt;OrderDetails&gt; list = orderService.getAllOrderDetails(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L1055">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L1056">    }</span>
+
+    // gets all order details by user id in an empty table
+    @Test
+    public void testGetAllOrderDetailsEmpty() {
+<span class="fc" id="L1061">        String userId = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L1062">        String transId = &quot;TR10001&quot;;</span>
+        try {
+<span class="fc" id="L1064">            assertFalse(getTransactionExists(transId, userId));</span>
+<span class="nc" id="L1065">        } catch (Exception ex) {</span>
+<span class="nc" id="L1066">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1067">        }</span>
+<span class="fc" id="L1068">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1069">        List&lt;OrderDetails&gt; list = orderService.getAllOrderDetails(userId);</span>
+<span class="fc" id="L1070">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L1071">    }</span>
+
+    // gets all order details by user id in a table with multiple entries
+    @Test
+    public void testGetAllOrderDetailsMultipleEntries() {
+<span class="fc" id="L1076">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1077">        String transId1 = &quot;TR10004&quot;;</span>
+<span class="fc" id="L1078">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L1079">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L1080">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L1081">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L1082">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+        try {
+<span class="fc" id="L1084">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L1085">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L1086">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L1087">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L1088">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L1089">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L1090">            addTransactionWithAmount125999(transId1, userId, time);</span>
+<span class="fc" id="L1091">            addTransactionWithAmount125999(transId2, userId, time);</span>
+<span class="fc" id="L1092">            addTransactionWithAmount125999(transId3, userId, time);</span>
+<span class="fc" id="L1093">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L1094">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L1095">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="fc" id="L1096">            assertTrue(getTransactionExistsWithTimeAmount125999(transId1, userId, time));</span>
+<span class="fc" id="L1097">            assertTrue(getTransactionExistsWithTimeAmount125999(transId2, userId, time));</span>
+<span class="fc" id="L1098">            assertTrue(getTransactionExistsWithTimeAmount125999(transId3, userId, time));</span>
+<span class="nc" id="L1099">        } catch (Exception ex) {</span>
+<span class="nc" id="L1100">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1101">        }</span>
+<span class="fc" id="L1102">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1103">        List&lt;OrderDetails&gt; list = orderService.getAllOrderDetails(userId);</span>
+<span class="fc" id="L1104">        assertEquals(3, list.size());</span>
+
+<span class="fc bfc" id="L1106" title="All 2 branches covered.">        for (OrderDetails detail : list) {</span>
+<span class="pc bpc" id="L1107" title="1 of 2 branches missed.">            if (!detail.getAmount().contains(&quot;125999.0&quot;)) {</span>
+<span class="nc" id="L1108">                fail(&quot;incorrect amount returned&quot;);</span>
+<span class="pc bpc" id="L1109" title="1 of 2 branches missed.">            } else if (detail.getShipped() != 0) {</span>
+<span class="nc" id="L1110">                fail(&quot;incorrect shipped returned&quot;);</span>
+<span class="pc bpc" id="L1111" title="2 of 6 branches missed.">            } else if (detail.getProductId().equals(prodId1) &amp;&amp; detail.getOrderId().equals(transId1) &amp;&amp; detail.getQty().equals(&quot;2&quot;)</span>
+<span class="pc bpc" id="L1112" title="3 of 6 branches missed.">                        &amp;&amp; detail.getProdName().equals(&quot;MOTOROLA G32 Mobile&quot;) &amp;&amp; detail.getShipped() == 0 &amp;&amp; detail.getTime().equals(time)) {</span>
+<span class="fc" id="L1113">                continue;</span>
+<span class="pc bpc" id="L1114" title="2 of 6 branches missed.">            } else if (detail.getProductId().equals(prodId2) &amp;&amp; detail.getOrderId().equals(transId2) &amp;&amp; detail.getQty().equals(&quot;5&quot;)</span>
+<span class="pc bpc" id="L1115" title="3 of 6 branches missed.">                        &amp;&amp; detail.getProdName().equals(&quot;HP Intel Core i5 11th Gen&quot;) &amp;&amp; detail.getShipped() == 0 &amp;&amp; detail.getTime().equals(time)) {</span>
+<span class="fc" id="L1116">                continue;</span>
+<span class="pc bpc" id="L1117" title="3 of 6 branches missed.">            } else if (detail.getProductId().equals(prodId2) &amp;&amp; detail.getOrderId().equals(transId3) &amp;&amp; detail.getQty().equals(&quot;1&quot;)</span>
+<span class="pc bpc" id="L1118" title="3 of 6 branches missed.">                        &amp;&amp; detail.getProdName().equals(&quot;HP Intel Core i5 11th Gen&quot;) &amp;&amp; detail.getShipped() == 0 &amp;&amp; detail.getTime().equals(time)) {</span>
+<span class="fc" id="L1119">                continue;</span>
+            } else {
+<span class="nc" id="L1121">                fail(&quot;invalid entry&quot;);</span>
+            }
+<span class="nc" id="L1123">        }</span>
+<span class="fc" id="L1124">    }</span>
+
+    // gets all order details in a non-empty table
+    @Test
+    public void testGetAllOrderDetailsMultipleUsers() {
+<span class="fc" id="L1129">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1130">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L1131">        String transId1 = &quot;TR10004&quot;;</span>
+<span class="fc" id="L1132">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L1133">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L1134">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L1135">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L1136">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+        try {
+<span class="fc" id="L1138">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L1139">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L1140">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L1141">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L1142">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L1143">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L1144">            addTransactionWithAmount125999(transId1, userId1, time);</span>
+<span class="fc" id="L1145">            addTransactionWithAmount125999(transId2, userId1, time);</span>
+<span class="fc" id="L1146">            addTransactionWithAmount125999(transId3, userId2, time);</span>
+<span class="fc" id="L1147">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L1148">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L1149">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="fc" id="L1150">            assertTrue(getTransactionExistsWithTimeAmount125999(transId1, userId1, time));</span>
+<span class="fc" id="L1151">            assertTrue(getTransactionExistsWithTimeAmount125999(transId2, userId1, time));</span>
+<span class="fc" id="L1152">            assertTrue(getTransactionExistsWithTimeAmount125999(transId3, userId2, time));</span>
+<span class="nc" id="L1153">        } catch (Exception ex) {</span>
+<span class="nc" id="L1154">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1155">        }</span>
+
+<span class="fc" id="L1157">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1158">        List&lt;OrderDetails&gt; list1 = orderService.getAllOrderDetails(userId1);</span>
+<span class="fc" id="L1159">        assertEquals(2, list1.size());</span>
+
+<span class="fc bfc" id="L1161" title="All 2 branches covered.">        for (OrderDetails detail : list1) {</span>
+<span class="pc bpc" id="L1162" title="1 of 2 branches missed.">            if (!detail.getAmount().contains(&quot;125999.0&quot;)) {</span>
+<span class="nc" id="L1163">                fail(&quot;incorrect amount returned&quot;);</span>
+<span class="pc bpc" id="L1164" title="1 of 2 branches missed.">            } else if (detail.getShipped() != 0) {</span>
+<span class="nc" id="L1165">                fail(&quot;incorrect shipped returned&quot;);</span>
+<span class="pc bpc" id="L1166" title="2 of 6 branches missed.">            } else if (detail.getProductId().equals(prodId1) &amp;&amp; detail.getOrderId().equals(transId1) &amp;&amp; detail.getQty().equals(&quot;2&quot;)</span>
+<span class="pc bpc" id="L1167" title="3 of 6 branches missed.">                    &amp;&amp; detail.getProdName().equals(&quot;MOTOROLA G32 Mobile&quot;) &amp;&amp; detail.getShipped() == 0 &amp;&amp; detail.getTime().equals(time)) {</span>
+<span class="fc" id="L1168">                continue;</span>
+<span class="pc bpc" id="L1169" title="3 of 6 branches missed.">            } else if (detail.getProductId().equals(prodId2) &amp;&amp; detail.getOrderId().equals(transId2) &amp;&amp; detail.getQty().equals(&quot;5&quot;)</span>
+<span class="pc bpc" id="L1170" title="3 of 6 branches missed.">                    &amp;&amp; detail.getProdName().equals(&quot;HP Intel Core i5 11th Gen&quot;) &amp;&amp; detail.getShipped() == 0 &amp;&amp; detail.getTime().equals(time)) {</span>
+<span class="fc" id="L1171">                continue;</span>
+            } else {
+<span class="nc" id="L1173">                fail(&quot;invalid entry&quot;);</span>
+            }
+<span class="nc" id="L1175">        }</span>
+<span class="fc" id="L1176">        List&lt;OrderDetails&gt; list2 = orderService.getAllOrderDetails(userId2);</span>
+<span class="fc" id="L1177">        assertEquals(1, list2.size());</span>
+<span class="fc" id="L1178">        OrderDetails detail = list2.get(0);</span>
+<span class="pc bpc" id="L1179" title="3 of 6 branches missed.">        assertTrue(detail.getProductId().equals(prodId2) &amp;&amp; detail.getOrderId().equals(transId3) &amp;&amp; detail.getQty().equals(&quot;1&quot;)</span>
+<span class="pc bpc" id="L1180" title="3 of 6 branches missed.">                    &amp;&amp; detail.getProdName().equals(&quot;HP Intel Core i5 11th Gen&quot;) &amp;&amp; detail.getShipped() == 0 &amp;&amp; detail.getTime().equals(time));</span>
+<span class="fc" id="L1181">    }</span>
+
+    // ships all orders with null order id
+    @Test
+    public void testShipNowNullOrderId() {
+<span class="fc" id="L1186">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1187">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1188">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1189">        String status = orderService.shipNow(null, productId);</span>
+<span class="fc" id="L1190">        assertEquals(&quot;FAILURE&quot;, status);</span>
+<span class="fc" id="L1191">    }</span>
+
+    // ships all orders with invalid order id
+    @Test
+    public void testShipNowInvalidOrderId() {
+<span class="fc" id="L1196">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1197">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1198">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1199">        String status = orderService.shipNow(&quot;abcdefg&quot;, productId);</span>
+<span class="fc" id="L1200">        assertEquals(&quot;FAILURE&quot;, status);</span>
+<span class="fc" id="L1201">    }</span>
+
+    // ships all orders with null product id
+    @Test
+    public void testShipNowNullProductId() {
+<span class="fc" id="L1206">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1207">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1208">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1209">        String status = orderService.shipNow(transId, null);</span>
+<span class="fc" id="L1210">        assertEquals(&quot;FAILURE&quot;, status);</span>
+<span class="fc" id="L1211">    }</span>
+
+    // ships all orders with invalid product id
+    @Test
+    public void testShipNowInvalidProductId() {
+<span class="fc" id="L1216">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1217">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1218">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1219">        String status = orderService.shipNow(transId, &quot;abcdefg&quot;);</span>
+<span class="fc" id="L1220">        assertEquals(&quot;FAILURE&quot;, status);</span>
+<span class="fc" id="L1221">    }</span>
+
+    // ships all orders in a table with multiple transaction and product ids
+    @Test
+    public void testGetShipNowMultipleTransactions() {
+<span class="fc" id="L1226">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1227">        String transId1 = &quot;TR10004&quot;;</span>
+<span class="fc" id="L1228">        String transId2 = &quot;TR10002&quot;;</span>
+<span class="fc" id="L1229">        String transId3 = &quot;TR10003&quot;;</span>
+<span class="fc" id="L1230">        String prodId1 = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L1231">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L1232">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+        try {
+<span class="fc" id="L1234">            assertFalse(getOrderExists(transId1, prodId1));</span>
+<span class="fc" id="L1235">            assertFalse(getOrderExists(transId2, prodId2));</span>
+<span class="fc" id="L1236">            assertFalse(getOrderExists(transId3, prodId2));</span>
+<span class="fc" id="L1237">            addToOrdersWithQuantity125999(transId1, prodId1, 2, 0);</span>
+<span class="fc" id="L1238">            addToOrdersWithQuantity125999(transId2, prodId2, 5, 0);</span>
+<span class="fc" id="L1239">            addToOrdersWithQuantity125999(transId3, prodId2, 1, 0);</span>
+<span class="fc" id="L1240">            addTransactionWithAmount125999(transId1, userId, time);</span>
+<span class="fc" id="L1241">            addTransactionWithAmount125999(transId2, userId, time);</span>
+<span class="fc" id="L1242">            addTransactionWithAmount125999(transId3, userId, time);</span>
+<span class="fc" id="L1243">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 0));</span>
+<span class="fc" id="L1244">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L1245">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="fc" id="L1246">            assertTrue(getTransactionExistsWithTimeAmount125999(transId1, userId, time));</span>
+<span class="fc" id="L1247">            assertTrue(getTransactionExistsWithTimeAmount125999(transId2, userId, time));</span>
+<span class="fc" id="L1248">            assertTrue(getTransactionExistsWithTimeAmount125999(transId3, userId, time));</span>
+<span class="nc" id="L1249">        } catch (Exception ex) {</span>
+<span class="nc" id="L1250">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1251">        }</span>
+
+<span class="fc" id="L1253">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1254">        String status = orderService.shipNow(transId1, prodId1);</span>
+<span class="fc" id="L1255">        assertEquals(&quot;Order Has been shipped successfully!!&quot;, status);</span>
+
+        try {
+<span class="fc" id="L1258">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 1));</span>
+<span class="fc" id="L1259">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L1260">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 0));</span>
+<span class="nc" id="L1261">        } catch (Exception ex) {</span>
+<span class="nc" id="L1262">            fail(&quot;failed verification 1&quot;);</span>
+<span class="fc" id="L1263">        }</span>
+
+<span class="fc" id="L1265">        status = orderService.shipNow(transId3, prodId2);</span>
+<span class="fc" id="L1266">        assertEquals(&quot;Order Has been shipped successfully!!&quot;, status);</span>
+
+        try {
+<span class="fc" id="L1269">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId1, prodId1, 2, 1));</span>
+<span class="fc" id="L1270">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId2, prodId2, 5, 0));</span>
+<span class="fc" id="L1271">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId3, prodId2, 1, 1));</span>
+<span class="nc" id="L1272">        } catch (Exception ex) {</span>
+<span class="nc" id="L1273">            fail(&quot;failed verification 2&quot;);</span>
+<span class="fc" id="L1274">        }</span>
+<span class="fc" id="L1275">    }</span>
+
+    // ships all orders in a table where an order is already shipped
+    @Test
+    public void testGetShipNowShippedOrder() {
+<span class="fc" id="L1280">        String userId = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1281">        String transId = &quot;TR10004&quot;;</span>
+<span class="fc" id="L1282">        String prodId = &quot;P20230423084144&quot;;</span>
+<span class="fc" id="L1283">        Timestamp time = Timestamp.valueOf(&quot;2023-04-23 09:26:56&quot;);</span>
+        try {
+<span class="fc" id="L1285">            assertFalse(getOrderExists(transId, prodId));</span>
+<span class="fc" id="L1286">            addToOrdersWithQuantity125999(transId, prodId, 2, 1);</span>
+<span class="fc" id="L1287">            addTransactionWithAmount125999(transId, userId, time);</span>
+<span class="fc" id="L1288">            assertTrue(getOrderExistsWithQuantity125999AmountShipped(transId, prodId, 2, 1));</span>
+<span class="fc" id="L1289">            assertTrue(getTransactionExistsWithTimeAmount125999(transId, userId, time));</span>
+<span class="nc" id="L1290">        } catch (Exception ex) {</span>
+<span class="nc" id="L1291">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1292">        }</span>
+
+<span class="fc" id="L1294">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1295">        String status = orderService.shipNow(transId, prodId);</span>
+<span class="fc" id="L1296">        assertEquals(&quot;FAILURE&quot;, status);</span>
+<span class="fc" id="L1297">    }</span>
+
+    // proceeds with payment with null username
+    @Test
+    public void testPaymentSuccessNullUsername() {
+<span class="fc" id="L1302">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1303">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1304">        String userName = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1305">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1306">        String status = orderService.paymentSuccess(null, 100);</span>
+<span class="fc" id="L1307">        assertEquals(&quot;Order Placement Failed!&quot;, status);</span>
+<span class="fc" id="L1308">    }</span>
+
+    // proceeds with payment with invalid username
+    @Test
+    public void testPaymentSuccessInvalidUsername() {
+<span class="fc" id="L1313">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1314">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1315">        String userName = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1316">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1317">        String status = orderService.paymentSuccess(&quot;abcdefg&quot;, 100);</span>
+<span class="fc" id="L1318">        assertEquals(&quot;Order Placement Failed!&quot;, status);</span>
+<span class="fc" id="L1319">    }</span>
+
+    // proceeds with payment for empty cart
+    @Test
+    public void testPaymentSuccessEmptyCart() {
+<span class="fc" id="L1324">        String transId = &quot;TR10001&quot;;</span>
+<span class="fc" id="L1325">        String productId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L1326">        String userName = &quot;admin@gmail.com&quot;;</span>
+<span class="fc" id="L1327">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1328">        String status = orderService.paymentSuccess(userName, 100);</span>
+<span class="fc" id="L1329">        assertEquals(&quot;Order Placement Failed!&quot;, status);</span>
+<span class="fc" id="L1330">    }</span>
+
+    // proceeds with payment for multiple entries
+    @Test
+    public void testPaymentSuccess() {
+<span class="fc" id="L1335">        String productId1 = &quot;P20230423084145&quot;;</span>
+<span class="fc" id="L1336">        String productId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L1337">        String username = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L1340">            addToCart(username, productId1, 2);</span>
+<span class="fc" id="L1341">            addToCart(username, productId2, 1);</span>
+<span class="fc" id="L1342">            assertTrue(getProductExistsWithQuantity(username, productId1, 2));</span>
+<span class="fc" id="L1343">            assertTrue(getProductExistsWithQuantity(username, productId2, 1));</span>
+<span class="nc" id="L1344">        } catch (Exception ex) {</span>
+<span class="nc" id="L1345">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1346">        }</span>
+
+<span class="fc" id="L1348">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1349">        String status = orderService.paymentSuccess(username, 100);</span>
+<span class="fc" id="L1350">        assertEquals(&quot;Order Placed Successfully!&quot;, status);</span>
+
+        try {
+<span class="fc" id="L1353">            assertEquals(998, getProductCount(productId1));</span>
+<span class="fc" id="L1354">            assertEquals(999, getProductCount(productId2));</span>
+<span class="nc" id="L1355">        } catch (Exception ex) {</span>
+<span class="nc" id="L1356">            fail(&quot;failed verification&quot;);</span>
+<span class="fc" id="L1357">        }</span>
+<span class="fc" id="L1358">    }</span>
+
+    // proceeds with payment for multiple users
+    @Test
+    public void testPaymentSuccessMultipleUsers() {
+<span class="fc" id="L1363">        String productId = &quot;P20230423084145&quot;;</span>
+<span class="fc" id="L1364">        String username1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L1365">        String username2 = &quot;admin@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L1368">            addToCart(username1, productId, 2);</span>
+<span class="fc" id="L1369">            addToCart(username2, productId, 1);</span>
+<span class="fc" id="L1370">            assertTrue(getProductExistsWithQuantity(username1, productId, 2));</span>
+<span class="fc" id="L1371">            assertTrue(getProductExistsWithQuantity(username2, productId, 1));</span>
+<span class="nc" id="L1372">        } catch (Exception ex) {</span>
+<span class="nc" id="L1373">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1374">        }</span>
+
+<span class="fc" id="L1376">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1377">        String status = orderService.paymentSuccess(username1, 100);</span>
+<span class="fc" id="L1378">        assertEquals(&quot;Order Placed Successfully!&quot;, status);</span>
+
+        try {
+<span class="fc" id="L1381">            assertEquals(998, getProductCount(productId));</span>
+<span class="fc" id="L1382">            assertTrue(getProductExistsWithQuantity(username2, productId, 1));</span>
+<span class="nc" id="L1383">        } catch (Exception ex) {</span>
+<span class="nc" id="L1384">            fail(&quot;failed verification&quot;);</span>
+<span class="fc" id="L1385">        }</span>
+<span class="fc" id="L1386">    }</span>
+
+    // todo remove?
+    // proceeds with payment for a quantity above what is available
+    /*@Test
+    public void testPaymentSuccessMoreThanAvailable() {
+        String productId = &quot;P20230423084145&quot;;
+        String username = &quot;guest@gmail.com&quot;;
+
+        try {
+            addToCart(username, productId, 1001);
+            assertTrue(getProductExistsWithQuantity(username, productId, 1001));
+        } catch (Exception ex) {
+            fail(&quot;failed setup&quot;);
+        }
+
+        OrderServiceImpl orderService = new OrderServiceImpl();
+        String status = orderService.paymentSuccess(username, 100);
+        assertEquals(&quot;Order Placed Successfully!&quot;, status);
+
+        try {
+           // assertEquals(1000, getProductCount(productId));
+           // assertTrue(getProductExistsWithQuantity(username, productId, 1001));
+        } catch (Exception ex) {
+            fail(&quot;failed verification&quot;);
+        }
+    }*/
+
+    // proceeds with payment when addOrder fails
+    // technically tests a mostly-infeasible case, but helps to make sure the logic is still working
+    @Test
+    public void testPaymentSuccessAddOrderFails() {
+<span class="fc" id="L1418">        String productId = &quot;P20230423084145&quot;;</span>
+<span class="fc" id="L1419">        String username = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L1422">            disableForeignKeyCheck();</span>
+<span class="fc" id="L1423">            addToCart(username, &quot;abcdefg&quot;, 2);</span>
+<span class="fc" id="L1424">            assertTrue(getProductExistsWithQuantity(username, &quot;abcdefg&quot;, 2));</span>
+<span class="fc" id="L1425">            enableForeignKeyCheck();</span>
+<span class="nc" id="L1426">        } catch (Exception ex) {</span>
+<span class="nc" id="L1427">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1428">        }</span>
+
+<span class="fc" id="L1430">        OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1431">        String status = orderService.paymentSuccess(username, 100);</span>
+<span class="fc" id="L1432">        assertEquals(&quot;Order Placement Failed!&quot;, status);</span>
+<span class="fc" id="L1433">    }</span>
+
+    // proceeds with payment when sellNProduct fails
+    // technically tests a mostly-infeasible case, but helps to make sure the logic is still working
+    @Test
+    public void testPaymentSuccessSellNProductFails() {
+<span class="fc" id="L1439">        String productId = &quot;P20230423084145&quot;;</span>
+<span class="fc" id="L1440">        String username = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L1443">            disableForeignKeyCheck();</span>
+<span class="fc" id="L1444">            addToCart(username, &quot;abcdefg&quot;, 2);</span>
+<span class="fc" id="L1445">            assertTrue(getProductExistsUsernameOnly(username));</span>
+<span class="fc" id="L1446">            enableForeignKeyCheck();</span>
+<span class="nc" id="L1447">        } catch (Exception ex) {</span>
+<span class="nc" id="L1448">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L1449">        }</span>
+
+        try {
+<span class="fc" id="L1452">            disableForeignKeyCheck();</span>
+<span class="fc" id="L1453">            OrderServiceImpl orderService = new OrderServiceImpl();</span>
+<span class="fc" id="L1454">            String status = orderService.paymentSuccess(username, 100);</span>
+<span class="fc" id="L1455">            enableForeignKeyCheck();</span>
+<span class="fc" id="L1456">            assertEquals(&quot;Order Placement Failed!&quot;, status);</span>
+<span class="nc" id="L1457">        } catch (Exception ex) {</span>
+<span class="nc" id="L1458">            fail(&quot;failed verification&quot;);</span>
+<span class="fc" id="L1459">        }</span>
+<span class="fc" id="L1460">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MailMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.utility</a> &gt; <span class="el_source">MailMessage.java</span></div><h1>MailMessage.java</h1><pre class="source lang-java linenums">package com.shashi.utility;
+
+import jakarta.mail.MessagingException;
+
+<span class="nc" id="L5">public class MailMessage {</span>
+	public static void registrationSuccess(String emailId, String name) {
+<span class="fc" id="L7">		String recipient = emailId;</span>
+<span class="fc" id="L8">		String subject = &quot;Registration Successfull&quot;;</span>
+<span class="fc" id="L9">		String htmlTextMessage = &quot;&quot; + &quot;&lt;html&gt;&quot; + &quot;&lt;body&gt;&quot;</span>
+				+ &quot;&lt;h2 style='color:green;'&gt;Welcome to Ellison Electronics&lt;/h2&gt;&quot; + &quot;&quot; + &quot;Hi &quot; + name + &quot;,&quot;
+				+ &quot;&lt;br&gt;&lt;br&gt;Thanks for singing up with Ellison Electronics.&lt;br&gt;&quot;
+				+ &quot;We are glad that you choose us. We invite you to check out our latest collection of new electonics appliances.&quot;
+				+ &quot;&lt;br&gt;We are providing upto 60% OFF on most of the electronic gadgets. So please visit our site and explore the collections.&quot;
+				+ &quot;&lt;br&gt;&lt;br&gt;Our Online electronics is growing in a larger amount these days and we are in high demand so we thanks all of you for &quot;
+				+ &quot;making us up to that level. We Deliver Product to your house with no extra delivery charges and we also have collection of most of the&quot;
+				+ &quot;branded items.&lt;br&gt;&lt;br&gt;As a Welcome gift for our New Customers we are providing additional 10% OFF Upto 500 Rs for the first product purchase. &quot;
+				+ &quot;&lt;br&gt;To avail this offer you only have &quot;
+				+ &quot;to enter the promo code given below.&lt;br&gt;&lt;br&gt;&lt;br&gt; PROMO CODE: &quot; + &quot;ELLISON500&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;
+				+ &quot;Have a good day!&lt;br&gt;&quot; + &quot;&quot; + &quot;&lt;/body&gt;&quot; + &quot;&lt;/html&gt;&quot;;
+		try {
+<span class="fc" id="L21">			JavaMailUtil.sendMail(recipient, subject, htmlTextMessage);</span>
+<span class="nc" id="L22">		} catch (MessagingException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L24">			e.printStackTrace();</span>
+<span class="fc" id="L25">		}</span>
+<span class="fc" id="L26">	}</span>
+
+	public static void transactionSuccess(String recipientEmail, String name, String transId, double transAmount) {
+<span class="fc" id="L29">		String recipient = recipientEmail;</span>
+<span class="fc" id="L30">		String subject = &quot;Order Placed at Ellison Electronics&quot;;</span>
+<span class="fc" id="L31">		String htmlTextMessage = &quot;&lt;html&gt;&quot; + &quot;  &lt;body&gt;&quot; + &quot;    &lt;p&gt;&quot; + &quot;      Hey &quot; + name + &quot;,&lt;br/&gt;&lt;br/&gt;&quot;</span>
+				+ &quot;      We are glad that you shop with Ellison Electronics!&quot; + &quot;      &lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;      Your order has been placed successfully and under process to be shipped.&quot;
+				+ &quot;&lt;br/&gt;&lt;h6&gt;Please Note that this is a demo projet Email and you have not made any real transaction with us till now!&lt;/h6&gt;&quot;
+				+ &quot;      &lt;br/&gt;&quot; + &quot;      Here is Your Transaction Details:&lt;br/&gt;&quot; + &quot;      &lt;br/&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:red;font-weight:bold;\&quot;&gt;Order Id:&lt;/font&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot; + transId + &quot;&lt;/font&gt;&lt;br/&gt;&quot; + &quot;      &lt;br/&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:red;font-weight:bold;\&quot;&gt;Amount Paid:&lt;/font&gt; &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot;
+				+ transAmount + &quot;&lt;/font&gt;&quot; + &quot;      &lt;br/&gt;&lt;br/&gt;&quot; + &quot;      Thanks for shopping with us!&lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;      Come Shop Again! &lt;br/&lt;br/&gt; &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;Ellison Electronics.&lt;/font&gt;&quot;
+				+ &quot;    &lt;/p&gt;&quot; + &quot;    &quot; + &quot;  &lt;/body&gt;&quot; + &quot;&lt;/html&gt;&quot;;
+
+		try {
+<span class="fc" id="L44">			JavaMailUtil.sendMail(recipient, subject, htmlTextMessage);</span>
+<span class="nc" id="L45">		} catch (MessagingException e) {</span>
+<span class="nc" id="L46">			e.printStackTrace();</span>
+<span class="fc" id="L47">		}</span>
+<span class="fc" id="L48">	}</span>
+
+	public static void orderShipped(String recipientEmail, String name, String transId, double transAmount) {
+<span class="nc" id="L51">		String recipient = recipientEmail;</span>
+<span class="nc" id="L52">		String subject = &quot;Hurray!!, Your Order has been Shipped from Ellison Electronics&quot;;</span>
+<span class="nc" id="L53">		String htmlTextMessage = &quot;&lt;html&gt;&quot; + &quot;  &lt;body&gt;&quot; + &quot;    &lt;p&gt;&quot; + &quot;      Hey &quot; + name + &quot;,&lt;br/&gt;&lt;br/&gt;&quot;</span>
+				+ &quot;      We are glad that you shop with Ellison Electronics!&quot; + &quot;      &lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;      Your order has been shipped successfully and on the way to be delivered.&quot;
+				+ &quot;&lt;br/&gt;&lt;h6&gt;Please Note that this is a demo projet Email and you have not made any real transaction with us till now!&lt;/h6&gt;&quot;
+				+ &quot;      &lt;br/&gt;&quot; + &quot;      Here is Your Transaction Details:&lt;br/&gt;&quot; + &quot;      &lt;br/&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:red;font-weight:bold;\&quot;&gt;Order Id:&lt;/font&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot; + transId + &quot;&lt;/font&gt;&lt;br/&gt;&quot; + &quot;      &lt;br/&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:red;font-weight:bold;\&quot;&gt;Amount Paid:&lt;/font&gt; &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot;
+				+ transAmount + &quot;&lt;/font&gt;&quot; + &quot;      &lt;br/&gt;&lt;br/&gt;&quot; + &quot;      Thanks for shopping with us!&lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;      Come Shop Again! &lt;br/&lt;br/&gt; &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;Ellison Electronics.&lt;/font&gt;&quot;
+				+ &quot;    &lt;/p&gt;&quot; + &quot;    &quot; + &quot;  &lt;/body&gt;&quot; + &quot;&lt;/html&gt;&quot;;
+
+		try {
+<span class="nc" id="L66">			JavaMailUtil.sendMail(recipient, subject, htmlTextMessage);</span>
+<span class="nc" id="L67">		} catch (MessagingException e) {</span>
+<span class="nc" id="L68">			e.printStackTrace();</span>
+<span class="nc" id="L69">		}</span>
+<span class="nc" id="L70">	}</span>
+
+	public static void productAvailableNow(String recipientEmail, String name, String prodName, String prodId) {
+<span class="fc" id="L73">		String recipient = recipientEmail;</span>
+<span class="fc" id="L74">		String subject = &quot;Product &quot; + prodName + &quot; is Now Available at Ellison Electronics&quot;;</span>
+<span class="fc" id="L75">		String htmlTextMessage = &quot;&lt;html&gt;&quot; + &quot;  &lt;body&gt;&quot; + &quot;    &lt;p&gt;&quot; + &quot;      Hey &quot; + name + &quot;,&lt;br/&gt;&lt;br/&gt;&quot;</span>
+				+ &quot;      We are glad that you shop with Ellison Electronics!&quot; + &quot;      &lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;      As per your recent browsing history, we seen that you were searching for an item that was not available in sufficient amount&quot;
+				+ &quot; at that time. &lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;We are glad to say that the product named &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot; + prodName
+				+ &quot;&lt;/font&gt; with &quot; + &quot;product Id &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot; + prodId
+				+ &quot;&lt;/font&gt; is now available to shop in our store!&quot;
+				+ &quot;&lt;br/&gt;&lt;h6&gt;Please Note that this is a demo projet Email and you have not made any real transaction with us and not ordered anything till now!&lt;/h6&gt;&quot;
+				+ &quot;      &lt;br/&gt;&quot; + &quot;      Here is The product detail which is now available to shop:&lt;br/&gt;&quot;
+				+ &quot;      &lt;br/&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:red;font-weight:bold;\&quot;&gt;Product Id: &lt;/font&gt;&lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot;
+				+ prodId + &quot; &quot; + &quot;      &lt;/font&gt;&lt;br/&gt;&quot; + &quot;      &lt;br/&gt;&quot;
+				+ &quot;      &lt;font style=\&quot;color:red;font-weight:bold;\&quot;&gt;Product Name: &lt;/font&gt; &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;&quot;
+				+ prodName + &quot;&lt;/font&gt;&quot; + &quot;      &lt;br/&gt;&lt;br/&gt;&quot; + &quot;      Thanks for shopping with us!&lt;br/&gt;&lt;br/&gt;&quot;
+				+ &quot;      Come Shop Again! &lt;br/&lt;br/&gt;&lt;br/&gt; &lt;font style=\&quot;color:green;font-weight:bold;\&quot;&gt;Ellison Electronics.&lt;/font&gt;&quot;
+				+ &quot;    &lt;/p&gt;&quot; + &quot;    &quot; + &quot;  &lt;/body&gt;&quot; + &quot;&lt;/html&gt;&quot;;
+
+		try {
+<span class="nc" id="L93">			JavaMailUtil.sendMail(recipient, subject, htmlTextMessage);</span>
+<span class="fc" id="L94">		} catch (MessagingException e) {</span>
+<span class="fc" id="L95">			e.printStackTrace();</span>
+<span class="nc" id="L96">		}</span>
+<span class="fc" id="L97">	}</span>
+
+	public static String sendMessage(String toEmailId, String subject, String htmlTextMessage) {
+		try {
+<span class="nc" id="L101">			JavaMailUtil.sendMail(toEmailId, subject, htmlTextMessage);</span>
+<span class="nc" id="L102">		} catch (MessagingException e) {</span>
+<span class="nc" id="L103">			e.printStackTrace();</span>
+<span class="nc" id="L104">			return &quot;FAILURE&quot;;</span>
+<span class="nc" id="L105">		}</span>
+<span class="nc" id="L106">		return &quot;SUCCESS&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

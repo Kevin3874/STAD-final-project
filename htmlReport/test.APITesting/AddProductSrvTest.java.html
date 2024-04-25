@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddProductSrvTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.APITesting</a> &gt; <span class="el_source">AddProductSrvTest.java</span></div><h1>AddProductSrvTest.java</h1><pre class="source lang-java linenums">package test.APITesting;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import java.io.File;
+import java.util.Optional;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
+<span class="nc" id="L13">public class AddProductSrvTest {</span>
+    @BeforeAll
+    public static void setup() {
+<span class="nc" id="L16">        RestAssured.baseURI = &quot;http://localhost&quot;;</span>
+<span class="nc" id="L17">        RestAssured.port = 8080;</span>
+<span class="nc" id="L18">        RestAssured.basePath = &quot;/shopping_cart_war&quot;;</span>
+<span class="nc" id="L19">    }</span>
+
+
+    @Test
+    void testAddProductWithValidAdminLogin() {
+        // admin login
+<span class="nc" id="L25">        Response loginResponse = given()</span>
+<span class="nc" id="L26">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L27">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L28">                .formParam(&quot;password&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L29">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L30">                .when()</span>
+<span class="nc" id="L31">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L32">                .then()</span>
+<span class="nc" id="L33">                .statusCode(200)</span>
+<span class="nc" id="L34">                .extract().response();</span>
+<span class="nc" id="L35">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // add admin cookies
+<span class="nc" id="L38">        given()</span>
+<span class="nc" id="L39">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L40">                .contentType(&quot;multipart/form-data&quot;)</span>
+<span class="nc" id="L41">                .multiPart(&quot;name&quot;, &quot;Test add product&quot;)</span>
+<span class="nc" id="L42">                .multiPart(&quot;type&quot;, &quot;Sample Type&quot;)</span>
+<span class="nc" id="L43">                .multiPart(&quot;info&quot;, &quot;Sample Info&quot;)</span>
+<span class="nc" id="L44">                .multiPart(&quot;price&quot;, &quot;10.99&quot;)</span>
+<span class="nc" id="L45">                .multiPart(&quot;quantity&quot;, &quot;1000000&quot;)</span>
+<span class="nc" id="L46">                .multiPart(&quot;image&quot;, new File(&quot;./WebContent/images/image.jpg&quot;))</span>
+<span class="nc" id="L47">                .when()</span>
+<span class="nc" id="L48">                .post(&quot;/AddProductSrv&quot;)</span>
+<span class="nc" id="L49">                .then()</span>
+<span class="nc" id="L50">                .statusCode(200)</span>
+<span class="nc" id="L51">                .body(containsString(&quot;Product Added Successfully with Product Id:&quot;));</span>
+<span class="nc" id="L52">    }</span>
+
+    @Test
+    void testAddProductWithInvalidLoginAsGuest() {
+<span class="nc" id="L56">        Response loginResponse = given()</span>
+<span class="nc" id="L57">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L58">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L59">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L60">                .formParam(&quot;usertype&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L61">                .when()</span>
+<span class="nc" id="L62">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L63">                .then()</span>
+<span class="nc" id="L64">                .statusCode(200)</span>
+<span class="nc" id="L65">                .extract().response();</span>
+
+<span class="nc" id="L67">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+<span class="nc" id="L68">        given()</span>
+<span class="nc" id="L69">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L70">                .when()</span>
+<span class="nc" id="L71">                .post(&quot;/AddProductSrv&quot;)</span>
+<span class="nc" id="L72">                .then()</span>
+<span class="nc" id="L73">                .statusCode(500)</span>
+<span class="nc" id="L74">                .header(&quot;Location&quot;, containsString(&quot;Access Denied!&quot;));</span>
+<span class="nc" id="L75">    }</span>
+
+    @Test
+    void testAddProductWithExpiredSession() {
+        // login as admin first
+<span class="nc" id="L80">        Response loginResponse = given()</span>
+<span class="nc" id="L81">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L82">                .formParam(&quot;username&quot;, &quot;admin@gmail.com&quot;)</span>
+<span class="nc" id="L83">                .formParam(&quot;password&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L84">                .formParam(&quot;usertype&quot;, &quot;admin&quot;)</span>
+<span class="nc" id="L85">                .when()</span>
+<span class="nc" id="L86">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L87">                .then()</span>
+<span class="nc" id="L88">                .statusCode(200)</span>
+<span class="nc" id="L89">                .extract().response();</span>
+
+<span class="nc" id="L91">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // empty username
+<span class="nc" id="L94">        given()</span>
+<span class="nc" id="L95">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L96">                .param(&quot;username&quot;, &quot;&quot;)</span>
+<span class="nc" id="L97">                .when()</span>
+<span class="nc" id="L98">                .post(&quot;/AddProductSrv&quot;)</span>
+<span class="nc" id="L99">                .then()</span>
+<span class="nc" id="L100">                .statusCode(302)</span>
+<span class="nc" id="L101">                .body(containsString(&quot;Session Expired, Login Again to Continue!&quot;));</span>
+<span class="nc" id="L102">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,969 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.ImplTesting</a> &gt; <span class="el_source">UserServiceImplTest.java</span></div><h1>UserServiceImplTest.java</h1><pre class="source lang-java linenums">package test.ImplTesting;
+
+import com.shashi.beans.UserBean;
+import com.shashi.constants.IUserConstants;
+import com.shashi.service.impl.UserServiceImpl;
+import com.shashi.utility.DBUtil;
+import org.junit.jupiter.api.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.ResourceBundle;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+<span class="fc" id="L17">public class UserServiceImplTest {</span>
+  public void registerUser(String userName, Long mobileNo, String emailId, String address, int pinCode,
+                           String password) throws Exception {
+
+<span class="fc" id="L21">    Connection conn = DBUtil.provideConnection();</span>
+<span class="fc" id="L22">    PreparedStatement ps = conn.prepareStatement(&quot;insert into &quot; + IUserConstants.TABLE_USER + &quot; values(?,?,?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L24">    ps.setString(1, emailId);</span>
+<span class="fc" id="L25">    ps.setString(2, userName);</span>
+<span class="fc" id="L26">    ps.setLong(3, mobileNo);</span>
+<span class="fc" id="L27">    ps.setString(4, address);</span>
+<span class="fc" id="L28">    ps.setInt(5, pinCode);</span>
+<span class="fc" id="L29">    ps.setString(6, password);</span>
+
+<span class="fc" id="L31">    int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">    if (k == 0) {</span>
+<span class="nc" id="L34">      throw new Exception(&quot;did not insert successfully&quot;);</span>
+    }
+
+<span class="fc" id="L37">    DBUtil.closeConnection(conn);</span>
+<span class="fc" id="L38">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L39">  }</span>
+
+  public boolean getUserExists(String emailId) throws Exception {
+<span class="fc" id="L42">    boolean user = false;</span>
+
+<span class="fc" id="L44">    Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L46">    PreparedStatement ps = null;</span>
+<span class="fc" id="L47">    ResultSet rs = null;</span>
+
+<span class="fc" id="L49">    ps = con.prepareStatement(&quot;select * from user where email=?&quot;);</span>
+
+<span class="fc" id="L51">    ps.setString(1, emailId);</span>
+<span class="fc" id="L52">    rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    if (rs.next())</span>
+<span class="fc" id="L55">      user = true;</span>
+
+<span class="fc" id="L57">    DBUtil.closeConnection(con);</span>
+<span class="fc" id="L58">    DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L59">    DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L61">    return user;</span>
+  }
+
+  @AfterEach
+  public void clearUser() {
+    try {
+<span class="fc" id="L67">      Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L69">      PreparedStatement ps1 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=0&quot;);</span>
+<span class="fc" id="L70">      ps1.execute();</span>
+
+<span class="fc" id="L72">      PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM user&quot;);</span>
+
+<span class="fc" id="L74">      ps.execute();</span>
+
+<span class="fc" id="L76">      PreparedStatement ps2 = con.prepareStatement(&quot;SET FOREIGN_KEY_CHECKS=1&quot;);</span>
+<span class="fc" id="L77">      ps2.execute();</span>
+
+<span class="fc" id="L79">      DBUtil.closeConnection(con);</span>
+<span class="fc" id="L80">      DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L81">      DBUtil.closeConnection(ps1);</span>
+<span class="fc" id="L82">      DBUtil.closeConnection(ps2);</span>
+<span class="nc" id="L83">    } catch (Exception ex) {</span>
+<span class="nc" id="L84">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L85">      System.out.println(&quot;FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="fc" id="L86">    }</span>
+<span class="fc" id="L87">  }</span>
+
+
+<span class="fc" id="L90">  static ResourceBundle rb = ResourceBundle.getBundle(&quot;application&quot;);</span>
+<span class="fc" id="L91">  static String DATABASE_URL = rb.getString(&quot;db.connectionString&quot;);</span>
+<span class="fc" id="L92">  static String USER = rb.getString(&quot;db.username&quot;);</span>
+<span class="fc" id="L93">  static String PASSWORD = rb.getString(&quot;db.password&quot;);</span>
+  @AfterAll
+  public static void resetDatabase() {
+    try {
+<span class="fc" id="L97">      String sql = new String(Files.readAllBytes(Paths.get(&quot;databases/mysql_query.sql&quot;)));</span>
+<span class="fc" id="L98">      try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD)) {</span>
+
+        // Create a statement to execute SQL
+<span class="fc" id="L101">        Statement stmt = conn.createStatement();</span>
+
+        // Splitting the SQL statements by semicolon
+<span class="fc" id="L104">        String[] sqlStatements = sql.split(&quot;;&quot;);</span>
+
+        // Execute each SQL statement
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (String statement : sqlStatements) {</span>
+          // Trim whitespace and execute non-empty statements
+<span class="fc bfc" id="L109" title="All 2 branches covered.">          if (!statement.trim().isEmpty()) {</span>
+<span class="fc" id="L110">            stmt.execute(statement.trim());</span>
+          }
+        }
+
+<span class="fc" id="L114">        stmt.close();</span>
+<span class="fc" id="L115">        conn.close();</span>
+      }
+<span class="nc" id="L117">    } catch (Exception ex) {</span>
+<span class="nc" id="L118">      System.out.println(ex.getMessage());</span>
+<span class="nc" id="L119">      System.out.println(&quot;FAILED TO CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="fc" id="L120">    }</span>
+<span class="fc" id="L121">  }</span>
+
+
+  @BeforeEach
+  public void clearBefore() {
+<span class="fc" id="L126">    clearUser();</span>
+<span class="fc" id="L127">  }</span>
+
+  // register a new user
+  @Test
+  public void testRegisterUserWithNewUser() {
+<span class="fc" id="L132">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L133">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L134">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L135">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L136">    int pinCode = 123456;</span>
+<span class="fc" id="L137">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L140">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L141">    } catch (Exception ex) {</span>
+<span class="nc" id="L142">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L143">    }</span>
+
+<span class="fc" id="L145">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L146">    String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L147">    assertEquals(&quot;User Registered Successfully!&quot;, status);</span>
+
+    // cleanup and verification
+    try {
+<span class="fc" id="L151">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L152">    } catch (Exception ex) {</span>
+<span class="nc" id="L153">      fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L154">    }</span>
+<span class="fc" id="L155">  }</span>
+
+  // register an existing user
+  @Test
+  public void testRegisterUserWithExistingUser() {
+<span class="fc" id="L160">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L161">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L162">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L163">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L164">    int pinCode = 123456;</span>
+<span class="fc" id="L165">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L168">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L169">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L170">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L171">    } catch (Exception ex) {</span>
+<span class="nc" id="L172">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L173">    }</span>
+
+<span class="fc" id="L175">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L176">    String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L177">    assertEquals(&quot;Email Id Already Registered!&quot;, status);</span>
+<span class="fc" id="L178">  }</span>
+
+  // test register a new user with null inputs (null not accepted for pinCode)
+  @Test
+  public void testRegisterUserWithNullInputs() {
+<span class="fc" id="L183">    String userName = null;</span>
+<span class="fc" id="L184">    Long mobileNo = null;</span>
+<span class="fc" id="L185">    String emailId = null;</span>
+<span class="fc" id="L186">    String address = null;</span>
+<span class="fc" id="L187">    int pinCode = 0;</span>
+<span class="fc" id="L188">    String password = null;</span>
+
+    try {
+<span class="fc" id="L191">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L192">    } catch (Exception ex) {</span>
+<span class="nc" id="L193">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L194">    }</span>
+
+<span class="fc" id="L196">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L197">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L198">      String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="nc" id="L199">    });</span>
+<span class="nc" id="L200">  }</span>
+
+
+  // test register a new user with empty email address
+  @Test
+  public void testRegisterUserWithEmptyEmailAddress() {
+<span class="fc" id="L206">    String userName = &quot;&quot;;</span>
+<span class="fc" id="L207">    Long mobileNo = 0L;</span>
+<span class="fc" id="L208">    String emailId = &quot;&quot;;</span>
+<span class="fc" id="L209">    String address = &quot;&quot;;</span>
+<span class="fc" id="L210">    int pinCode = 0;</span>
+<span class="fc" id="L211">    String password = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L214">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L215">    } catch (Exception ex) {</span>
+<span class="nc" id="L216">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L217">    }</span>
+
+<span class="fc" id="L219">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L220">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="nc" id="L221">      String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="nc" id="L222">    });</span>
+<span class="nc" id="L223">  }</span>
+
+  // test register a new user with empty inputs other than email (empty inputs not accepted for mobileNo and pinCode)
+  @Test
+  public void testRegisterUserWithEmptyInputs() {
+<span class="fc" id="L228">    String userName = &quot;&quot;;</span>
+<span class="fc" id="L229">    Long mobileNo = 0L;</span>
+<span class="fc" id="L230">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L231">    String address = &quot;&quot;;</span>
+<span class="fc" id="L232">    int pinCode = 0;</span>
+<span class="fc" id="L233">    String password = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L236">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L237">    } catch (Exception ex) {</span>
+<span class="nc" id="L238">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L239">    }</span>
+
+<span class="fc" id="L241">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L242">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L243">      String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L244">    });</span>
+<span class="nc" id="L245">  }</span>
+
+  // test register a new user with negative values for long and int inputs
+  @Test
+  public void testRegisterUserWithNegativeInputs() {
+<span class="fc" id="L250">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L251">    Long mobileNo = -9999999999L;</span>
+<span class="fc" id="L252">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L253">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L254">    int pinCode = -123456;</span>
+<span class="fc" id="L255">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L258">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L259">    } catch (Exception ex) {</span>
+<span class="nc" id="L260">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L261">    }</span>
+
+<span class="fc" id="L263">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L264">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L265">      String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L266">    });</span>
+<span class="nc" id="L267">  }</span>
+
+  // test register a new user with zero values for long and int inputs
+  @Test
+  public void testRegisterUserWithZeroAsInputs() {
+<span class="fc" id="L272">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L273">    Long mobileNo = 0L;</span>
+<span class="fc" id="L274">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L275">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L276">    int pinCode = 0;</span>
+<span class="fc" id="L277">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L280">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L281">    } catch (Exception ex) {</span>
+<span class="nc" id="L282">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L283">    }</span>
+
+<span class="fc" id="L285">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L286">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L287">      String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L288">    });</span>
+<span class="nc" id="L289">  }</span>
+
+  // test register a new user with an invalid phone number format
+  @Test
+  public void testRegisterUserWithInvalidPhoneNumber() {
+<span class="fc" id="L294">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L295">    Long mobileNo = 99999L;</span>
+<span class="fc" id="L296">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L297">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L298">    int pinCode = 123456;</span>
+<span class="fc" id="L299">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L302">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L303">    } catch (Exception ex) {</span>
+<span class="nc" id="L304">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L305">    }</span>
+
+<span class="fc" id="L307">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L308">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L309">      String status = userService.registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L310">    });</span>
+<span class="nc" id="L311">  }</span>
+
+  // test isRegistered with an existing user
+  @Test
+  public void testIsRegisteredWithExistingUser() {
+<span class="fc" id="L316">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L317">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L318">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L319">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L320">    int pinCode = 123456;</span>
+<span class="fc" id="L321">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L324">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L325">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L326">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L327">    } catch (Exception ex) {</span>
+<span class="nc" id="L328">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L329">    }</span>
+
+<span class="fc" id="L331">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L332">    boolean res = userService.isRegistered(emailId);</span>
+<span class="fc" id="L333">    assertTrue(res);</span>
+<span class="fc" id="L334">  }</span>
+
+  // test isRegistered with a nonexistent user
+  @Test
+  public void testIsRegisteredWithNonexistentUser() {
+<span class="fc" id="L339">    String emailId = &quot;test@gmail.com&quot;;</span>
+
+    try {
+<span class="fc" id="L342">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L343">    } catch (Exception ex) {</span>
+<span class="nc" id="L344">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L345">    }</span>
+
+<span class="fc" id="L347">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L348">    boolean res = userService.isRegistered(emailId);</span>
+<span class="fc" id="L349">    assertFalse(res);</span>
+<span class="fc" id="L350">  }</span>
+
+
+  // test isRegistered with an empty emailId
+  @Test
+  public void testIsRegisteredWithEmptyEmailId() {
+<span class="fc" id="L356">    String emailId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L359">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L360">    } catch (Exception ex) {</span>
+<span class="nc" id="L361">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L362">    }</span>
+
+<span class="fc" id="L364">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L365">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L366">      boolean res = userService.isRegistered(emailId);</span>
+<span class="fc" id="L367">    });</span>
+<span class="nc" id="L368">  }</span>
+
+  // test isRegistered with a null emailId
+  @Test
+  public void testIsRegisteredWithNullEmailId() {
+<span class="fc" id="L373">    String emailId = null;</span>
+
+    try {
+<span class="fc" id="L376">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L377">    } catch (Exception ex) {</span>
+<span class="nc" id="L378">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L379">    }</span>
+
+<span class="fc" id="L381">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L382">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L383">      boolean res = userService.isRegistered(emailId);</span>
+<span class="fc" id="L384">    });</span>
+<span class="nc" id="L385">  }</span>
+
+  // test isRegistered with an invalid emailId
+  @Test
+  public void testIsRegisteredWithInvalidEmailId() {
+<span class="fc" id="L390">    String emailId = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L393">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L394">    } catch (Exception ex) {</span>
+<span class="nc" id="L395">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L396">    }</span>
+
+<span class="fc" id="L398">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L399">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L400">      boolean res = userService.isRegistered(emailId);</span>
+<span class="fc" id="L401">    });</span>
+<span class="nc" id="L402">  }</span>
+
+  // test isValidCredential with an existing user
+  @Test
+  public void testIsValidCredentialWithExistingUser() {
+<span class="fc" id="L407">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L408">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L409">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L410">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L411">    int pinCode = 123456;</span>
+<span class="fc" id="L412">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L415">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L416">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L417">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L418">    } catch (Exception ex) {</span>
+<span class="nc" id="L419">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L420">    }</span>
+
+<span class="fc" id="L422">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L423">    String status = userService.isValidCredential(emailId, password);</span>
+<span class="fc" id="L424">    assertEquals(&quot;valid&quot;, status);</span>
+<span class="fc" id="L425">  }</span>
+
+  // test isValidCredential with a user that does not exist
+  @Test
+  public void testIsValidCredentialWithNonexistentUser() {
+<span class="fc" id="L430">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L431">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L434">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L435">    } catch (Exception ex) {</span>
+<span class="nc" id="L436">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L437">    }</span>
+
+<span class="fc" id="L439">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L440">    String status = userService.isValidCredential(emailId, password);</span>
+<span class="fc" id="L441">    assertEquals(&quot;Login Denied! Incorrect Username or Password&quot;, status);</span>
+<span class="fc" id="L442">  }</span>
+
+  // test isValidCredential with an existing user with incorrect password
+  @Test
+  public void testIsValidCredentialWithIncorrectPassword() {
+<span class="fc" id="L447">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L448">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L449">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L450">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L451">    int pinCode = 123456;</span>
+<span class="fc" id="L452">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L455">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L456">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L457">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L458">    } catch (Exception ex) {</span>
+<span class="nc" id="L459">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L460">    }</span>
+
+<span class="fc" id="L462">    String passwordIncorrect = &quot;test1&quot;;</span>
+
+<span class="fc" id="L464">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L465">    String status = userService.isValidCredential(emailId, passwordIncorrect);</span>
+<span class="fc" id="L466">    assertEquals(&quot;Login Denied! Incorrect Username or Password&quot;, status);</span>
+<span class="fc" id="L467">  }</span>
+
+  // test isValidCredential with an existing user with incorrect email
+  @Test
+  public void testIsValidCredentialWithIncorrectEmail() {
+<span class="fc" id="L472">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L473">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L474">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L475">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L476">    int pinCode = 123456;</span>
+<span class="fc" id="L477">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L480">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L481">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L482">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L483">    } catch (Exception ex) {</span>
+<span class="nc" id="L484">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L485">    }</span>
+
+<span class="fc" id="L487">    String emailIncorrect = &quot;test1&quot;;</span>
+
+<span class="fc" id="L489">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L490">    String status = userService.isValidCredential(emailIncorrect, password);</span>
+<span class="fc" id="L491">    assertEquals(&quot;Login Denied! Incorrect Username or Password&quot;, status);</span>
+<span class="fc" id="L492">  }</span>
+
+  // test isValidCredential with an existing user with invalid email format
+  @Test
+  public void testIsValidCredentialWithInvalidEmail() {
+<span class="fc" id="L497">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L498">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L499">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L500">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L501">    int pinCode = 123456;</span>
+<span class="fc" id="L502">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L505">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L506">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L507">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L508">    } catch (Exception ex) {</span>
+<span class="nc" id="L509">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L510">    }</span>
+
+<span class="fc" id="L512">    String emailIncorrect = &quot;test&quot;;</span>
+
+<span class="fc" id="L514">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L515">    String status = userService.isValidCredential(emailIncorrect, password);</span>
+<span class="fc" id="L516">    assertEquals(&quot;Login Denied! Incorrect Username or Password&quot;, status);</span>
+<span class="fc" id="L517">  }</span>
+
+  // test isValidCredential with empty inputs
+  @Test
+  public void testIsValidCredentialWithEmptyInputs() {
+<span class="fc" id="L522">    String emailId = &quot;&quot;;</span>
+<span class="fc" id="L523">    String password = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L526">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L527">    } catch (Exception ex) {</span>
+<span class="nc" id="L528">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L529">    }</span>
+
+<span class="fc" id="L531">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L532">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L533">      String status = userService.isValidCredential(emailId, password);</span>
+<span class="fc" id="L534">    });</span>
+<span class="nc" id="L535">  }</span>
+
+  // test isValidCredential with null inputs
+  @Test
+  public void testIsValidCredentialWithNullInputs() {
+<span class="fc" id="L540">    String emailId = null;</span>
+<span class="fc" id="L541">    String password = null;</span>
+
+    try {
+<span class="fc" id="L544">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L545">    } catch (Exception ex) {</span>
+<span class="nc" id="L546">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L547">    }</span>
+
+<span class="fc" id="L549">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L550">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L551">      String status = userService.isValidCredential(emailId, password);</span>
+<span class="fc" id="L552">    });</span>
+<span class="nc" id="L553">  }</span>
+
+
+
+
+
+
+
+
+
+
+  // test getUserDetails with an existing user
+  @Test
+  public void testGetUserDetailsWithExistingUser() {
+<span class="fc" id="L567">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L568">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L569">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L570">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L571">    int pinCode = 123456;</span>
+<span class="fc" id="L572">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L575">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L576">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L577">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L578">    } catch (Exception ex) {</span>
+<span class="nc" id="L579">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L580">    }</span>
+
+<span class="fc" id="L582">    UserBean expectedUser = new UserBean();</span>
+<span class="fc" id="L583">    expectedUser.setName(userName);</span>
+<span class="fc" id="L584">    expectedUser.setMobile(mobileNo);</span>
+<span class="fc" id="L585">    expectedUser.setEmail(emailId);</span>
+<span class="fc" id="L586">    expectedUser.setAddress(address);</span>
+<span class="fc" id="L587">    expectedUser.setPinCode(pinCode);</span>
+<span class="fc" id="L588">    expectedUser.setPassword(password);</span>
+
+<span class="fc" id="L590">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L591">    UserBean user = userService.getUserDetails(emailId, password);</span>
+<span class="fc" id="L592">    assertEquals(expectedUser.getName(), user.getName());</span>
+<span class="fc" id="L593">    assertEquals(expectedUser.getMobile(), user.getMobile());</span>
+<span class="fc" id="L594">    assertEquals(expectedUser.getEmail(), user.getEmail());</span>
+<span class="fc" id="L595">    assertEquals(expectedUser.getAddress(), user.getAddress());</span>
+<span class="fc" id="L596">    assertEquals(expectedUser.getPinCode(), user.getPinCode());</span>
+<span class="fc" id="L597">    assertEquals(expectedUser.getPassword(), user.getPassword());</span>
+<span class="fc" id="L598">  }</span>
+
+
+  // test getUserDetails with a user that does not exist
+  @Test
+  public void testGetUserDetailsWithNonexistentUser() {
+<span class="fc" id="L604">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L605">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L608">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L609">    } catch (Exception ex) {</span>
+<span class="nc" id="L610">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L611">    }</span>
+
+<span class="fc" id="L613">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L614">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L615">      UserBean user = userService.getUserDetails(emailId, password);</span>
+<span class="fc" id="L616">    });</span>
+<span class="nc" id="L617">  }</span>
+
+  // test getUserDetails with an existing user with incorrect password
+  @Test
+  public void testGetUserDetailsWithIncorrectPassword() {
+<span class="fc" id="L622">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L623">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L624">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L625">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L626">    int pinCode = 123456;</span>
+<span class="fc" id="L627">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L630">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L631">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L632">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L633">    } catch (Exception ex) {</span>
+<span class="nc" id="L634">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L635">    }</span>
+
+<span class="fc" id="L637">    String passwordIncorrect = &quot;test1&quot;;</span>
+
+<span class="fc" id="L639">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L640">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L641">      UserBean user = userService.getUserDetails(emailId, passwordIncorrect);</span>
+<span class="fc" id="L642">    });</span>
+<span class="nc" id="L643">  }</span>
+
+  // test getUserDetails with an existing user with incorrect email
+  @Test
+  public void testGetUserDetailsWithIncorrectEmail() {
+<span class="fc" id="L648">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L649">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L650">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L651">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L652">    int pinCode = 123456;</span>
+<span class="fc" id="L653">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L656">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L657">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L658">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L659">    } catch (Exception ex) {</span>
+<span class="nc" id="L660">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L661">    }</span>
+
+<span class="fc" id="L663">    String emailIncorrect = &quot;test1&quot;;</span>
+
+<span class="fc" id="L665">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L666">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L667">      UserBean user = userService.getUserDetails(emailIncorrect, password);</span>
+<span class="fc" id="L668">    });</span>
+<span class="nc" id="L669">  }</span>
+
+  // test getUserDetails with an existing user with invalid email format
+  @Test
+  public void testGetUserDetailsWithInvalidEmail() {
+<span class="fc" id="L674">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L675">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L676">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L677">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L678">    int pinCode = 123456;</span>
+<span class="fc" id="L679">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L682">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L683">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L684">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L685">    } catch (Exception ex) {</span>
+<span class="nc" id="L686">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L687">    }</span>
+
+<span class="fc" id="L689">    String emailIncorrect = &quot;test&quot;;</span>
+
+<span class="fc" id="L691">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L692">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L693">      UserBean user = userService.getUserDetails(emailIncorrect, password);</span>
+<span class="fc" id="L694">    });</span>
+<span class="nc" id="L695">  }</span>
+
+  // test getUserDetails with empty inputs
+  @Test
+  public void testGetUserDetailsWithEmptyInputs() {
+<span class="fc" id="L700">    String emailId = &quot;&quot;;</span>
+<span class="fc" id="L701">    String password = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L704">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L705">    } catch (Exception ex) {</span>
+<span class="nc" id="L706">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L707">    }</span>
+
+<span class="fc" id="L709">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L710">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L711">      UserBean user = userService.getUserDetails(emailId, password);</span>
+<span class="fc" id="L712">    });</span>
+<span class="nc" id="L713">  }</span>
+
+  // test getUserDetails with null inputs
+  @Test
+  public void testGetUserDetailsWithNullInputs() {
+<span class="fc" id="L718">    String emailId = null;</span>
+<span class="fc" id="L719">    String password = null;</span>
+
+    try {
+<span class="fc" id="L722">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L723">    } catch (Exception ex) {</span>
+<span class="nc" id="L724">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L725">    }</span>
+
+<span class="fc" id="L727">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L728">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L729">      UserBean user = userService.getUserDetails(emailId, password);</span>
+<span class="fc" id="L730">    });</span>
+<span class="nc" id="L731">  }</span>
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // test getFName with existing user
+  @Test
+  public void testGetFNameWithExistingUser() {
+<span class="fc" id="L764">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L765">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L766">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L767">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L768">    int pinCode = 123456;</span>
+<span class="fc" id="L769">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L772">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L773">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L774">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L775">    } catch (Exception ex) {</span>
+<span class="nc" id="L776">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L777">    }</span>
+
+<span class="fc" id="L779">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L780">    String res = userService.getFName(emailId);</span>
+<span class="fc" id="L781">    assertEquals(userName, res);</span>
+<span class="fc" id="L782">  }</span>
+
+  // test getFName with existing user with first name and last name
+  @Test
+  public void testGetFNameWithExistingUserMultipleNames() {
+<span class="fc" id="L787">    String userName = &quot;test example&quot;;</span>
+<span class="fc" id="L788">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L789">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L790">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L791">    int pinCode = 123456;</span>
+<span class="fc" id="L792">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L795">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L796">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L797">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L798">    } catch (Exception ex) {</span>
+<span class="nc" id="L799">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L800">    }</span>
+
+<span class="fc" id="L802">    String fname = &quot;test&quot;;</span>
+
+<span class="fc" id="L804">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L805">    String res = userService.getFName(emailId);</span>
+<span class="fc" id="L806">    assertEquals(fname, res);</span>
+<span class="fc" id="L807">  }</span>
+
+  // test getFName with nonexistent user
+  @Test
+  public void testGetFNameWithNonexistentUser() {
+<span class="fc" id="L812">    String emailId = &quot;test@gmail.com&quot;;</span>
+
+    try {
+<span class="fc" id="L815">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L816">    } catch (Exception ex) {</span>
+<span class="nc" id="L817">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L818">    }</span>
+
+<span class="fc" id="L820">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L821">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L822">      String res = userService.getFName(emailId);</span>
+<span class="fc" id="L823">    });</span>
+<span class="nc" id="L824">  }</span>
+
+  // test getFName with null input
+  @Test
+  public void testGetFNameWithNullInput() {
+<span class="fc" id="L829">    String emailId = null;</span>
+
+    try {
+<span class="fc" id="L832">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L833">    } catch (Exception ex) {</span>
+<span class="nc" id="L834">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L835">    }</span>
+
+<span class="fc" id="L837">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L838">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L839">      String res = userService.getFName(emailId);</span>
+<span class="fc" id="L840">    });</span>
+<span class="nc" id="L841">  }</span>
+
+  // test getFName with empty input
+  @Test
+  public void testGetFNameWithEmptyInput() {
+<span class="fc" id="L846">    String emailId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L849">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L850">    } catch (Exception ex) {</span>
+<span class="nc" id="L851">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L852">    }</span>
+
+<span class="fc" id="L854">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L855">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L856">      String res = userService.getFName(emailId);</span>
+<span class="fc" id="L857">    });</span>
+<span class="nc" id="L858">  }</span>
+
+  // test getFName with invalid email input
+  @Test
+  public void testGetFNameWithInvalidInputEmail() {
+<span class="fc" id="L863">    String emailId = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L866">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L867">    } catch (Exception ex) {</span>
+<span class="nc" id="L868">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L869">    }</span>
+
+<span class="fc" id="L871">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L872">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L873">      String res = userService.getFName(emailId);</span>
+<span class="fc" id="L874">    });</span>
+<span class="nc" id="L875">  }</span>
+
+  // test getUserAddr with existing user
+  @Test
+  public void testGetUserAddrWithExistingUser() {
+<span class="fc" id="L880">    String userName = &quot;test&quot;;</span>
+<span class="fc" id="L881">    Long mobileNo = 9999999999L;</span>
+<span class="fc" id="L882">    String emailId = &quot;test@gmail.com&quot;;</span>
+<span class="fc" id="L883">    String address = &quot;test street&quot;;</span>
+<span class="fc" id="L884">    int pinCode = 123456;</span>
+<span class="fc" id="L885">    String password = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L888">      assertFalse(getUserExists(emailId));</span>
+<span class="fc" id="L889">      registerUser(userName, mobileNo, emailId, address, pinCode, password);</span>
+<span class="fc" id="L890">      assertTrue(getUserExists(emailId));</span>
+<span class="nc" id="L891">    } catch (Exception ex) {</span>
+<span class="nc" id="L892">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L893">    }</span>
+
+<span class="fc" id="L895">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="fc" id="L896">    String res = userService.getUserAddr(emailId);</span>
+<span class="fc" id="L897">    assertEquals(address, res);</span>
+<span class="fc" id="L898">  }</span>
+
+  // test getUserAddr with nonexistent user
+  @Test
+  public void testGetUserAddrWithNonexistentUser() {
+<span class="fc" id="L903">    String emailId = &quot;test@gmail.com&quot;;</span>
+
+    try {
+<span class="fc" id="L906">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L907">    } catch (Exception ex) {</span>
+<span class="nc" id="L908">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L909">    }</span>
+
+<span class="fc" id="L911">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L912">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L913">      String res = userService.getUserAddr(emailId);</span>
+<span class="fc" id="L914">    });</span>
+<span class="nc" id="L915">  }</span>
+
+  // test getUserAddr with null input
+  @Test
+  public void testGetUserAddrWithNullInput() {
+<span class="fc" id="L920">    String emailId = null;</span>
+
+    try {
+<span class="fc" id="L923">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L924">    } catch (Exception ex) {</span>
+<span class="nc" id="L925">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L926">    }</span>
+
+<span class="fc" id="L928">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L929">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L930">      String res = userService.getUserAddr(emailId);</span>
+<span class="fc" id="L931">    });</span>
+<span class="nc" id="L932">  }</span>
+
+  // test getUserAddr with empty input
+  @Test
+  public void testGetUserAddrWithEmptyInput() {
+<span class="fc" id="L937">    String emailId = &quot;&quot;;</span>
+
+    try {
+<span class="fc" id="L940">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L941">    } catch (Exception ex) {</span>
+<span class="nc" id="L942">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L943">    }</span>
+
+<span class="fc" id="L945">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L946">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L947">      String res = userService.getUserAddr(emailId);</span>
+<span class="fc" id="L948">    });</span>
+<span class="nc" id="L949">  }</span>
+
+  // test getUserAddr with invalid email input
+  @Test
+  public void testGetUserAddrWithInvalidInputEmail() {
+<span class="fc" id="L954">    String emailId = &quot;test&quot;;</span>
+
+    try {
+<span class="fc" id="L957">      assertFalse(getUserExists(emailId));</span>
+<span class="nc" id="L958">    } catch (Exception ex) {</span>
+<span class="nc" id="L959">      fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L960">    }</span>
+
+<span class="fc" id="L962">    UserServiceImpl userService = new UserServiceImpl();</span>
+<span class="nc" id="L963">    Assertions.assertThrows(IllegalArgumentException.class, () -&gt; {</span>
+<span class="fc" id="L964">      String res = userService.getUserAddr(emailId);</span>
+<span class="fc" id="L965">    });</span>
+<span class="nc" id="L966">  }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddProductSrv.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.srv</a> &gt; <span class="el_source">AddProductSrv.java</span></div><h1>AddProductSrv.java</h1><pre class="source lang-java linenums">package com.shashi.srv;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+
+import com.shashi.service.impl.ProductServiceImpl;
+
+/**
+ * Servlet implementation class AddProductSrv
+ */
+@WebServlet(&quot;/AddProductSrv&quot;)
+@MultipartConfig(maxFileSize = 16177215)
+<span class="nc" id="L23">public class AddProductSrv extends HttpServlet {</span>
+	private static final long serialVersionUID = 1L;
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L29">		HttpSession session = request.getSession();</span>
+<span class="nc" id="L30">		String userType = (String) session.getAttribute(&quot;usertype&quot;);</span>
+<span class="nc" id="L31">		String userName = (String) session.getAttribute(&quot;username&quot;);</span>
+<span class="nc" id="L32">		String password = (String) session.getAttribute(&quot;password&quot;);</span>
+
+<span class="nc bnc" id="L34" title="All 4 branches missed.">		if (userType == null || !userType.equals(&quot;admin&quot;)) {</span>
+
+<span class="nc" id="L36">			response.sendRedirect(&quot;login.jsp?message=Access Denied!&quot;);</span>
+
+		}
+
+<span class="nc bnc" id="L40" title="All 4 branches missed.">		else if (userName == null || password == null) {</span>
+
+<span class="nc" id="L42">			response.sendRedirect(&quot;login.jsp?message=Session Expired, Login Again to Continue!&quot;);</span>
+		}
+
+<span class="nc" id="L45">		String status = &quot;Product Registration Failed!&quot;;</span>
+<span class="nc" id="L46">		String prodName = request.getParameter(&quot;name&quot;);</span>
+<span class="nc" id="L47">		String prodType = request.getParameter(&quot;type&quot;);</span>
+<span class="nc" id="L48">		String prodInfo = request.getParameter(&quot;info&quot;);</span>
+<span class="nc" id="L49">		double prodPrice = Double.parseDouble(request.getParameter(&quot;price&quot;));</span>
+<span class="nc" id="L50">		int prodQuantity = Integer.parseInt(request.getParameter(&quot;quantity&quot;));</span>
+
+<span class="nc" id="L52">		Part part = request.getPart(&quot;image&quot;);</span>
+
+<span class="nc" id="L54">		InputStream inputStream = part.getInputStream();</span>
+
+<span class="nc" id="L56">		InputStream prodImage = inputStream;</span>
+
+<span class="nc" id="L58">		ProductServiceImpl product = new ProductServiceImpl();</span>
+
+<span class="nc" id="L60">		status = product.addProduct(prodName, prodType, prodInfo, prodPrice, prodQuantity, prodImage);</span>
+
+<span class="nc" id="L62">		RequestDispatcher rd = request.getRequestDispatcher(&quot;addProduct.jsp?message=&quot; + status);</span>
+<span class="nc" id="L63">		rd.forward(request, response);</span>
+
+<span class="nc" id="L65">	}</span>
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+<span class="nc" id="L69">		doGet(request, response);</span>
+<span class="nc" id="L70">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

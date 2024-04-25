@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestMail.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.utility</a> &gt; <span class="el_source">TestMail.java</span></div><h1>TestMail.java</h1><pre class="source lang-java linenums">package com.shashi.utility;
+
+import jakarta.mail.MessagingException;
+
+<span class="nc" id="L5">public class TestMail {</span>
+	public static void main(String[] args) {
+		try {
+<span class="nc" id="L8">			String recipient = &quot;ellison.alumni@gmail.com&quot;;</span>
+<span class="nc" id="L9">			String subject = &quot;Mail Configuration Successfull&quot;;</span>
+<span class="nc" id="L10">			String htmlTextMessage = &quot;&quot; + &quot;&lt;html&gt;&quot;</span>
+					+ &quot;&lt;head&gt;&lt;title&gt;Java Mail Configuration Test&lt;/title&gt;&lt;style&gt;.greenText{color:green;} p{font-size:14;}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&quot;
+					+ &quot;&lt;h2 style='color:red;'&gt;Welcome to Ellison Electronics&lt;/h2&gt;&quot; + &quot;&lt;p&gt;Hey,&lt;br&gt;&quot;
+					+ &quot;Thanks for singing up with Ellison Electronics.&lt;br&gt;&quot;
+					+ &quot;We are glad that you choose &lt;bold&gt;us. We invite you to check out our latest collection of new electonics appliances.&quot;
+					+ &quot;&lt;br&gt;We are providing upto 60% OFF on most of the electronic gadgets. So please visit our site and explore the collections. &lt;br&gt;&quot;
+					+ &quot; &lt;br&gt;Our Online electronics is growing in a larger amount these days and we are in high demand so we thanks all of you for &quot;
+					+ &quot;making us up to that level. We Deliver Product to your house with no extra delivery charges and we also have collection of most of the&quot;
+					+ &quot;branded items. As a Welcome gift for our New Customers we are providing additional 10% OFF Upto 500 Rs for the first product purchase. To avail this offer you only have &quot;
+					+ &quot;to enter the promo code given below.&lt;br&gt;&lt;br&gt; PROMO CODE: &quot;
+					+ &quot;&lt;span class='greenText'&gt;ELLISON500&lt;/span&gt;&lt;br&gt;&lt;br&gt;&quot; + &quot;Have a good day!&lt;br&gt;&quot; + &quot;&lt;/p&gt;&quot; + &quot;&lt;/body&gt;&quot;
+					+ &quot;&lt;/html&gt;&quot;;
+<span class="nc" id="L22">			JavaMailUtil.sendMail(recipient, subject, htmlTextMessage);</span>
+<span class="nc" id="L23">			System.out.println(&quot;Mail Sent Successfully!&quot;);</span>
+
+<span class="nc" id="L25">		} catch (MessagingException e) {</span>
+<span class="nc" id="L26">			System.out.println(&quot;Mail Sending Failed With Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L27">			e.printStackTrace();</span>
+<span class="nc" id="L28">		}</span>
+<span class="nc" id="L29">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddtoCart.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.srv</a> &gt; <span class="el_source">AddtoCart.java</span></div><h1>AddtoCart.java</h1><pre class="source lang-java linenums">package com.shashi.srv;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.shashi.beans.DemandBean;
+import com.shashi.beans.ProductBean;
+import com.shashi.service.impl.CartServiceImpl;
+import com.shashi.service.impl.DemandServiceImpl;
+import com.shashi.service.impl.ProductServiceImpl;
+
+/**
+ * Servlet implementation class AddtoCart
+ */
+@WebServlet(&quot;/AddtoCart&quot;)
+public class AddtoCart extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	public AddtoCart() {
+<span class="nc" id="L28">		super();</span>
+<span class="nc" id="L29">	}</span>
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L34">		HttpSession session = request.getSession();</span>
+<span class="nc" id="L35">		String userName = (String) session.getAttribute(&quot;username&quot;);</span>
+<span class="nc" id="L36">		String password = (String) session.getAttribute(&quot;password&quot;);</span>
+<span class="nc" id="L37">		String usertype = (String) session.getAttribute(&quot;usertype&quot;);</span>
+<span class="nc bnc" id="L38" title="All 8 branches missed.">		if (userName == null || password == null || usertype == null || !usertype.equalsIgnoreCase(&quot;customer&quot;)) {</span>
+<span class="nc" id="L39">			response.sendRedirect(&quot;login.jsp?message=Session Expired, Login Again to Continue!&quot;);</span>
+<span class="nc" id="L40">			return;</span>
+		}
+
+		// login Check Successfull
+
+<span class="nc" id="L45">		String userId = userName;</span>
+<span class="nc" id="L46">		String prodId = request.getParameter(&quot;pid&quot;);</span>
+<span class="nc" id="L47">		int pQty = Integer.parseInt(request.getParameter(&quot;pqty&quot;)); // 1</span>
+
+<span class="nc" id="L49">		CartServiceImpl cart = new CartServiceImpl();</span>
+
+<span class="nc" id="L51">		ProductServiceImpl productDao = new ProductServiceImpl();</span>
+
+<span class="nc" id="L53">		ProductBean product = productDao.getProductDetails(prodId);</span>
+
+<span class="nc" id="L55">		int availableQty = product.getProdQuantity();</span>
+
+<span class="nc" id="L57">		int cartQty = cart.getProductCount(userId, prodId);</span>
+
+<span class="nc" id="L59">		pQty += cartQty;</span>
+
+<span class="nc" id="L61">		PrintWriter pw = response.getWriter();</span>
+
+<span class="nc" id="L63">		response.setContentType(&quot;text/html&quot;);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		if (pQty == cartQty) {</span>
+<span class="nc" id="L65">			String status = cart.removeProductFromCart(userId, prodId);</span>
+
+<span class="nc" id="L67">			RequestDispatcher rd = request.getRequestDispatcher(&quot;userHome.jsp&quot;);</span>
+
+<span class="nc" id="L69">			rd.include(request, response);</span>
+
+<span class="nc" id="L71">			pw.println(&quot;&lt;script&gt;document.getElementById('message').innerHTML='&quot; + status + &quot;'&lt;/script&gt;&quot;);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		} else if (availableQty &lt; pQty) {</span>
+
+<span class="nc" id="L74">			String status = null;</span>
+
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			if (availableQty == 0) {</span>
+<span class="nc" id="L77">				status = &quot;Product is Out of Stock!&quot;;</span>
+			} else {
+
+<span class="nc" id="L80">				cart.updateProductToCart(userId, prodId, availableQty);</span>
+
+<span class="nc" id="L82">				status = &quot;Only &quot; + availableQty + &quot; no of &quot; + product.getProdName()</span>
+						+ &quot; are available in the shop! So we are adding only &quot; + availableQty
+						+ &quot; products into Your Cart&quot; + &quot;&quot;;
+			}
+<span class="nc" id="L86">			DemandBean demandBean = new DemandBean(userName, product.getProdId(), pQty - availableQty);</span>
+
+<span class="nc" id="L88">			DemandServiceImpl demand = new DemandServiceImpl();</span>
+
+<span class="nc" id="L90">			boolean flag = demand.addProduct(demandBean);</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			if (flag)</span>
+<span class="nc" id="L93">				status += &quot;&lt;br/&gt;Later, We Will Mail You when &quot; + product.getProdName()</span>
+						+ &quot; will be available into the Store!&quot;;
+
+<span class="nc" id="L96">			RequestDispatcher rd = request.getRequestDispatcher(&quot;cartDetails.jsp&quot;);</span>
+
+<span class="nc" id="L98">			rd.include(request, response);</span>
+
+<span class="nc" id="L100">			pw.println(&quot;&lt;script&gt;document.getElementById('message').innerHTML='&quot; + status + &quot;'&lt;/script&gt;&quot;);</span>
+
+<span class="nc" id="L102">		} else {</span>
+<span class="nc" id="L103">			String status = cart.updateProductToCart(userId, prodId, pQty);</span>
+
+<span class="nc" id="L105">			RequestDispatcher rd = request.getRequestDispatcher(&quot;userHome.jsp&quot;);</span>
+
+<span class="nc" id="L107">			rd.include(request, response);</span>
+
+<span class="nc" id="L109">			pw.println(&quot;&lt;script&gt;document.getElementById('message').innerHTML='&quot; + status + &quot;'&lt;/script&gt;&quot;);</span>
+		}
+
+<span class="nc" id="L112">	}</span>
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L117">		doGet(request, response);</span>
+<span class="nc" id="L118">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

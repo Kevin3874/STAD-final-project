@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionBean.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.beans</a> &gt; <span class="el_source">TransactionBean.java</span></div><h1>TransactionBean.java</h1><pre class="source lang-java linenums">package com.shashi.beans;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+
+import com.shashi.utility.IDUtil;
+
+@SuppressWarnings(&quot;serial&quot;)
+public class TransactionBean implements Serializable {
+
+	private String transactionId;
+
+	private String userName;
+
+	private Timestamp transDateTime;
+
+	private double transAmount;
+
+	public TransactionBean() {
+<span class="fc" id="L21">		super();</span>
+<span class="fc" id="L22">		this.transactionId = IDUtil.generateTransId();</span>
+
+<span class="fc" id="L24">		SimpleDateFormat sdf = new SimpleDateFormat(&quot;YYYY-MM-DD hh:mm:ss&quot;);</span>
+
+<span class="fc" id="L26">		Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+
+<span class="fc" id="L28">		sdf.format(timestamp);</span>
+
+<span class="fc" id="L30">		this.transDateTime = timestamp;</span>
+<span class="fc" id="L31">	}</span>
+
+	public TransactionBean(String userName, double transAmount) {
+<span class="fc" id="L34">		super();</span>
+<span class="fc" id="L35">		this.userName = userName;</span>
+<span class="fc" id="L36">		this.transAmount = transAmount;</span>
+
+<span class="fc" id="L38">		this.transactionId = IDUtil.generateTransId();</span>
+
+<span class="fc" id="L40">		SimpleDateFormat sdf = new SimpleDateFormat(&quot;YYYY-MM-DD hh:mm:ss&quot;);</span>
+
+<span class="fc" id="L42">		Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+
+<span class="fc" id="L44">		sdf.format(timestamp);</span>
+
+<span class="fc" id="L46">		this.transDateTime = timestamp;</span>
+
+<span class="fc" id="L48">	}</span>
+
+	public TransactionBean(String transactionId, String userName, double transAmount) {
+<span class="nc" id="L51">		super();</span>
+<span class="nc" id="L52">		this.transactionId = transactionId;</span>
+<span class="nc" id="L53">		this.userName = userName;</span>
+<span class="nc" id="L54">		this.transAmount = transAmount;</span>
+
+<span class="nc" id="L56">		SimpleDateFormat sdf = new SimpleDateFormat(&quot;YYYY-MM-DD hh:mm:ss&quot;);</span>
+
+<span class="nc" id="L58">		Timestamp timestamp = new Timestamp(System.currentTimeMillis());</span>
+
+<span class="nc" id="L60">		sdf.format(timestamp);</span>
+
+<span class="nc" id="L62">		this.transDateTime = timestamp;</span>
+<span class="nc" id="L63">	}</span>
+
+	public TransactionBean(String userName, Timestamp transDateTime, double transAmount) {
+<span class="nc" id="L66">		super();</span>
+<span class="nc" id="L67">		this.userName = userName;</span>
+<span class="nc" id="L68">		this.transDateTime = transDateTime;</span>
+<span class="nc" id="L69">		this.transactionId = IDUtil.generateTransId();</span>
+<span class="nc" id="L70">		this.transAmount = transAmount;</span>
+<span class="nc" id="L71">	}</span>
+
+	public TransactionBean(String transactionId, String userName, Timestamp transDateTime, double transAmount) {
+<span class="nc" id="L74">		super();</span>
+<span class="nc" id="L75">		this.transactionId = transactionId;</span>
+<span class="nc" id="L76">		this.userName = userName;</span>
+<span class="nc" id="L77">		this.transDateTime = transDateTime;</span>
+<span class="nc" id="L78">		this.transAmount = transAmount;</span>
+
+<span class="nc" id="L80">	}</span>
+
+	public String getTransactionId() {
+<span class="fc" id="L83">		return transactionId;</span>
+	}
+
+	public void setTransactionId(String transactionId) {
+<span class="fc" id="L87">		this.transactionId = transactionId;</span>
+<span class="fc" id="L88">	}</span>
+
+	public String getUserName() {
+<span class="fc" id="L91">		return userName;</span>
+	}
+
+	public void setUserName(String userName) {
+<span class="fc" id="L95">		this.userName = userName;</span>
+<span class="fc" id="L96">	}</span>
+
+	public Timestamp getTransDateTime() {
+<span class="fc" id="L99">		return transDateTime;</span>
+	}
+
+	public void setTransDateTime(Timestamp transDateTime) {
+<span class="fc" id="L103">		this.transDateTime = transDateTime;</span>
+<span class="fc" id="L104">	}</span>
+
+	public double getTransAmount() {
+<span class="fc" id="L107">		return transAmount;</span>
+	}
+
+	public void setTransAmount(double transAmount) {
+<span class="fc" id="L111">		this.transAmount = transAmount;</span>
+<span class="fc" id="L112">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

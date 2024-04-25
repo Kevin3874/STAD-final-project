@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogoutSrvTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.APITesting</a> &gt; <span class="el_source">LogoutSrvTest.java</span></div><h1>LogoutSrvTest.java</h1><pre class="source lang-java linenums">package test.APITesting;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
+<span class="nc" id="L10">public class LogoutSrvTest {</span>
+    @BeforeAll
+    public static void setup() {
+<span class="nc" id="L13">        RestAssured.baseURI = &quot;http://localhost&quot;;</span>
+<span class="nc" id="L14">        RestAssured.port = 8080;</span>
+<span class="nc" id="L15">        RestAssured.basePath = &quot;/shopping_cart_war&quot;;</span>
+<span class="nc" id="L16">    }</span>
+
+    @Test
+    void testLogout() {
+        // login first
+<span class="nc" id="L21">        Response loginResponse = given()</span>
+<span class="nc" id="L22">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L23">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L24">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L25">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L26">                .when()</span>
+<span class="nc" id="L27">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L28">                .then()</span>
+<span class="nc" id="L29">                .statusCode(200)</span>
+<span class="nc" id="L30">                .extract().response();</span>
+<span class="nc" id="L31">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // Perform logout using the obtained session ID
+<span class="nc" id="L34">        given()</span>
+<span class="nc" id="L35">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L36">                .when()</span>
+<span class="nc" id="L37">                .post(&quot;/LogoutSrv&quot;)</span>
+<span class="nc" id="L38">                .then()</span>
+<span class="nc" id="L39">                .statusCode(200)</span>
+<span class="nc" id="L40">                .header(&quot;Content-Type&quot;, containsString(&quot;text/html&quot;))</span>
+<span class="nc" id="L41">                .body(containsString(&quot;Successfully Logged Out!&quot;));</span>
+<span class="nc" id="L42">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

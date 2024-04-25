@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddToCartTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.APITesting</a> &gt; <span class="el_source">AddToCartTest.java</span></div><h1>AddToCartTest.java</h1><pre class="source lang-java linenums">package test.APITesting;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
+<span class="nc" id="L10">public class AddToCartTest {</span>
+    @BeforeAll
+    public static void setup() {
+<span class="nc" id="L13">        RestAssured.baseURI = &quot;http://localhost&quot;;</span>
+<span class="nc" id="L14">        RestAssured.port = 8080;</span>
+<span class="nc" id="L15">        RestAssured.basePath = &quot;/shopping_cart_war&quot;;</span>
+<span class="nc" id="L16">    }</span>
+
+    @Test
+    void testAddToCartWithValidSession() {
+        // login
+<span class="nc" id="L21">        Response loginResponse = given()</span>
+<span class="nc" id="L22">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L23">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L24">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L25">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L26">                .when()</span>
+<span class="nc" id="L27">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L28">                .then()</span>
+<span class="nc" id="L29">                .statusCode(200)</span>
+<span class="nc" id="L30">                .extract().response();</span>
+
+<span class="nc" id="L32">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // Add a product to the cart
+<span class="nc" id="L35">        given()</span>
+<span class="nc" id="L36">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L37">                .param(&quot;pid&quot;, &quot;P20240422023722&quot;)</span>
+<span class="nc" id="L38">                .param(&quot;pqty&quot;, &quot;1&quot;)</span>
+<span class="nc" id="L39">                .when()</span>
+<span class="nc" id="L40">                .get(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L41">                .then()</span>
+<span class="nc" id="L42">                .statusCode(200)</span>
+<span class="nc" id="L43">                .body(containsString(&quot;Product Successfully Updated to Cart!&quot;));</span>
+<span class="nc" id="L44">    }</span>
+
+    @Test
+    void testAddToCartWithInvalidSession() {
+        // Try to add a product to the cart without a valid session
+<span class="nc" id="L49">        given()</span>
+<span class="nc" id="L50">                .param(&quot;pid&quot;, &quot;1&quot;)</span>
+<span class="nc" id="L51">                .param(&quot;pqty&quot;, &quot;2&quot;)</span>
+<span class="nc" id="L52">                .when()</span>
+<span class="nc" id="L53">                .post(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L54">                .then()</span>
+<span class="nc" id="L55">                .statusCode(302)</span>
+<span class="nc" id="L56">                .header(&quot;Location&quot;, containsString(&quot;Session Expired, Login Again to Continue!&quot;));</span>
+<span class="nc" id="L57">    }</span>
+
+    @Test
+    void testAddToCartWithInsufficientStock() {
+        // Perform customer login to obtain a valid session ID
+<span class="nc" id="L62">        Response loginResponse = given()</span>
+<span class="nc" id="L63">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L64">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L65">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L66">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L67">                .when()</span>
+<span class="nc" id="L68">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L69">                .then()</span>
+<span class="nc" id="L70">                .statusCode(200)</span>
+<span class="nc" id="L71">                .extract().response();</span>
+
+<span class="nc" id="L73">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // add too many quantity
+<span class="nc" id="L76">        given()</span>
+<span class="nc" id="L77">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L78">                .param(&quot;pid&quot;, &quot;P20240422105002&quot;)</span>
+<span class="nc" id="L79">                .param(&quot;pqty&quot;, &quot;10000&quot;)</span>
+<span class="nc" id="L80">                .when()</span>
+<span class="nc" id="L81">                .get(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L82">                .then()</span>
+<span class="nc" id="L83">                .statusCode(200)</span>
+<span class="nc" id="L84">                .body(containsString(&quot;Product is Out of Stock!&quot;));</span>
+<span class="nc" id="L85">    }</span>
+
+    @Test
+    void testRemoveProductFromCart() {
+        // login first
+<span class="nc" id="L90">        Response loginResponse = given()</span>
+<span class="nc" id="L91">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L92">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L93">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L94">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L95">                .when()</span>
+<span class="nc" id="L96">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L97">                .then()</span>
+<span class="nc" id="L98">                .statusCode(200)</span>
+<span class="nc" id="L99">                .extract().response();</span>
+
+<span class="nc" id="L101">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // add to cart
+<span class="nc" id="L104">        given()</span>
+<span class="nc" id="L105">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L106">                .param(&quot;pid&quot;, &quot;P20230423084143&quot;)</span>
+<span class="nc" id="L107">                .param(&quot;pqty&quot;, &quot;1&quot;)</span>
+<span class="nc" id="L108">                .when()</span>
+<span class="nc" id="L109">                .get(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L110">                .then()</span>
+<span class="nc" id="L111">                .statusCode(200)</span>
+<span class="nc" id="L112">                .body(containsString(&quot;Product Successfully Updated to Cart!&quot;));</span>
+
+        // testing remove
+<span class="nc" id="L115">        given()</span>
+<span class="nc" id="L116">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L117">                .param(&quot;pid&quot;, &quot;P20230423084143&quot;)</span>
+<span class="nc" id="L118">                .param(&quot;pqty&quot;, &quot;0&quot;)</span>
+<span class="nc" id="L119">                .when()</span>
+<span class="nc" id="L120">                .get(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L121">                .then()</span>
+<span class="nc" id="L122">                .statusCode(200)</span>
+<span class="nc" id="L123">                .body(containsString(&quot;Product Successfully removed from the Cart!&quot;));</span>
+<span class="nc" id="L124">    }</span>
+
+
+    @Test
+    void testAddToCartWithLimitedAvailability() {
+        // Perform customer login to obtain a valid session ID
+<span class="nc" id="L130">        Response loginResponse = given()</span>
+<span class="nc" id="L131">                .contentType(&quot;application/x-www-form-urlencoded&quot;)</span>
+<span class="nc" id="L132">                .formParam(&quot;username&quot;, &quot;guest@gmail.com&quot;)</span>
+<span class="nc" id="L133">                .formParam(&quot;password&quot;, &quot;guest&quot;)</span>
+<span class="nc" id="L134">                .formParam(&quot;usertype&quot;, &quot;customer&quot;)</span>
+<span class="nc" id="L135">                .when()</span>
+<span class="nc" id="L136">                .post(&quot;/LoginSrv&quot;)</span>
+<span class="nc" id="L137">                .then()</span>
+<span class="nc" id="L138">                .statusCode(200)</span>
+<span class="nc" id="L139">                .extract().response();</span>
+
+<span class="nc" id="L141">        String sessionId = loginResponse.getCookie(&quot;JSESSIONID&quot;);</span>
+
+        // Add a product to the cart with limited availability
+<span class="nc" id="L144">        given()</span>
+<span class="nc" id="L145">                .cookie(&quot;JSESSIONID&quot;, sessionId)</span>
+<span class="nc" id="L146">                .param(&quot;pid&quot;, &quot;P20230423084143`&quot;)</span>
+<span class="nc" id="L147">                .param(&quot;pqty&quot;, &quot;5&quot;)</span>
+<span class="nc" id="L148">                .when()</span>
+<span class="nc" id="L149">                .get(&quot;/AddtoCart&quot;)</span>
+<span class="nc" id="L150">                .then()</span>
+<span class="nc" id="L151">                .statusCode(200)</span>
+<span class="nc" id="L152">                .body(containsString(&quot;are available in the shop! So we are adding only&quot;));</span>
+<span class="nc" id="L153">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

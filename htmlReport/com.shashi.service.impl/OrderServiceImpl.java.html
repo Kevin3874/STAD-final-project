@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.service.impl</a> &gt; <span class="el_source">OrderServiceImpl.java</span></div><h1>OrderServiceImpl.java</h1><pre class="source lang-java linenums">package com.shashi.service.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.shashi.beans.CartBean;
+import com.shashi.beans.OrderBean;
+import com.shashi.beans.OrderDetails;
+import com.shashi.beans.TransactionBean;
+import com.shashi.service.OrderService;
+import com.shashi.utility.DBUtil;
+import com.shashi.utility.MailMessage;
+
+<span class="fc" id="L18">public class OrderServiceImpl implements OrderService {</span>
+
+	@Override
+	public String paymentSuccess(String userName, double paidAmount) {
+<span class="fc" id="L22">		String status = &quot;Order Placement Failed!&quot;;</span>
+
+<span class="fc" id="L24">		List&lt;CartBean&gt; cartItems = new ArrayList&lt;CartBean&gt;();</span>
+<span class="fc" id="L25">		cartItems = new CartServiceImpl().getAllCartItems(userName);</span>
+
+<span class="fc bfc" id="L27" title="All 2 branches covered.">		if (cartItems.size() == 0)</span>
+<span class="fc" id="L28">			return status;</span>
+
+<span class="fc" id="L30">		TransactionBean transaction = new TransactionBean(userName, paidAmount);</span>
+<span class="fc" id="L31">		boolean ordered = false;</span>
+
+<span class="fc" id="L33">		String transactionId = transaction.getTransactionId();</span>
+
+		// System.out.println(&quot;Transaction: &quot;+transaction.getTransactionId()+&quot;
+		// &quot;+transaction.getTransAmount()+&quot; &quot;+transaction.getUserName()+&quot;
+		// &quot;+transaction.getTransDateTime());
+
+<span class="fc bfc" id="L39" title="All 2 branches covered.">		for (CartBean item : cartItems) {</span>
+
+<span class="fc" id="L41">			double amount = new ProductServiceImpl().getProductPrice(item.getProdId()) * item.getQuantity();</span>
+
+<span class="fc" id="L43">			OrderBean order = new OrderBean(transactionId, item.getProdId(), item.getQuantity(), amount);</span>
+
+<span class="fc" id="L45">			ordered = addOrder(order);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">			if (!ordered)</span>
+<span class="fc" id="L47">				break;</span>
+			else {
+<span class="fc" id="L49">				ordered = new CartServiceImpl().removeAProduct(item.getUserId(), item.getProdId());</span>
+			}
+
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">			if (!ordered)</span>
+<span class="nc" id="L53">				break;</span>
+			else
+<span class="fc" id="L55">				ordered = new ProductServiceImpl().sellNProduct(item.getProdId(), item.getQuantity());</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">			if (!ordered)</span>
+<span class="fc" id="L58">				break;</span>
+<span class="fc" id="L59">		}</span>
+
+<span class="fc bfc" id="L61" title="All 2 branches covered.">		if (ordered) {</span>
+<span class="fc" id="L62">			ordered = new OrderServiceImpl().addTransaction(transaction);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">			if (ordered) {</span>
+
+<span class="fc" id="L65">				MailMessage.transactionSuccess(userName, new UserServiceImpl().getFName(userName),</span>
+<span class="fc" id="L66">						transaction.getTransactionId(), transaction.getTransAmount());</span>
+
+<span class="fc" id="L68">				status = &quot;Order Placed Successfully!&quot;;</span>
+			}
+		}
+
+<span class="fc" id="L72">		return status;</span>
+	}
+
+	@Override
+	public boolean addOrder(OrderBean order) {
+<span class="fc" id="L77">		boolean flag = false;</span>
+
+<span class="fc" id="L79">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L81">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L84">			ps = con.prepareStatement(&quot;insert into orders values(?,?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L86">			ps.setString(1, order.getTransactionId());</span>
+<span class="fc" id="L87">			ps.setString(2, order.getProductId());</span>
+<span class="fc" id="L88">			ps.setInt(3, order.getQuantity());</span>
+<span class="fc" id="L89">			ps.setDouble(4, order.getAmount());</span>
+<span class="fc" id="L90">			ps.setInt(5, 0);</span>
+
+<span class="fc" id="L92">			int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">			if (k &gt; 0)</span>
+<span class="fc" id="L95">				flag = true;</span>
+
+<span class="fc" id="L97">		} catch (SQLException e) {</span>
+<span class="fc" id="L98">			flag = false;</span>
+<span class="fc" id="L99">			e.printStackTrace();</span>
+<span class="fc" id="L100">		}</span>
+
+<span class="fc" id="L102">		return flag;</span>
+	}
+
+	@Override
+	public boolean addTransaction(TransactionBean transaction) {
+<span class="fc" id="L107">		boolean flag = false;</span>
+
+<span class="fc" id="L109">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L111">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L114">			ps = con.prepareStatement(&quot;insert into transactions values(?,?,?,?)&quot;);</span>
+
+<span class="fc" id="L116">			ps.setString(1, transaction.getTransactionId());</span>
+<span class="fc" id="L117">			ps.setString(2, transaction.getUserName());</span>
+<span class="fc" id="L118">			ps.setTimestamp(3, transaction.getTransDateTime());</span>
+<span class="fc" id="L119">			ps.setDouble(4, transaction.getTransAmount());</span>
+
+<span class="fc" id="L121">			int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">			if (k &gt; 0)</span>
+<span class="fc" id="L124">				flag = true;</span>
+
+<span class="fc" id="L126">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="fc" id="L128">			e.printStackTrace();</span>
+<span class="fc" id="L129">		}</span>
+
+<span class="fc" id="L131">		return flag;</span>
+	}
+
+	@Override
+	public int countSoldItem(String prodId) {
+<span class="fc" id="L136">		int count = 0;</span>
+
+<span class="fc" id="L138">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L140">		PreparedStatement ps = null;</span>
+
+<span class="fc" id="L142">		ResultSet rs = null;</span>
+
+		try {
+<span class="fc" id="L145">			ps = con.prepareStatement(&quot;select sum(quantity) from orders where prodid=?&quot;);</span>
+
+<span class="fc" id="L147">			ps.setString(1, prodId);</span>
+
+<span class="fc" id="L149">			rs = ps.executeQuery();</span>
+
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">			if (rs.next())</span>
+<span class="fc" id="L152">				count = rs.getInt(1);</span>
+
+<span class="nc" id="L154">		} catch (SQLException e) {</span>
+<span class="nc" id="L155">			count = 0;</span>
+<span class="nc" id="L156">			e.printStackTrace();</span>
+<span class="fc" id="L157">		}</span>
+
+<span class="fc" id="L159">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L160">		DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L161">		DBUtil.closeConnection(rs);</span>
+
+<span class="fc" id="L163">		return count;</span>
+	}
+
+	@Override
+	public List&lt;OrderBean&gt; getAllOrders() {
+<span class="fc" id="L168">		List&lt;OrderBean&gt; orderList = new ArrayList&lt;OrderBean&gt;();</span>
+
+<span class="fc" id="L170">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L172">		PreparedStatement ps = null;</span>
+<span class="fc" id="L173">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L177">			ps = con.prepareStatement(&quot;select * from orders&quot;);</span>
+
+<span class="fc" id="L179">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L181" title="All 2 branches covered.">			while (rs.next()) {</span>
+
+<span class="fc" id="L183">				OrderBean order = new OrderBean(rs.getString(&quot;orderid&quot;), rs.getString(&quot;prodid&quot;), rs.getInt(&quot;quantity&quot;),</span>
+<span class="fc" id="L184">						rs.getDouble(&quot;amount&quot;), rs.getInt(&quot;shipped&quot;));</span>
+
+<span class="fc" id="L186">				orderList.add(order);</span>
+
+<span class="fc" id="L188">			}</span>
+
+<span class="nc" id="L190">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L192">			e.printStackTrace();</span>
+<span class="fc" id="L193">		}</span>
+
+<span class="fc" id="L195">		return orderList;</span>
+	}
+
+	@Override
+	public List&lt;OrderBean&gt; getOrdersByUserId(String emailId) {
+<span class="fc" id="L200">		List&lt;OrderBean&gt; orderList = new ArrayList&lt;OrderBean&gt;();</span>
+
+<span class="fc" id="L202">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L204">		PreparedStatement ps = null;</span>
+<span class="fc" id="L205">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L209">			ps = con.prepareStatement(</span>
+					&quot;SELECT * FROM orders o inner join transactions t on o.orderid = t.transid where username=?&quot;);
+<span class="fc" id="L211">			ps.setString(1, emailId);</span>
+<span class="fc" id="L212">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L214" title="All 2 branches covered.">			while (rs.next()) {</span>
+
+<span class="nc" id="L216">				OrderBean order = new OrderBean(rs.getString(&quot;t.transid&quot;), rs.getString(&quot;t.prodid&quot;),</span>
+<span class="nc" id="L217">						rs.getInt(&quot;quantity&quot;), rs.getDouble(&quot;t.amount&quot;), rs.getInt(&quot;shipped&quot;));</span>
+
+<span class="nc" id="L219">				orderList.add(order);</span>
+
+<span class="nc" id="L221">			}</span>
+
+<span class="fc" id="L223">		} catch (SQLException e) {</span>
+
+<span class="fc" id="L225">			e.printStackTrace();</span>
+<span class="fc" id="L226">		}</span>
+
+<span class="fc" id="L228">		return orderList;</span>
+	}
+
+	@Override
+	public List&lt;OrderDetails&gt; getAllOrderDetails(String userEmailId) {
+<span class="fc" id="L233">		List&lt;OrderDetails&gt; orderList = new ArrayList&lt;OrderDetails&gt;();</span>
+
+<span class="fc" id="L235">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L237">		PreparedStatement ps = null;</span>
+<span class="fc" id="L238">		ResultSet rs = null;</span>
+
+		try {
+
+<span class="fc" id="L242">			ps = con.prepareStatement(</span>
+					&quot;SELECT  p.pid as prodid, o.orderid as orderid, o.shipped as shipped, p.image as image, p.pname as pname, o.quantity as qty, o.amount as amount, t.time as time FROM orders o, product p, transactions t where o.orderid=t.transid and o.orderid = t.transid and p.pid=o.prodid and t.username=?&quot;);
+<span class="fc" id="L244">			ps.setString(1, userEmailId);</span>
+<span class="fc" id="L245">			rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L247" title="All 2 branches covered.">			while (rs.next()) {</span>
+
+<span class="fc" id="L249">				OrderDetails order = new OrderDetails();</span>
+<span class="fc" id="L250">				order.setOrderId(rs.getString(&quot;orderid&quot;));</span>
+<span class="fc" id="L251">				order.setProdImage(rs.getAsciiStream(&quot;image&quot;));</span>
+<span class="fc" id="L252">				order.setProdName(rs.getString(&quot;pname&quot;));</span>
+<span class="fc" id="L253">				order.setQty(rs.getString(&quot;qty&quot;));</span>
+<span class="fc" id="L254">				order.setAmount(rs.getString(&quot;amount&quot;));</span>
+<span class="fc" id="L255">				order.setTime(rs.getTimestamp(&quot;time&quot;));</span>
+<span class="fc" id="L256">				order.setProductId(rs.getString(&quot;prodid&quot;));</span>
+<span class="fc" id="L257">				order.setShipped(rs.getInt(&quot;shipped&quot;));</span>
+<span class="fc" id="L258">				orderList.add(order);</span>
+
+<span class="fc" id="L260">			}</span>
+
+<span class="nc" id="L262">		} catch (SQLException e) {</span>
+
+<span class="nc" id="L264">			e.printStackTrace();</span>
+<span class="fc" id="L265">		}</span>
+
+<span class="fc" id="L267">		return orderList;</span>
+	}
+
+	@Override
+	public String shipNow(String orderId, String prodId) {
+<span class="fc" id="L272">		String status = &quot;FAILURE&quot;;</span>
+
+<span class="fc" id="L274">		Connection con = DBUtil.provideConnection();</span>
+
+<span class="fc" id="L276">		PreparedStatement ps = null;</span>
+
+		try {
+<span class="fc" id="L279">			ps = con.prepareStatement(&quot;update orders set shipped=1 where orderid=? and prodid=? and shipped=0&quot;);</span>
+
+<span class="fc" id="L281">			ps.setString(1, orderId);</span>
+<span class="fc" id="L282">			ps.setString(2, prodId);</span>
+
+<span class="fc" id="L284">			int k = ps.executeUpdate();</span>
+
+<span class="fc bfc" id="L286" title="All 2 branches covered.">			if (k &gt; 0) {</span>
+<span class="fc" id="L287">				status = &quot;Order Has been shipped successfully!!&quot;;</span>
+			}
+
+<span class="nc" id="L290">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L292">			e.printStackTrace();</span>
+<span class="fc" id="L293">		}</span>
+
+<span class="fc" id="L295">		DBUtil.closeConnection(con);</span>
+<span class="fc" id="L296">		DBUtil.closeConnection(ps);</span>
+
+<span class="fc" id="L298">		return status;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

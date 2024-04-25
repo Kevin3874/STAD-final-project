@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DemandServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.ImplTesting</a> &gt; <span class="el_source">DemandServiceImplTest.java</span></div><h1>DemandServiceImplTest.java</h1><pre class="source lang-java linenums">package test.ImplTesting;
+
+import com.shashi.beans.DemandBean;
+import com.shashi.service.impl.DemandServiceImpl;
+import com.shashi.utility.DBUtil;
+import org.junit.jupiter.api.*;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L16">public class DemandServiceImplTest {</span>
+
+    // This file contains blackbox, whitebox methods to verify that each method works as intended.
+    // It also contains helper methods mostly specific to the demand tests
+
+    // IMPORTANT!! must have MYSQL Server/Workbench installed, set up, and connected. Contact Jiashu
+    // if you have questions.
+    // IMPORTANT!! many tests assume the default setup has been completed and unaltered. Tests also try
+    // to restore the table to the default state after completion.
+    // On a first startup, these tests may  fail due to SQL errors: I resolved these by running the
+    // creator's startup SQL query script individually, as the product commit crashed my MySQL Workbench.
+
+    public int getResultSetSize(ResultSet rs) {
+        try {
+<span class="fc" id="L30">            int size = 0;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L32">                size++;</span>
+            }
+<span class="fc" id="L34">            return size;</span>
+<span class="nc" id="L35">        } catch (Exception ex) {</span>
+<span class="nc" id="L36">            return -1;</span>
+        }
+    }
+
+    public boolean getDemandExistsProdIDOnly(String productId) throws Exception {
+<span class="fc" id="L41">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L42">        PreparedStatement ps = con.prepareStatement(&quot;select * from user_demand where prodid=?&quot;);</span>
+
+<span class="fc" id="L44">        ps.setString(1, productId);</span>
+
+<span class="fc" id="L46">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L48">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L50">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L51">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L52">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+    public boolean getDemandExistsUsernameOnly(String userID) throws Exception {
+<span class="fc" id="L58">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L59">        PreparedStatement ps = con.prepareStatement(&quot;select * from user_demand where username=?&quot;);</span>
+
+<span class="fc" id="L61">        ps.setString(1, userID);</span>
+
+<span class="fc" id="L63">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L65">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L67">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L68">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L69">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        return num &gt; 0;</span>
+    }
+
+    public boolean getDemandExists(String userId, String productId) throws Exception {
+<span class="fc" id="L75">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L76">        PreparedStatement ps = con.prepareStatement(&quot;select * from user_demand where username=? and prodid=?&quot;);</span>
+
+<span class="fc" id="L78">        ps.setString(1, userId);</span>
+<span class="fc" id="L79">        ps.setString(2, productId);</span>
+
+<span class="fc" id="L81">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L83">        int num = getResultSetSize(rs);</span>
+
+<span class="fc" id="L85">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L86">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L87">        DBUtil.closeConnection(rs);</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        return num &gt; 0;</span>
+    }
+
+    public boolean getDemandExistsWithQuantity(String userId, String productId, int quantity) throws Exception {
+<span class="fc" id="L93">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L94">        PreparedStatement ps = con.prepareStatement(&quot;select * from user_demand where username=? and prodid=? and quantity=?&quot;);</span>
+
+<span class="fc" id="L96">        ps.setString(1, userId);</span>
+<span class="fc" id="L97">        ps.setString(2, productId);</span>
+<span class="fc" id="L98">        ps.setInt(3, quantity);</span>
+
+<span class="fc" id="L100">        ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L102">        int result = getResultSetSize(rs);</span>
+
+<span class="fc" id="L104">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L105">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L106">        DBUtil.closeConnection(rs);</span>
+
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        return result &gt; 0;</span>
+    }
+
+    public void addToUserDemands(String userId, String productId, int quantity) throws Exception {
+<span class="fc" id="L112">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L113">        PreparedStatement ps = con.prepareStatement(&quot;insert into user_demand values(?,?,?)&quot;);</span>
+
+<span class="fc" id="L115">        ps.setString(1, userId);</span>
+
+<span class="fc" id="L117">        ps.setString(2, productId);</span>
+
+<span class="fc" id="L119">        ps.setInt(3, quantity);</span>
+
+<span class="fc" id="L121">        int k = ps.executeUpdate();</span>
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        if (k == 0) {</span>
+<span class="nc" id="L124">            throw new Exception(&quot;did not insert successfully&quot;);</span>
+        }
+
+<span class="fc" id="L127">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L128">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L129">    }</span>
+
+    @BeforeEach
+    public void deleteDemands() throws SQLException {
+<span class="fc" id="L133">        Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L134">        PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM user_demand&quot;);</span>
+
+<span class="fc" id="L136">        ps.execute();</span>
+
+<span class="fc" id="L138">        DBUtil.closeConnection(con);</span>
+<span class="fc" id="L139">        DBUtil.closeConnection(ps);</span>
+<span class="fc" id="L140">    }</span>
+
+    @AfterEach
+    public void cleanup() throws SQLException {
+<span class="fc" id="L144">        deleteDemands();</span>
+<span class="fc" id="L145">    }</span>
+
+    @AfterAll
+    public static void restoreDemand() {
+        try {
+<span class="fc" id="L150">            Connection con = DBUtil.provideConnection();</span>
+<span class="fc" id="L151">            PreparedStatement ps = con.prepareStatement(&quot;INSERT INTO `shopping-cart`.`user_demand` (`username`, `prodid`, `quantity`) VALUES ('guest@gmail.com', 'P20230423084144', 3)&quot;);</span>
+
+<span class="fc" id="L153">            ps.execute();</span>
+
+<span class="fc" id="L155">            DBUtil.closeConnection(con);</span>
+<span class="fc" id="L156">            DBUtil.closeConnection(ps);</span>
+
+<span class="nc" id="L158">        } catch (Exception ex) {</span>
+<span class="nc" id="L159">            System.out.println(&quot;FAILED TO SET/CLEAN UP. CHECK SQL SERVER, DISABLE SAFE UPDATE MODE&quot;);</span>
+<span class="nc" id="L160">            fail();</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">    }</span>
+
+    // Adds a new demand unsuccessfully with a null username
+    @Test
+    public void testAddProductNullUsername() {
+<span class="fc" id="L167">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L168">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L170">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L171">        boolean status = demandService.addProduct(null, prodId, 1);</span>
+<span class="fc" id="L172">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L176">            assertFalse(getDemandExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L177">        } catch (Exception ex) {</span>
+<span class="nc" id="L178">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L179">        }</span>
+<span class="fc" id="L180">    }</span>
+
+    // Adds a new demand unsuccessfully with null product id
+    @Test
+    public void testAddProductNullProductID() {
+<span class="fc" id="L185">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L186">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L188">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L189">        boolean status = demandService.addProduct(userId, null, 1);</span>
+<span class="fc" id="L190">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L194">            assertFalse(getDemandExistsUsernameOnly(userId));</span>
+<span class="nc" id="L195">        } catch (Exception ex) {</span>
+<span class="nc" id="L196">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L197">        }</span>
+<span class="fc" id="L198">    }</span>
+
+    // Adds a new demand unsuccessfully with an invalid username
+    @Test
+    public void testAddProductInvalidUsername() {
+<span class="fc" id="L203">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L204">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L206">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L207">        boolean status = demandService.addProduct(&quot;abcdefg&quot;, prodId, 1);</span>
+<span class="fc" id="L208">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L212">            assertFalse(getDemandExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L213">        } catch (Exception ex) {</span>
+<span class="nc" id="L214">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L215">        }</span>
+<span class="fc" id="L216">    }</span>
+
+    // Adds a new demand unsuccessfully with an invalid product id
+    @Test
+    public void testAddProductInvalidProductID() {
+<span class="fc" id="L221">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L222">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L224">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L225">        boolean status = demandService.addProduct(userId, &quot;abcdefg&quot;, 1);</span>
+<span class="fc" id="L226">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L230">            assertFalse(getDemandExistsUsernameOnly(userId));</span>
+<span class="nc" id="L231">        } catch (Exception ex) {</span>
+<span class="nc" id="L232">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L233">        }</span>
+<span class="fc" id="L234">    }</span>
+
+    // Adds a new demand
+    @Test
+    public void testAddProductAddNewDemand() {
+<span class="fc" id="L239">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L240">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L242">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L243">        boolean status = demandService.addProduct(userId, prodId, 1);</span>
+<span class="fc" id="L244">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L248">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L249">        } catch (Exception ex) {</span>
+<span class="nc" id="L250">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L251">        }</span>
+<span class="fc" id="L252">    }</span>
+
+    // Adds a new duplicate demand unsuccessfully
+    @Test
+    public void testAddProductAddDuplicateDemand() {
+<span class="fc" id="L257">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L258">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L260">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L261">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L262">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L263">        } catch (Exception ex) {</span>
+<span class="nc" id="L264">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L265">        }</span>
+
+<span class="fc" id="L267">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L268">        boolean status = demandService.addProduct(userId, prodId, 3);</span>
+        // Detects a fault we explain in the doc
+<span class="nc" id="L270">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="nc" id="L274">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L275">            assertFalse(getDemandExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L276">        } catch (Exception ex) {</span>
+<span class="nc" id="L277">            fail(&quot;failed to verify&quot;);</span>
+<span class="nc" id="L278">        }</span>
+<span class="nc" id="L279">    }</span>
+
+    // Remove a demand unsuccessfully with a null username
+    @Test
+    public void testRemoveProductNullUsername() {
+<span class="fc" id="L284">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L285">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L287">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L288">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L289">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L290">        } catch (Exception ex) {</span>
+<span class="nc" id="L291">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L292">        }</span>
+
+<span class="fc" id="L294">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L295">        boolean status = demandService.removeProduct(null, prodId);</span>
+<span class="fc" id="L296">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L300">            assertTrue(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L301">        } catch (Exception ex) {</span>
+<span class="nc" id="L302">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L303">        }</span>
+<span class="fc" id="L304">    }</span>
+
+    // Removes a demand unsuccessfully with null product id
+    @Test
+    public void testRemoveProductNullProductID() {
+<span class="fc" id="L309">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L310">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L313">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L314">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L315">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L316">        } catch (Exception ex) {</span>
+<span class="nc" id="L317">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L318">        }</span>
+
+<span class="fc" id="L320">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L321">        boolean status = demandService.removeProduct(userId, null);</span>
+<span class="fc" id="L322">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L326">            assertTrue(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L327">        } catch (Exception ex) {</span>
+<span class="nc" id="L328">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L329">        }</span>
+<span class="fc" id="L330">    }</span>
+
+    // Removes a demand unsuccessfully with an invalid username
+    @Test
+    public void testRemoveProductInvalidUsername() {
+<span class="fc" id="L335">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L336">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L339">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L340">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L341">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L342">        } catch (Exception ex) {</span>
+<span class="nc" id="L343">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L344">        }</span>
+
+<span class="fc" id="L346">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L347">        boolean status = demandService.removeProduct(&quot;abcdefg&quot;, prodId);</span>
+<span class="fc" id="L348">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L352">            assertTrue(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L353">        } catch (Exception ex) {</span>
+<span class="nc" id="L354">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L355">        }</span>
+<span class="fc" id="L356">    }</span>
+
+    // Removes a demand unsuccessfully with an invalid product id
+    @Test
+    public void testRemoveProductInvalidProductID() {
+<span class="fc" id="L361">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L362">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L365">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L366">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L367">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L368">        } catch (Exception ex) {</span>
+<span class="nc" id="L369">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L370">        }</span>
+
+<span class="fc" id="L372">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L373">        boolean status = demandService.removeProduct(userId, &quot;abcdefg&quot;);</span>
+<span class="fc" id="L374">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L378">            assertTrue(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L379">        } catch (Exception ex) {</span>
+<span class="nc" id="L380">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L381">        }</span>
+<span class="fc" id="L382">    }</span>
+
+    // Removes a demand
+    @Test
+    public void testRemoveProduct() {
+<span class="fc" id="L387">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L388">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L391">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L392">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L393">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L394">        } catch (Exception ex) {</span>
+<span class="nc" id="L395">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L396">        }</span>
+
+<span class="fc" id="L398">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L399">        boolean status = demandService.removeProduct(userId, prodId);</span>
+<span class="fc" id="L400">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L404">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L405">        } catch (Exception ex) {</span>
+<span class="nc" id="L406">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L407">        }</span>
+<span class="fc" id="L408">    }</span>
+
+    // Removes a demand for multiple users
+    @Test
+    public void testRemoveProductMultipleUsers() {
+<span class="fc" id="L413">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L414">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L415">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L418">            assertFalse(getDemandExists(userId1, prodId));</span>
+<span class="fc" id="L419">            assertFalse(getDemandExists(userId2, prodId));</span>
+<span class="fc" id="L420">            addToUserDemands(userId1, prodId, 1);</span>
+<span class="fc" id="L421">            addToUserDemands(userId2, prodId, 1);</span>
+<span class="fc" id="L422">            assertTrue(getDemandExistsWithQuantity(userId1, prodId, 1));</span>
+<span class="fc" id="L423">            assertTrue(getDemandExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L424">        } catch (Exception ex) {</span>
+<span class="nc" id="L425">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L426">        }</span>
+
+<span class="fc" id="L428">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L429">        boolean status = demandService.removeProduct(userId1, prodId);</span>
+<span class="fc" id="L430">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L434">            assertFalse(getDemandExists(userId1, prodId));</span>
+<span class="fc" id="L435">            assertTrue(getDemandExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L436">        } catch (Exception ex) {</span>
+<span class="nc" id="L437">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L438">        }</span>
+<span class="fc" id="L439">    }</span>
+
+    // Removes a demand for multiple items
+    @Test
+    public void testRemoveProductMultipleItems() {
+<span class="fc" id="L444">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L445">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L446">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L449">            assertFalse(getDemandExists(userId, prodId1));</span>
+<span class="fc" id="L450">            assertFalse(getDemandExists(userId, prodId2));</span>
+<span class="fc" id="L451">            addToUserDemands(userId, prodId1, 1);</span>
+<span class="fc" id="L452">            addToUserDemands(userId, prodId2, 1);</span>
+<span class="fc" id="L453">            assertTrue(getDemandExistsWithQuantity(userId, prodId1, 1));</span>
+<span class="fc" id="L454">            assertTrue(getDemandExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="nc" id="L455">        } catch (Exception ex) {</span>
+<span class="nc" id="L456">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L457">        }</span>
+
+<span class="fc" id="L459">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L460">        boolean status = demandService.removeProduct(userId, prodId1);</span>
+<span class="fc" id="L461">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L465">            assertFalse(getDemandExists(userId, prodId1));</span>
+<span class="fc" id="L466">            assertTrue(getDemandExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="nc" id="L467">        } catch (Exception ex) {</span>
+<span class="nc" id="L468">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L469">        }</span>
+<span class="fc" id="L470">    }</span>
+
+    // Removes a nonexistent demand
+    @Test
+    public void testRemoveProductNonExistent() {
+<span class="fc" id="L475">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L476">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+        try {
+<span class="fc" id="L479">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L480">        } catch (Exception ex) {</span>
+<span class="nc" id="L481">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L482">        }</span>
+
+<span class="fc" id="L484">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L485">        boolean status = demandService.removeProduct(userId, prodId);</span>
+<span class="fc" id="L486">        assertTrue(status);</span>
+<span class="fc" id="L487">    }</span>
+
+    // Adds a new demand bean unsuccessfully with a null username
+    @Test
+    public void testAddProductBeanNullUsername() {
+<span class="fc" id="L492">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L493">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L495">        DemandBean bean = new DemandBean();</span>
+<span class="fc" id="L496">        bean.setUserName(null);</span>
+<span class="fc" id="L497">        bean.setProdId(prodId);</span>
+<span class="fc" id="L498">        bean.setDemandQty(1);</span>
+<span class="fc" id="L499">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L500">        boolean status = demandService.addProduct(bean);</span>
+<span class="fc" id="L501">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L505">            assertFalse(getDemandExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L506">        } catch (Exception ex) {</span>
+<span class="nc" id="L507">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L508">        }</span>
+<span class="fc" id="L509">    }</span>
+
+    // Adds a new demand bean unsuccessfully with null product id
+    @Test
+    public void testAddProductBeanNullProductID() {
+<span class="fc" id="L514">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L515">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L517">        DemandBean bean = new DemandBean();</span>
+<span class="fc" id="L518">        bean.setUserName(userId);</span>
+<span class="fc" id="L519">        bean.setProdId(null);</span>
+<span class="fc" id="L520">        bean.setDemandQty(1);</span>
+<span class="fc" id="L521">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L522">        boolean status = demandService.addProduct(bean);</span>
+<span class="fc" id="L523">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L527">            assertFalse(getDemandExistsUsernameOnly(userId));</span>
+<span class="nc" id="L528">        } catch (Exception ex) {</span>
+<span class="nc" id="L529">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L530">        }</span>
+<span class="fc" id="L531">    }</span>
+
+    // Adds a new demand bean unsuccessfully with an invalid username
+    @Test
+    public void testAddProductBeanInvalidUsername() {
+<span class="fc" id="L536">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L537">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L539">        DemandBean bean = new DemandBean();</span>
+<span class="fc" id="L540">        bean.setUserName(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L541">        bean.setProdId(prodId);</span>
+<span class="fc" id="L542">        bean.setDemandQty(1);</span>
+<span class="fc" id="L543">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L544">        boolean status = demandService.addProduct(bean);</span>
+<span class="fc" id="L545">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L549">            assertFalse(getDemandExistsProdIDOnly(prodId));</span>
+<span class="nc" id="L550">        } catch (Exception ex) {</span>
+<span class="nc" id="L551">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L552">        }</span>
+<span class="fc" id="L553">    }</span>
+
+    // Adds a new demand bean unsuccessfully with an invalid product id
+    @Test
+    public void testAddProductBeanInvalidProductID() {
+<span class="fc" id="L558">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L559">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L561">        DemandBean bean = new DemandBean();</span>
+<span class="fc" id="L562">        bean.setUserName(userId);</span>
+<span class="fc" id="L563">        bean.setProdId(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L564">        bean.setDemandQty(1);</span>
+<span class="fc" id="L565">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L566">        boolean status = demandService.addProduct(bean);</span>
+<span class="fc" id="L567">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L571">            assertFalse(getDemandExistsUsernameOnly(userId));</span>
+<span class="nc" id="L572">        } catch (Exception ex) {</span>
+<span class="nc" id="L573">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L574">        }</span>
+<span class="fc" id="L575">    }</span>
+
+    // Adds a new demand
+    @Test
+    public void testAddProductBeanAddNewDemand() {
+<span class="fc" id="L580">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L581">        String userId = &quot;guest@gmail.com&quot;;</span>
+
+<span class="fc" id="L583">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L584">        DemandBean bean = new DemandBean();</span>
+<span class="fc" id="L585">        bean.setUserName(userId);</span>
+<span class="fc" id="L586">        bean.setProdId(prodId);</span>
+<span class="fc" id="L587">        bean.setDemandQty(1);</span>
+<span class="fc" id="L588">        boolean status = demandService.addProduct(bean);</span>
+<span class="fc" id="L589">        assertTrue(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="fc" id="L593">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L594">        } catch (Exception ex) {</span>
+<span class="nc" id="L595">            fail(&quot;failed to verify&quot;);</span>
+<span class="fc" id="L596">        }</span>
+<span class="fc" id="L597">    }</span>
+
+    // Adds a new duplicate demand unsuccessfully
+    @Test
+    public void testAddProductBeanAddDuplicateDemand() {
+<span class="fc" id="L602">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L603">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L605">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L606">            addToUserDemands(userId, prodId, 1);</span>
+<span class="fc" id="L607">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L608">        } catch (Exception ex) {</span>
+<span class="nc" id="L609">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L610">        }</span>
+
+<span class="fc" id="L612">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L613">        DemandBean bean = new DemandBean();</span>
+<span class="fc" id="L614">        bean.setUserName(userId);</span>
+<span class="fc" id="L615">        bean.setProdId(prodId);</span>
+<span class="fc" id="L616">        bean.setDemandQty(3);</span>
+<span class="fc" id="L617">        boolean status = demandService.addProduct(bean);</span>
+        // Detects a fault we explain in the doc
+<span class="nc" id="L619">        assertFalse(status);</span>
+
+        // cleanup and verification
+        try {
+<span class="nc" id="L623">            assertTrue(getDemandExistsWithQuantity(userId, prodId, 1));</span>
+<span class="nc" id="L624">            assertFalse(getDemandExistsWithQuantity(userId, prodId, 3));</span>
+<span class="nc" id="L625">        } catch (Exception ex) {</span>
+<span class="nc" id="L626">            fail(&quot;failed to verify&quot;);</span>
+<span class="nc" id="L627">        }</span>
+<span class="nc" id="L628">    }</span>
+
+    // Returns demands with invalid product id
+    @Test
+    public void testHaveDemandedInvalidProductID() {
+<span class="fc" id="L633">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L634">        List&lt;DemandBean&gt; list = demandService.haveDemanded(&quot;abcdefg&quot;);</span>
+<span class="fc" id="L635">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L636">    }</span>
+
+    // Returns demands with null product id
+    @Test
+    public void testHaveDemandedNullProductID() {
+<span class="fc" id="L641">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L642">        List&lt;DemandBean&gt; list = demandService.haveDemanded(null);</span>
+<span class="fc" id="L643">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L644">    }</span>
+
+    // Returns demands of an empty demands list
+    @Test
+    public void testHaveDemandedEmpty() {
+<span class="fc" id="L649">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L650">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L652">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="nc" id="L653">        } catch (Exception ex) {</span>
+<span class="nc" id="L654">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L655">        }</span>
+<span class="fc" id="L656">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L657">        List&lt;DemandBean&gt; list = demandService.haveDemanded(prodId);</span>
+<span class="fc" id="L658">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L659">    }</span>
+
+    // Returns demands of a non-empty demands list, where a single entry exists
+    @Test
+    public void testHaveDemandedSingleEntry() {
+<span class="fc" id="L664">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L665">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L667">            assertFalse(getDemandExists(userId, prodId));</span>
+<span class="fc" id="L668">            addToUserDemands(userId, prodId, 2);</span>
+<span class="nc" id="L669">        } catch (Exception ex) {</span>
+<span class="nc" id="L670">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L671">        }</span>
+<span class="fc" id="L672">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L673">        List&lt;DemandBean&gt; list = demandService.haveDemanded(prodId);</span>
+<span class="fc" id="L674">        assertEquals(1, list.size());</span>
+
+<span class="fc" id="L676">        DemandBean bean = list.get(0);</span>
+<span class="fc" id="L677">        assertEquals(prodId, bean.getProdId());</span>
+<span class="fc" id="L678">        assertEquals(userId, bean.getUserName());</span>
+<span class="fc" id="L679">        assertEquals(2, bean.getDemandQty());</span>
+<span class="fc" id="L680">    }</span>
+
+    // Returns demands of a non-empty demands list, where multiple entries exist for multiple products
+    @Test
+    public void testHaveDemandedMultipleItems() {
+<span class="fc" id="L685">        String prodId1 = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L686">        String prodId2 = &quot;P20230423083830&quot;;</span>
+<span class="fc" id="L687">        String prodId3 = &quot;P20230423084143&quot;;</span>
+<span class="fc" id="L688">        String userId = &quot;guest@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L690">            assertFalse(getDemandExists(userId, prodId1));</span>
+<span class="fc" id="L691">            assertFalse(getDemandExists(userId, prodId2));</span>
+<span class="fc" id="L692">            assertFalse(getDemandExists(userId, prodId3));</span>
+<span class="fc" id="L693">            addToUserDemands(userId, prodId1, 3);</span>
+<span class="fc" id="L694">            addToUserDemands(userId, prodId2, 1);</span>
+<span class="fc" id="L695">            addToUserDemands(userId, prodId3, 5);</span>
+<span class="fc" id="L696">            assertTrue(getDemandExistsWithQuantity(userId, prodId1, 3));</span>
+<span class="fc" id="L697">            assertTrue(getDemandExistsWithQuantity(userId, prodId2, 1));</span>
+<span class="fc" id="L698">            assertTrue(getDemandExistsWithQuantity(userId, prodId3, 5));</span>
+<span class="nc" id="L699">        } catch (Exception ex) {</span>
+<span class="nc" id="L700">            System.out.println(ex.getMessage());</span>
+<span class="nc" id="L701">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L702">        }</span>
+<span class="fc" id="L703">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L704">        List&lt;DemandBean&gt; list1 = demandService.haveDemanded(prodId1);</span>
+<span class="fc" id="L705">        assertEquals(1, list1.size());</span>
+<span class="fc" id="L706">        DemandBean bean = list1.get(0);</span>
+<span class="pc bpc" id="L707" title="3 of 6 branches missed.">        assertTrue(prodId1.equals(bean.getProdId()) &amp;&amp; userId.equals(bean.getUserName()) &amp;&amp; bean.getDemandQty() == 3);</span>
+
+<span class="fc" id="L709">        List&lt;DemandBean&gt; list2 = demandService.haveDemanded(prodId2);</span>
+<span class="fc" id="L710">        assertEquals(1, list2.size());</span>
+<span class="fc" id="L711">        bean = list2.get(0);</span>
+<span class="pc bpc" id="L712" title="3 of 6 branches missed.">        assertTrue(prodId2.equals(bean.getProdId()) &amp;&amp; userId.equals(bean.getUserName()) &amp;&amp; bean.getDemandQty() == 1);</span>
+
+<span class="fc" id="L714">        List&lt;DemandBean&gt; list3 = demandService.haveDemanded(prodId3);</span>
+<span class="fc" id="L715">        assertEquals(1, list3.size());</span>
+<span class="fc" id="L716">        bean = list3.get(0);</span>
+<span class="pc bpc" id="L717" title="3 of 6 branches missed.">        assertTrue(prodId3.equals(bean.getProdId()) &amp;&amp; userId.equals(bean.getUserName()) &amp;&amp; bean.getDemandQty() == 5);</span>
+<span class="fc" id="L718">    }</span>
+
+    // Returns demands of a non-empty demands list, where multiple entries exist for multiple users
+    @Test
+    public void testHaveDemandedMultipleUsers() {
+<span class="fc" id="L723">        String prodId = &quot;P20230423082243&quot;;</span>
+<span class="fc" id="L724">        String userId1 = &quot;guest@gmail.com&quot;;</span>
+<span class="fc" id="L725">        String userId2 = &quot;admin@gmail.com&quot;;</span>
+        try {
+<span class="fc" id="L727">            assertFalse(getDemandExists(userId1, prodId));</span>
+<span class="fc" id="L728">            assertFalse(getDemandExists(userId2, prodId));</span>
+<span class="fc" id="L729">            addToUserDemands(userId1, prodId, 1);</span>
+<span class="fc" id="L730">            addToUserDemands(userId2, prodId, 1);</span>
+<span class="fc" id="L731">            assertTrue(getDemandExistsWithQuantity(userId1, prodId, 1));</span>
+<span class="fc" id="L732">            assertTrue(getDemandExistsWithQuantity(userId2, prodId, 1));</span>
+<span class="nc" id="L733">        } catch (Exception ex) {</span>
+<span class="nc" id="L734">            fail(&quot;failed setup&quot;);</span>
+<span class="fc" id="L735">        }</span>
+<span class="fc" id="L736">        DemandServiceImpl demandService = new DemandServiceImpl();</span>
+<span class="fc" id="L737">        List&lt;DemandBean&gt; list = demandService.haveDemanded(prodId);</span>
+<span class="fc" id="L738">        assertEquals(2, list.size());</span>
+<span class="fc bfc" id="L739" title="All 2 branches covered.">        for (DemandBean bean : list) {</span>
+<span class="pc bpc" id="L740" title="2 of 6 branches missed.">            if (prodId.equals(bean.getProdId()) &amp;&amp; userId1.equals(bean.getUserName()) &amp;&amp; bean.getDemandQty() == 1) {</span>
+                assert(true);
+<span class="pc bpc" id="L742" title="3 of 6 branches missed.">            } else if (prodId.equals(bean.getProdId()) &amp;&amp; userId2.equals(bean.getUserName()) &amp;&amp; bean.getDemandQty() == 1) {</span>
+                assert(true);
+            } else {
+<span class="nc" id="L745">                fail(&quot;invalid entry&quot;);</span>
+            }
+<span class="fc" id="L747">        }</span>
+<span class="fc" id="L748">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

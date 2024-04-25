@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IndexTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">test.GUITesting</a> &gt; <span class="el_source">IndexTest.java</span></div><h1>IndexTest.java</h1><pre class="source lang-java linenums">package test.GUITesting;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="nc" id="L20">class IndexTest {</span>
+    private WebDriver driver;
+    private Actions actions;
+<span class="nc" id="L23">    private String BASE_URL = &quot;http://localhost:8080/shopping_cart_war/login.jsp&quot;;</span>
+
+    @BeforeEach
+    public void setUp() {
+<span class="nc" id="L27">        System.setProperty(&quot;webdriver.chrome.driver&quot;, &quot;/Users/Kevin/Desktop/Programming/chromedriver&quot;);</span>
+<span class="nc" id="L28">        ChromeOptions options = new ChromeOptions();</span>
+<span class="nc" id="L29">        options.addArguments(&quot;--headless&quot;);</span>
+<span class="nc" id="L30">        options.addArguments(&quot;--disable-gpu&quot;);</span>
+<span class="nc" id="L31">        options.addArguments(&quot;--window-size=1920,1080&quot;);</span>
+
+<span class="nc" id="L33">        driver = new ChromeDriver(options);</span>
+<span class="nc" id="L34">        actions = new Actions(driver);</span>
+<span class="nc" id="L35">        driver.get(BASE_URL);</span>
+        // Login first
+<span class="nc" id="L37">        driver.findElement(By.name(&quot;username&quot;)).sendKeys(&quot;guest@gmail.com&quot;);</span>
+<span class="nc" id="L38">        driver.findElement(By.name(&quot;password&quot;)).sendKeys(&quot;guest&quot;);</span>
+<span class="nc" id="L39">        driver.findElement(By.cssSelector(&quot;button[type='submit'][class='btn btn-success']&quot;)).click();</span>
+<span class="nc" id="L40">    }</span>
+
+    @AfterEach
+    public void tearDown() {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (driver != null) {</span>
+<span class="nc" id="L45">            driver.quit();</span>
+        }
+<span class="nc" id="L47">    }</span>
+
+    @Test
+    void testSearch() {
+        // look for &quot;phone&quot; and hit enter, see results
+<span class="nc" id="L52">        WebElement searchInput = driver.findElement(By.name(&quot;search&quot;));</span>
+<span class="nc" id="L53">        searchInput.sendKeys(&quot;phone&quot;);</span>
+<span class="nc" id="L54">        WebElement searchButton = driver.findElement(By.cssSelector(&quot;input.btn.btn-danger[value='Search']&quot;));</span>
+<span class="nc" id="L55">        searchButton.click();</span>
+<span class="nc" id="L56">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+<span class="nc" id="L57">        assertTrue(bodyText.contains(&quot;Showing Results for 'phone'&quot;));</span>
+<span class="nc" id="L58">    }</span>
+
+    @Test
+    void testLogout() {
+        // click logout button
+<span class="nc" id="L63">        WebElement logoutButton = driver.findElement(By.cssSelector(&quot;a[href='./LogoutSrv']&quot;));</span>
+<span class="nc" id="L64">        logoutButton.click();</span>
+<span class="nc" id="L65">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+<span class="nc" id="L66">        assertTrue(bodyText.contains(&quot;Successfully Logged Out!&quot;));</span>
+<span class="nc" id="L67">    }</span>
+
+    @Test
+    void testAddToCart() {
+        // buy the first default item
+<span class="nc" id="L72">        WebElement addToCartButton = driver.findElement(By.cssSelector(&quot;button[type='submit'][formaction*='pid=P20230423082243'][class='btn btn-success']&quot;));</span>
+<span class="nc" id="L73">        addToCartButton.click();</span>
+<span class="nc" id="L74">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+<span class="nc" id="L75">        assertTrue(bodyText.contains(&quot;Product Successfully Updated to Cart!&quot;));</span>
+<span class="nc" id="L76">    }</span>
+
+    @Test
+    void testBuyNow() {
+        // buy the first default item
+<span class="nc" id="L81">        WebElement addToCartButton = driver.findElement(By.cssSelector(&quot;button[type='submit'][formaction*='pid=P20230423082243'][class='btn btn-primary']&quot;));</span>
+<span class="nc" id="L82">        addToCartButton.click();</span>
+<span class="nc" id="L83">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+<span class="nc" id="L84">        assertTrue(bodyText.contains(&quot;Product Successfully Updated to Cart!&quot;));</span>
+<span class="nc" id="L85">    }</span>
+
+    @Test
+    void testHomeIconRefresh() {
+<span class="nc" id="L89">        driver.get(BASE_URL);</span>
+<span class="nc" id="L90">        WebElement homeIcon = driver.findElement(By.cssSelector(&quot;[class='glyphicon glyphicon-home']&quot;));</span>
+<span class="nc" id="L91">        homeIcon.click();</span>
+<span class="nc" id="L92">        assertEquals(&quot;http://localhost:8080/shopping_cart_war/userHome.jsp&quot;, driver.getCurrentUrl());</span>
+<span class="nc" id="L93">    }</span>
+
+    @Test
+    void removeFromCart() {
+        // buy the first default item
+<span class="nc" id="L98">        driver.findElement(By.cssSelector(&quot;button[type='submit'][formaction*='pid=P20230423082243']&quot; +</span>
+<span class="nc" id="L99">                &quot;[class='btn btn-primary']&quot;)).click();</span>
+        // now remove
+<span class="nc" id="L101">        driver.findElement(By.cssSelector(&quot;button[type='submit'][formaction*='pid=P20230423082243']&quot; +</span>
+<span class="nc" id="L102">                &quot;[class='btn btn-danger']&quot;)).click();</span>
+
+<span class="nc" id="L104">        String bodyText = driver.findElement(By.tagName(&quot;body&quot;)).getText();</span>
+<span class="nc" id="L105">        assertTrue(bodyText.contains(&quot;Product Successfully removed from the Cart!&quot;));</span>
+<span class="nc" id="L106">    }</span>
+
+    @Test
+    void testContactUs() {
+<span class="nc" id="L110">        driver.get(BASE_URL);</span>
+<span class="nc" id="L111">        WebElement nameInput = driver.findElement(By.id(&quot;name&quot;));</span>
+<span class="nc" id="L112">        nameInput.sendKeys(&quot;John Doe&quot;);</span>
+<span class="nc" id="L113">        WebElement emailInput = driver.findElement(By.id(&quot;email&quot;));</span>
+<span class="nc" id="L114">        emailInput.sendKeys(&quot;johndoe@example.com&quot;);</span>
+<span class="nc" id="L115">        WebElement messageInput = driver.findElement(By.id(&quot;comments&quot;));</span>
+<span class="nc" id="L116">        messageInput.sendKeys(&quot;This is a test message.&quot;);</span>
+<span class="nc" id="L117">        WebElement sendButton = driver.findElement(By.cssSelector(&quot;button[class='btn pull-right']&quot;));</span>
+<span class="nc" id="L118">        sendButton.click();</span>
+        // Wait for the popup to appear
+        try {
+<span class="nc" id="L121">            Thread.sleep(2000);</span>
+<span class="nc" id="L122">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L123">            e.printStackTrace();</span>
+<span class="nc" id="L124">        }</span>
+
+<span class="nc" id="L126">        String popupMessage = driver.switchTo().alert().getText();</span>
+<span class="nc" id="L127">        assertEquals(&quot;Comments Sent Successfully&quot;, popupMessage);</span>
+<span class="nc" id="L128">    }</span>
+
+    @Test
+    void testContactUsEmptyFields() {
+<span class="nc" id="L132">        driver.get(BASE_URL);</span>
+<span class="nc" id="L133">        WebElement nameInput = driver.findElement(By.id(&quot;name&quot;));</span>
+<span class="nc" id="L134">        nameInput.sendKeys(&quot;&quot;);</span>
+<span class="nc" id="L135">        WebElement emailInput = driver.findElement(By.id(&quot;email&quot;));</span>
+<span class="nc" id="L136">        emailInput.sendKeys(&quot;johndoe@example.com&quot;);</span>
+<span class="nc" id="L137">        WebElement messageInput = driver.findElement(By.id(&quot;comments&quot;));</span>
+<span class="nc" id="L138">        messageInput.sendKeys(&quot;This is a test message.&quot;);</span>
+<span class="nc" id="L139">        WebElement sendButton = driver.findElement(By.cssSelector(&quot;button[class='btn pull-right']&quot;));</span>
+<span class="nc" id="L140">        sendButton.click();</span>
+        // look for message
+<span class="nc" id="L142">        String usernamePopupText = driver.findElement(By.id(&quot;name&quot;)).getAttribute(&quot;validationMessage&quot;);</span>
+<span class="nc" id="L143">        assertEquals(&quot;Please fill out this field.&quot;, usernamePopupText);</span>
+<span class="nc" id="L144">    }</span>
+
+    @Test
+    void testContactUsInvalidEmail() {
+<span class="nc" id="L148">        driver.get(BASE_URL);</span>
+<span class="nc" id="L149">        WebElement nameInput = driver.findElement(By.id(&quot;name&quot;));</span>
+<span class="nc" id="L150">        nameInput.sendKeys(&quot;aasdsd&quot;);</span>
+<span class="nc" id="L151">        WebElement emailInput = driver.findElement(By.id(&quot;email&quot;));</span>
+<span class="nc" id="L152">        emailInput.sendKeys(&quot;asd&quot;);</span>
+<span class="nc" id="L153">        WebElement messageInput = driver.findElement(By.id(&quot;comments&quot;));</span>
+<span class="nc" id="L154">        messageInput.sendKeys(&quot;This is a test message.&quot;);</span>
+<span class="nc" id="L155">        WebElement sendButton = driver.findElement(By.cssSelector(&quot;button[class='btn pull-right']&quot;));</span>
+<span class="nc" id="L156">        sendButton.click();</span>
+        // look for message
+<span class="nc" id="L158">        String emailPopupText = driver.findElement(By.name(&quot;email&quot;)).getAttribute(&quot;validationMessage&quot;);</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        assert(emailPopupText.contains(&quot;Please include an '@' in the email address.&quot;));</span>
+<span class="nc" id="L160">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

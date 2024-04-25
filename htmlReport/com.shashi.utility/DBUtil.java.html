@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DBUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.utility</a> &gt; <span class="el_source">DBUtil.java</span></div><h1>DBUtil.java</h1><pre class="source lang-java linenums">package com.shashi.utility;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ResourceBundle;
+
+public class DBUtil {
+	private static Connection conn;
+
+<span class="nc" id="L13">	public DBUtil() {</span>
+<span class="nc" id="L14">	}</span>
+
+	public static Connection provideConnection() {
+
+		try {
+<span class="pc bpc" id="L19" title="1 of 4 branches missed.">			if (conn == null || conn.isClosed()) {</span>
+<span class="fc" id="L20">				ResourceBundle rb = ResourceBundle.getBundle(&quot;application&quot;);</span>
+<span class="fc" id="L21">				String connectionString = rb.getString(&quot;db.connectionString&quot;);</span>
+<span class="fc" id="L22">				String driverName = rb.getString(&quot;db.driverName&quot;);</span>
+<span class="fc" id="L23">				String username = rb.getString(&quot;db.username&quot;);</span>
+<span class="fc" id="L24">				String password = rb.getString(&quot;db.password&quot;);</span>
+				try {
+<span class="fc" id="L26">					Class.forName(driverName);</span>
+<span class="nc" id="L27">				} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L28">					e.printStackTrace();</span>
+<span class="fc" id="L29">				}</span>
+<span class="fc" id="L30">				conn = DriverManager.getConnection(connectionString, username, password);</span>
+
+			}
+<span class="nc" id="L33">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L35">			e.printStackTrace();</span>
+<span class="fc" id="L36">		}</span>
+
+<span class="fc" id="L38">		return conn;</span>
+	}
+
+	public static void closeConnection(Connection con) {
+		/*
+		 * try { if (con != null &amp;&amp; !con.isClosed()) {
+		 * 
+		 * con.close(); } } catch (SQLException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 */
+<span class="fc" id="L48">	}</span>
+
+	public static void closeConnection(ResultSet rs) {
+		try {
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">			if (rs != null &amp;&amp; !rs.isClosed()) {</span>
+				try {
+<span class="nc" id="L54">					rs.close();</span>
+<span class="nc" id="L55">				} catch (SQLException e) {</span>
+					// TODO Auto-generated catch block
+<span class="nc" id="L57">					e.printStackTrace();</span>
+<span class="nc" id="L58">				}</span>
+			}
+<span class="nc" id="L60">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L62">			e.printStackTrace();</span>
+<span class="fc" id="L63">		}</span>
+<span class="fc" id="L64">	}</span>
+
+	public static void closeConnection(PreparedStatement ps) {
+		try {
+<span class="fc bfc" id="L68" title="All 4 branches covered.">			if (ps != null &amp;&amp; !ps.isClosed()) {</span>
+				try {
+<span class="fc" id="L70">					ps.close();</span>
+<span class="nc" id="L71">				} catch (SQLException e) {</span>
+					// TODO Auto-generated catch block
+<span class="nc" id="L73">					e.printStackTrace();</span>
+<span class="fc" id="L74">				}</span>
+			}
+<span class="nc" id="L76">		} catch (SQLException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L78">			e.printStackTrace();</span>
+<span class="fc" id="L79">		}</span>
+<span class="fc" id="L80">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

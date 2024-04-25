@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateProductSrv.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Unnamed Coverage Results</a> &gt; <a href="index.source.html" class="el_package">com.shashi.srv</a> &gt; <span class="el_source">UpdateProductSrv.java</span></div><h1>UpdateProductSrv.java</h1><pre class="source lang-java linenums">package com.shashi.srv;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.shashi.beans.ProductBean;
+import com.shashi.service.impl.ProductServiceImpl;
+
+/**
+ * Servlet implementation class UpdateProductSrv
+ */
+@WebServlet(&quot;/UpdateProductSrv&quot;)
+public class UpdateProductSrv extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	public UpdateProductSrv() {
+<span class="nc" id="L24">		super();</span>
+
+<span class="nc" id="L26">	}</span>
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L31">		HttpSession session = request.getSession();</span>
+<span class="nc" id="L32">		String userType = (String) session.getAttribute(&quot;usertype&quot;);</span>
+<span class="nc" id="L33">		String userName = (String) session.getAttribute(&quot;username&quot;);</span>
+<span class="nc" id="L34">		String password = (String) session.getAttribute(&quot;password&quot;);</span>
+
+<span class="nc bnc" id="L36" title="All 4 branches missed.">		if (userType == null || !userType.equals(&quot;admin&quot;)) {</span>
+
+<span class="nc" id="L38">			response.sendRedirect(&quot;login.jsp?message=Access Denied, Login As Admin!!&quot;);</span>
+<span class="nc" id="L39">			return;</span>
+
+<span class="nc bnc" id="L41" title="All 4 branches missed.">		} else if (userName == null || password == null) {</span>
+
+<span class="nc" id="L43">			response.sendRedirect(&quot;login.jsp?message=Session Expired, Login Again!!&quot;);</span>
+<span class="nc" id="L44">			return;</span>
+		}
+
+		// Login success
+
+<span class="nc" id="L49">		String prodId = request.getParameter(&quot;pid&quot;);</span>
+<span class="nc" id="L50">		String prodName = request.getParameter(&quot;name&quot;);</span>
+<span class="nc" id="L51">		String prodType = request.getParameter(&quot;type&quot;);</span>
+<span class="nc" id="L52">		String prodInfo = request.getParameter(&quot;info&quot;);</span>
+<span class="nc" id="L53">		Double prodPrice = Double.parseDouble(request.getParameter(&quot;price&quot;));</span>
+<span class="nc" id="L54">		Integer prodQuantity = Integer.parseInt(request.getParameter(&quot;quantity&quot;));</span>
+
+<span class="nc" id="L56">		ProductBean product = new ProductBean();</span>
+<span class="nc" id="L57">		product.setProdId(prodId);</span>
+<span class="nc" id="L58">		product.setProdName(prodName);</span>
+<span class="nc" id="L59">		product.setProdInfo(prodInfo);</span>
+<span class="nc" id="L60">		product.setProdPrice(prodPrice);</span>
+<span class="nc" id="L61">		product.setProdQuantity(prodQuantity);</span>
+<span class="nc" id="L62">		product.setProdType(prodType);</span>
+
+<span class="nc" id="L64">		ProductServiceImpl dao = new ProductServiceImpl();</span>
+
+<span class="nc" id="L66">		String status = dao.updateProductWithoutImage(prodId, product);</span>
+
+<span class="nc" id="L68">		RequestDispatcher rd = request</span>
+<span class="nc" id="L69">				.getRequestDispatcher(&quot;updateProduct.jsp?prodid=&quot; + prodId + &quot;&amp;message=&quot; + status);</span>
+<span class="nc" id="L70">		rd.forward(request, response);</span>
+
+<span class="nc" id="L72">	}</span>
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+<span class="nc" id="L77">		doGet(request, response);</span>
+<span class="nc" id="L78">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
